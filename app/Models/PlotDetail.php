@@ -40,4 +40,9 @@ class PlotDetail extends Model
     {
         return $this->belongsTo(PlotType::class);
     }
+
+    public function plotSale()
+    {
+        return $this->hasOne(PlotSaleDetail::class);
+    }
 }

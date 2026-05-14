@@ -15,10 +15,13 @@ use App\Http\Controllers\DirectAssociateController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\PlcRateController;
 use App\Http\Controllers\PlotDetailController;
+use App\Http\Controllers\PlotPaymentController;
 use App\Http\Controllers\PlotRateController;
+use App\Http\Controllers\PlotRegistryController;
 use App\Http\Controllers\PlotTypeController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectManipulationController;
+use App\Http\Controllers\ReceiptReprintController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -84,4 +87,36 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::get('edit-plot-booking', [CustomerListController::class, 'editPlotBooking'])->name('edit-plot-booking.index');
     Route::get('/get-blocks/{projectId}', [CustomerBookingController::class, 'getBlocks']);
     Route::get('/get-plots/{blockId}/{customerId?}', [CustomerBookingController::class, 'getPlots']);
+
+    Route::controller(PlotPaymentController::class)->group(function () {
+        Route::get('edit-payment-details', 'index')->name('edit-payment-details.index');
+        Route::get('edit-payment-details/{id}/edit', 'edit')->name('edit-payment-details.edit');
+        Route::put('edit-payment-details/{id}', 'update')->name('edit-payment-details.update');
+    });
+    Route::controller(PlotRegistryController::class)->group(function () {
+        Route::get('/plot-registry', 'index')->name('plot-registry.index');
+        Route::post('/plot-registry', 'store')->name('plot-registry.store');
+        Route::get('/plot-registry/blocks/{project}', 'getBlocks')->name('plot-registry.blocks');
+        Route::get('/plot-registry/plots/{block}', 'getPlots')->name('plot-registry.plots');
+        Route::get('/plot-registry/booking/{plot}', 'getBookingData')->name('plot-registry.booking');
+    });
+
+    Route::get(
+        '/receipt-reprint',
+        [ReceiptReprintController::class, 'index']
+    )->name('receipt-reprint.index');
+
+    Route::post(
+        '/receipt-reprint/search',
+        [ReceiptReprintController::class, 'search']
+    )->name('receipt-reprint.search');
+
+    Route::get(
+        '/receipt-reprint/download/{payment}',
+        [ReceiptReprintController::class, 'download']
+    )->name('receipt-reprint.download');
+    Route::get(
+        '/receipt-reprint/customers/{plot}',
+        [ReceiptReprintController::class, 'getCustomersByPlot']
+    )->name('receipt-reprint.customers');
 });

@@ -253,6 +253,96 @@ class ModuleSeeder extends Seeder
                 'icon' => 'bi bi-cash-stack',
             ],
 
+            // Parent Module
+            [
+                'name' => 'Payment',
+                'slug' => 'payment',
+                'icon' => 'bi bi-wallet2',
+            ],
+
+            // Child Modules
+
+            [
+                'name' => 'Receipt Reprint',
+                'slug' => 'receipt-reprint',
+                'parent_slug' => 'payment',
+                'route_name' => 'admin.receipt-reprint.index',
+                'active_routes' => 'admin.receipt-reprint*',
+                'icon' => 'bi bi-receipt',
+            ],
+
+            [
+                'name' => 'One Time Payment',
+                'slug' => 'one-time-payment',
+                'parent_slug' => 'payment',
+                'route_name' => 'admin.one-time-payment.index',
+                'active_routes' => 'admin.one-time-payment*',
+                'icon' => 'bi bi-cash',
+            ],
+
+            [
+                'name' => 'EMI Payment',
+                'slug' => 'emi-payment',
+                'parent_slug' => 'payment',
+                'route_name' => 'admin.emi-payment.index',
+                'active_routes' => 'admin.emi-payment*',
+                'icon' => 'bi bi-calendar-check',
+            ],
+
+            [
+                'name' => 'Cheque Clearance',
+                'slug' => 'cheque-clearance',
+                'parent_slug' => 'payment',
+                'route_name' => 'admin.cheque-clearance.index',
+                'active_routes' => 'admin.cheque-clearance*',
+                'icon' => 'bi bi-bank',
+            ],
+
+            [
+                'name' => 'Multiple Cheque Clearance',
+                'slug' => 'multiple-cheque-clearance',
+                'parent_slug' => 'payment',
+                'route_name' => 'admin.multiple-cheque-clearance.index',
+                'active_routes' => 'admin.multiple-cheque-clearance*',
+                'icon' => 'bi bi-files',
+            ],
+
+            [
+                'name' => 'Edit Payment Detail',
+                'slug' => 'payment-edit',
+                'parent_slug' => 'payment',
+                'route_name' => 'admin.edit-payment-details.index',
+                'active_routes' => 'admin.edit-payment-details*',
+                'icon' => 'bi bi-pencil-square',
+            ],
+
+            [
+                'name' => 'Update EMI Date',
+                'slug' => 'update-emi-date',
+                'parent_slug' => 'payment',
+                'route_name' => 'admin.update-emi-date.index',
+                'active_routes' => 'admin.update-emi-date*',
+                'icon' => 'bi bi-calendar-event',
+            ],
+
+            [
+                'name' => 'Associate Advance',
+                'slug' => 'associate-advance',
+                'parent_slug' => 'payment',
+                'route_name' => 'admin.associate-advance.index',
+                'active_routes' => 'admin.associate-advance*',
+                'icon' => 'bi bi-person-badge',
+            ],
+
+            [
+                'name' => 'Generate EMI',
+                'slug' => 'generate-emi',
+                'parent_slug' => 'payment',
+                'route_name' => 'admin.generate-emi.index',
+                'active_routes' => 'admin.generate-emi*',
+                'icon' => 'bi bi-gear',
+            ],
+
         ];
         foreach ($modules as $module) {
             $parentId = null;
