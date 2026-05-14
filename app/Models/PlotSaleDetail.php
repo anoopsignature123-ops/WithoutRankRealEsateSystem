@@ -44,6 +44,4 @@ class PlotSaleDetail extends Model
     {
         return $this->belongsTo(PlotDetail::class);
     }
-
-     
 }

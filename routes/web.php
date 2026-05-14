@@ -12,7 +12,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DesignationRankController;
 use App\Http\Controllers\DevelopmentController;
 use App\Http\Controllers\DirectAssociateController;
+use App\Http\Controllers\EmiPaymentController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\OneTimePaymentController;
 use App\Http\Controllers\PlcRateController;
 use App\Http\Controllers\PlotDetailController;
 use App\Http\Controllers\PlotPaymentController;
@@ -101,22 +103,25 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
         Route::get('/plot-registry/booking/{plot}', 'getBookingData')->name('plot-registry.booking');
     });
 
-    Route::get(
-        '/receipt-reprint',
-        [ReceiptReprintController::class, 'index']
-    )->name('receipt-reprint.index');
+    Route::controller(ReceiptReprintController::class)->group(function () {
+        Route::get('/receipt-reprint', 'index')->name('receipt-reprint.index');
+        Route::post('/receipt-reprint/search', 'search')->name('receipt-reprint.search');
+        Route::get('/receipt-reprint/download/{payment}', 'download')->name('receipt-reprint.download');
+        Route::get('/receipt-reprint/customers/{plot}', 'getCustomersByPlot')->name('receipt-reprint.customers');
+    });
+    Route::controller(OneTimePaymentController::class)->group(function () {
+        Route::get('/one-time-payment', 'index')->name('one-time-payment.index');
+        Route::post('/one-time-payment', 'store')->name('one-time-payment.store');
+        Route::get('/one-time-payment/blocks/{project}', 'getBlocks')->name('one-time-payment.blocks');
+        Route::get('/one-time-payment/plots/{block}', 'getPlots')->name('one-time-payment.plots');
+        Route::get('/one-time-payment/details/{plot}', 'getBookingDetails')->name('one-time-payment.details');
+    });
 
-    Route::post(
-        '/receipt-reprint/search',
-        [ReceiptReprintController::class, 'search']
-    )->name('receipt-reprint.search');
-
-    Route::get(
-        '/receipt-reprint/download/{payment}',
-        [ReceiptReprintController::class, 'download']
-    )->name('receipt-reprint.download');
-    Route::get(
-        '/receipt-reprint/customers/{plot}',
-        [ReceiptReprintController::class, 'getCustomersByPlot']
-    )->name('receipt-reprint.customers');
+    Route::controller(EmiPaymentController::class)->group(function () {
+        Route::get('/emi-payment', 'index')->name('emi-payment.index');
+        Route::get('/emi-payment/blocks/{id}', 'getBlocks')->name('emi-payment.blocks');
+        Route::get('/emi-payment/plots/{id}', 'getPlots')->name('emi-payment.plots');
+        Route::get('/emi-payment/details/{id}', 'getBookingDetails')->name('emi-payment.details');
+        Route::post('/emi-payment/store', 'store')->name('emi-payment.store');
+    });
 });

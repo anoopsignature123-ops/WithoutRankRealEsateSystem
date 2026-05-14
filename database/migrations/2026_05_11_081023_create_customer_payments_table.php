@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('customer_booking_id')->constrained('customer_bookings')->cascadeOnDelete();
             $table->foreignId('plot_sale_detail_id')->nullable()->constrained('plot_sale_details')->nullOnDelete();
             $table->string('receipt_number')->nullable();
+            $table->string('manual_receipt_number')->nullable();
             $table->enum('plan_type', ['full_payment', 'emi_plan'])->nullable();
             $table->string('booking_amount')->nullable();
             $table->string('due_amount')->nullable();

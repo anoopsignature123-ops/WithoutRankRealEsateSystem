@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\PlotSaleDetail;
 
 class CustomerPayment extends Model
 {
@@ -27,6 +26,7 @@ class CustomerPayment extends Model
         'cheque_date',
         'dd_number',
         'transaction_number',
+        'manual_receipt_number',
     ];
 
     public function customerBooking()

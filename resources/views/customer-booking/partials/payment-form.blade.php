@@ -207,7 +207,7 @@
             <div class="col-md-6 mb-3 instrument-field d-none">
 
                 <label class="form-label fw-semibold">
-                    Instrument Date
+                    Cheque Date
                 </label>
 
                 <input type="date" name="cheque_date" class="form-control"

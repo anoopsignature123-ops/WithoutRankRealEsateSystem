@@ -45,4 +45,12 @@ class PlotDetail extends Model
     {
         return $this->hasOne(PlotSaleDetail::class);
     }
+
+    public function plotSaleDetail()
+    {
+        return $this->hasOne(
+            PlotSaleDetail::class,
+            'plot_detail_id'
+        );
+    }
 }

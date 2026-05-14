@@ -89,50 +89,142 @@
                 $('#paymentSummaryBody').html(summary);
             }
 
-            function calculateAmounts() {
-                let booking = parseFloat($('#bookingAmount').val()) || 0;
-                let totalPlot = parseFloat($('#totalPlotCost').val()) || 0;
-                let plan = $('#planType').val();
+            // function calculateAmounts() {
+            //     let booking = parseFloat($('#bookingAmount').val()) || 0;
+            //     let totalPlot = parseFloat($('#totalPlotCost').val()) || 0;
+            //     let plan = $('#planType').val();
 
-                if (plan == 'full_payment') {
-                    booking = totalPlot;
-                    $('#bookingAmount').val(totalPlot.toFixed(2));
-                    $('#bookingAmount').prop('readonly', true);
-                } else {
-                    $('#bookingAmount').prop('readonly', false);
-                }
+            //     if (plan == 'full_payment') {
+            //         booking = totalPlot;
+            //         $('#bookingAmount').val(totalPlot.toFixed(2));
+            //         $('#bookingAmount').prop('readonly', true);
+            //     } else {
+            //         $('#bookingAmount').prop('readonly', false);
+            //     }
+
+            //     if (booking > totalPlot) {
+            //         Swal.fire({
+            //             icon: 'warning',
+            //             title: 'Invalid amount',
+            //             text: 'Booking amount cannot exceed total payable amount.',
+            //         });
+            //         booking = totalPlot;
+            //         $('#bookingAmount').val(totalPlot.toFixed(2));
+            //     }
+
+            //     let due = totalPlot - booking;
+            //     if (due < 0) {
+            //         due = 0;
+            //     }
+            //     $('#dueAmount').val(due.toFixed(2));
+
+            //     if (plan == 'full_payment') {
+            //         $('#netPayable').val(due.toFixed(2));
+            //     }
+
+            //     if (plan == 'emi_plan') {
+            //         let emiMonths = parseInt($('#emiMonths').val()) || 0;
+            //         if (emiMonths > 0) {
+            //             let emiAmount = due / emiMonths;
+            //             $('#afterBookingAmount').val(emiAmount.toFixed(2));
+            //         } else {
+            //             $('#afterBookingAmount').val('0.00');
+            //         }
+            //     }
+
+            //     updatePaymentSummary();
+            // }
+
+            function calculateAmounts() {
+
+                let totalPlot =
+                    parseFloat(
+                        $('#totalPlotCost').val()
+                    ) || 0;
+
+                let booking =
+                    parseFloat(
+                        $('#bookingAmount').val()
+                    ) || 0;
+
+                let plan =
+                    $('#planType').val();
+
+
+                $('#bookingAmount')
+                    .prop('readonly', false);
+
 
                 if (booking > totalPlot) {
+
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Invalid amount',
-                        text: 'Booking amount cannot exceed total payable amount.',
+                        title: 'Invalid Amount',
+                        text: 'Amount cannot exceed total plot cost'
                     });
+
                     booking = totalPlot;
-                    $('#bookingAmount').val(totalPlot.toFixed(2));
+
+                    $('#bookingAmount')
+                        .val(totalPlot.toFixed(2));
                 }
 
-                let due = totalPlot - booking;
+
+                let due =
+                    totalPlot - booking;
+
+
                 if (due < 0) {
                     due = 0;
                 }
-                $('#dueAmount').val(due.toFixed(2));
 
+
+                $('#dueAmount')
+                    .val(due.toFixed(2));
+
+
+
+                // Full payment
                 if (plan == 'full_payment') {
-                    $('#netPayable').val(due.toFixed(2));
+
+                    $('#netPayable')
+                        .val(due.toFixed(2));
                 }
 
+
+
+                // EMI plan
                 if (plan == 'emi_plan') {
-                    let emiMonths = parseInt($('#emiMonths').val()) || 0;
-                    if (emiMonths > 0) {
-                        let emiAmount = due / emiMonths;
-                        $('#afterBookingAmount').val(emiAmount.toFixed(2));
+
+                    let months =
+                        parseInt(
+                            $('#emiMonths').val()
+                        ) || 0;
+
+
+                    if (months > 0) {
+
+                        let emiAmount =
+                            due / months;
+
+
+                        $('#afterBookingAmount')
+                            .val(
+                                emiAmount.toFixed(2)
+                            );
+
                     } else {
-                        $('#afterBookingAmount').val('0.00');
+
+                        $('#afterBookingAmount')
+                            .val('0.00');
+
                     }
+
                 }
+
 
                 updatePaymentSummary();
+
             }
 
             function loadPaymentFields() {
