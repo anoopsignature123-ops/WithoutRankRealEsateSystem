@@ -14,28 +14,10 @@ class AssociateAdvanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-
-            'associate_id' => [
-                'required',
-                'exists:associates,id',
-            ],
-
-            'advance_amount' => [
-                'required',
-                'numeric',
-                'min:1',
-            ],
-
-            'advance_date' => [
-                'required',
-                'date',
-            ],
-
-            'remarks' => [
-                'nullable',
-                'string',
-            ],
-
+            'associate_id' => ['required', 'exists:associates,id'],
+            'advance_amount' => ['required', 'numeric', 'min:1'],
+            'advance_date' => ['required', 'date'],
+            'remarks' => ['nullable', 'string'],
         ];
     }
 }

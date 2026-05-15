@@ -9,31 +9,13 @@ class CustomerListService
     // Customer list page
     public function getAllCustomers()
     {
-        return CustomerBooking::with([
-            'primaryDetail.correspondenceDetail',
-            'parentCustomer',
-        ])
-            ->whereNotNull('customer_id')
-            ->latest()
-            ->get()
-
-            // Same customer ek hi row me
-            ->groupBy('customer_id')
-
-            ->map(function ($group) {
-
-                $customer = $group->first();
-
-                // kitni baar booking hui
+        return CustomerBooking::with(['primaryDetail.correspondenceDetail','parentCustomer',])
+            ->whereNotNull('customer_id')->latest()->get()->groupBy('customer_id')
+            ->map(function ($group) {$customer = $group->first();
                 $customer->total_bookings = $group->count();
-
                 return $customer;
-
-            })
-            ->values();
+            })->values();
     }
-
-    // Edit Plot Booking page
     public function getPlotBookingList()
     {
         return CustomerBooking::with([
@@ -44,10 +26,6 @@ class CustomerListService
             'plotSaleDetail.block',
             'plotSaleDetail.plotDetail',
             'payment',
-        ])
-            ->whereHas('plotSaleDetail')
-            ->whereNotNull('booking_code')
-            ->latest()
-            ->get();
+        ])->whereHas('plotSaleDetail')->whereNotNull('booking_code')->latest()->get();
     }
 }

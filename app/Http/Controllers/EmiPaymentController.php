@@ -23,26 +23,22 @@ class EmiPaymentController extends Controller
     public function index()
     {
         $projects = Project::latest()->get();
-
         return view('payment.emi-payment.index', compact('projects'));
     }
 
     public function getBlocks(int $projectId): JsonResponse
     {
         $blocks = Block::where('project_id', $projectId)->orderBy('block')->get(['id', 'block']);
-
         return response()->json(['status' => true, 'data' => $blocks]);
     }
 
     public function getPlots(int $blockId): JsonResponse
     {
-        $plots = PlotDetail::where('block_id', $blockId)->whereHas('plotSaleDetail.customerBooking.payments',
-            function ($query) {
+        $plots = PlotDetail::where('block_id', $blockId)
+            ->whereHas('plotSaleDetail.customerBooking.payments', function ($query) {
                 $query->where('plan_type', 'emi_plan');
-            }
-        )
+            })
             ->orderBy('plot_number')->get(['id', 'plot_number']);
-
         return response()->json($plots);
     }
 
@@ -51,14 +47,15 @@ class EmiPaymentController extends Controller
         $booking = CustomerBooking::with(['primaryDetail', 'plotSaleDetail', 'payments'])
             ->whereHas('plotSaleDetail', function ($query) use ($plotId) {
                 $query->where('plot_detail_id', $plotId);
-            }
-            )
+            })
             ->whereHas('payments', function ($query) {
                 $query->where('plan_type', 'emi_plan');
             })->first();
-        if (! $booking) {
+
+        if (!$booking) {
             return response()->json(['status' => false]);
         }
+
         $saleDetail = $booking->plotSaleDetail;
         $payments = $booking->payments->where('plan_type', 'emi_plan');
         $firstPayment = $payments->first();
@@ -69,6 +66,7 @@ class EmiPaymentController extends Controller
         $monthlyEmi = round($totalCost / $emiMonths, 2);
         $emiStartDate = '-';
         $monthsPassed = 1;
+
         if ($firstPayment?->created_at) {
             $startDate = Carbon::parse($firstPayment->created_at);
             $emiStartDate = $startDate->format('d-M-Y');
@@ -77,6 +75,7 @@ class EmiPaymentController extends Controller
                 $monthsPassed = $emiMonths;
             }
         }
+
         $history = $payments->map(function ($payment) {
             return [
                 'receipt_no' => $payment->receipt_number,
@@ -84,8 +83,7 @@ class EmiPaymentController extends Controller
                 'amount' => $payment->booking_amount,
                 'mode' => strtoupper($payment->payment_mode),
             ];
-        }
-        );
+        });
 
         return response()->json([
             'status' => true,
@@ -109,7 +107,6 @@ class EmiPaymentController extends Controller
     public function store(EmiPaymentRequest $request)
     {
         $this->service->store($request->validated());
-
         return back()->with('success', 'EMI Payment Added Successfully');
     }
 }

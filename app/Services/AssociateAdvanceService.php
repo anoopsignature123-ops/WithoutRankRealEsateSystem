@@ -14,46 +14,30 @@ class AssociateAdvanceService
 
     public function getAll()
     {
-        return AssociateAdvance::with(
-            'associate'
-        )->latest()->get();
+        return AssociateAdvance::with('associate')->latest()->get();
     }
 
     public function findById($id)
     {
-        return AssociateAdvance::findOrFail(
-            $id
-        );
+        return AssociateAdvance::findOrFail($id);
     }
 
     public function store(array $data)
     {
-        return AssociateAdvance::create(
-            $data
-        );
+        return AssociateAdvance::create($data);
     }
 
     public function update($id, array $data)
     {
-        $advance = $this->findById(
-            $id
-        );
-
-        $advance->update(
-            $data
-        );
-
+        $advance = $this->findById($id);
+        $advance->update($data);
         return $advance;
     }
 
     public function delete($id)
     {
-        $advance = $this->findById(
-            $id
-        );
-
+        $advance = $this->findById($id);
         $advance->delete();
-
         return true;
     }
 }

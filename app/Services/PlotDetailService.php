@@ -46,21 +46,10 @@ class PlotDetailService
     public function update($id, array $data)
     {
         $plot = $this->find($id);
-        $block = Block::findOrFail(
-            $data['block_id']
-        );
-
-        $plotNumber = preg_replace(
-            '/^[A-Z]+-/',
-            '',
-            $data['plot_number']
-        );
-
-        $data['plot_number'] =
-            $block->block.'-'.$plotNumber;
-
+        $block = Block::findOrFail($data['block_id']);
+        $plotNumber = preg_replace('/^[A-Z]+-/','',$data['plot_number']);
+        $data['plot_number'] =$block->block.'-'.$plotNumber;
         $plot->update($data);
-
         return $plot;
     }
 

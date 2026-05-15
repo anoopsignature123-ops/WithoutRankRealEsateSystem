@@ -34,7 +34,9 @@ class CustomerBookingService
 
     public function getCustomers()
     {
-        return CustomerBooking::select('id', 'customer_code', 'customer_name')->whereNotNull('customer_code')->get();
+        return CustomerBooking::select('id', 'customer_code', 'customer_name')
+            ->whereNotNull('customer_code')
+            ->get();
     }
 
     public function findById($id)
@@ -62,104 +64,98 @@ class CustomerBookingService
     public function storeStepOne(array $data, $customerId = null)
     {
         $customerCode = null;
-        if (! $customerId) {
+        if (!$customerId) {
             $lastId = CustomerBooking::max('id') + 1;
-            $customerCode = 'CUST-'.str_pad($lastId, 4, '0', STR_PAD_LEFT);
+            $customerCode = 'CUST-' . str_pad($lastId, 4, '0', STR_PAD_LEFT);
         }
 
-        return CustomerBooking::updateOrCreate(['id' => $customerId],
-            [
-                'associate_id' => $data['associate_id'] ?? null,
-                'customer_type' => $data['customer_type'] ?? null,
-                'customer_id' => $data['existing_customer_id'] ?? null,
-                'customer_code' => $customerCode ?? CustomerBooking::find($customerId)?->customer_code,
-                'associate_code' => $data['associate_code'] ?? null,
-                'associate_name' => $data['associate_name'] ?? null,
-                'current_step' => 2,
-                'status' => 'draft',
-            ]
-        );
+        return CustomerBooking::updateOrCreate(['id' => $customerId], [
+            'associate_id' => $data['associate_id'] ?? null,
+            'customer_type' => $data['customer_type'] ?? null,
+            'customer_id' => $data['existing_customer_id'] ?? null,
+            'customer_code' => $customerCode ?? CustomerBooking::find($customerId)?->customer_code,
+            'associate_code' => $data['associate_code'] ?? null,
+            'associate_name' => $data['associate_name'] ?? null,
+            'current_step' => 2,
+            'status' => 'draft',
+        ]);
     }
 
     public function storeStepTwo($customerId, array $data)
     {
+        $primary = PrimaryDetail::updateOrCreate(['customer_booking_id' => $customerId], [
+            'name' => $data['name'],
+            'title' => $data['title'],
+            'relation_name' => $data['relation_name'],
+            'dob' => $data['dob'],
+            'gender' => $data['gender'],
+            'permanent_address' => $data['permanent_address'],
+            'pin_code' => $data['pin_code'],
+            'city' => $data['city'],
+            'state' => $data['state'],
+            'fill_secondary_detail' => $data['fill_secondary_detail'],
+        ]);
 
-        $primary = PrimaryDetail::updateOrCreate(['customer_booking_id' => $customerId],
-            [
-                'name' => $data['name'],
-                'title' => $data['title'],
-                'relation_name' => $data['relation_name'],
-                'dob' => $data['dob'],
-                'gender' => $data['gender'],
-                'permanent_address' => $data['permanent_address'],
-                'pin_code' => $data['pin_code'],
-                'city' => $data['city'],
-                'state' => $data['state'],
-                'fill_secondary_detail' => $data['fill_secondary_detail'],
-            ]
-        );
-        CorrespondenceDetail::updateOrCreate(['primary_detail_id' => $primary->id],
-            [
-                'correspondence_address' => $data['correspondence_address'],
-                'pin_code' => $data['pin_code'],
-                'city' => $data['city'],
-                'state' => $data['state'],
-                'telephone_no' => $data['telephone_no'] ?? null,
-                'email' => $data['email'] ?? null,
-            ]
-        );
+        CorrespondenceDetail::updateOrCreate(['primary_detail_id' => $primary->id], [
+            'correspondence_address' => $data['correspondence_address'],
+            'pin_code' => $data['pin_code'],
+            'city' => $data['city'],
+            'state' => $data['state'],
+            'telephone_no' => $data['telephone_no'] ?? null,
+            'email' => $data['email'] ?? null,
+        ]);
+
         if ($data['fill_secondary_detail'] == 'yes') {
-            $secondary = SecondaryDetail::updateOrCreate(['customer_booking_id' => $customerId],
-                [
-                    'name' => $data['secondary_name'],
-                    'title' => $data['secondary_title'],
-                    'relation_name' => $data['secondary_relation_name'],
-                    'dob' => $data['secondary_dob'],
-                    'gender' => $data['secondary_gender'],
-                    'permanent_address' => $data['secondary_permanent_address'],
-                    'pin_code' => $data['secondary_pin_code'],
-                    'city' => $data['secondary_city'],
-                    'state' => $data['secondary_state'],
-                ]
-            );
-            CorrespondenceDetail::updateOrCreate(['secondary_detail_id' => $secondary->id],
-                [
-                    'correspondence_address' => $data['secondary_correspondence_address'],
-                    'pin_code' => $data['secondary_pin_code'],
-                    'city' => $data['secondary_city'],
-                    'state' => $data['secondary_state'],
-                    'telephone_no' => $data['secondary_telephone_no'] ?? null,
-                    'email' => $data['secondary_email'] ?? null,
-                ]
-            );
+            $secondary = SecondaryDetail::updateOrCreate(['customer_booking_id' => $customerId], [
+                'name' => $data['secondary_name'],
+                'title' => $data['secondary_title'],
+                'relation_name' => $data['secondary_relation_name'],
+                'dob' => $data['secondary_dob'],
+                'gender' => $data['secondary_gender'],
+                'permanent_address' => $data['secondary_permanent_address'],
+                'pin_code' => $data['secondary_pin_code'],
+                'city' => $data['secondary_city'],
+                'state' => $data['secondary_state'],
+            ]);
+
+            CorrespondenceDetail::updateOrCreate(['secondary_detail_id' => $secondary->id], [
+                'correspondence_address' => $data['secondary_correspondence_address'],
+                'pin_code' => $data['secondary_pin_code'],
+                'city' => $data['secondary_city'],
+                'state' => $data['secondary_state'],
+                'telephone_no' => $data['secondary_telephone_no'] ?? null,
+                'email' => $data['secondary_email'] ?? null,
+            ]);
         } else {
             SecondaryDetail::where('customer_booking_id', $customerId)->delete();
         }
+
         CustomerBooking::where('id', $customerId)->update(['current_step' => 3]);
     }
 
     public function storeStepThree($customerId, $request)
     {
         $primary = PrimaryDetail::where('customer_booking_id', $customerId)->first();
+
         $dlFile = uploadFile($request->file('dl_file'), 'customer-documents');
         $aadharFile = uploadFile($request->file('aadhar_file'), 'customer-documents');
         $voterFile = uploadFile($request->file('voter_id_file'), 'customer-documents');
         $otherFile = uploadFile($request->file('other_file'), 'customer-documents');
         $profilePic = uploadFile($request->file('profile_picture'), 'customer-documents');
-        CustomerDocument::updateOrCreate(['primary_detail_id' => $primary->id],
-            [
-                'secondary_detail_id' => null,
-                'dl' => $request->has('dl'),
-                'aadhar' => $request->has('aadhar'),
-                'voter_id' => $request->has('voter_id'),
-                'other' => $request->has('other'),
-                'dl_file' => $dlFile,
-                'aadhar_file' => $aadharFile,
-                'voter_id_file' => $voterFile,
-                'other_file' => $otherFile,
-                'profile_picture' => $profilePic,
-            ]
-        );
+
+        CustomerDocument::updateOrCreate(['primary_detail_id' => $primary->id], [
+            'secondary_detail_id' => null,
+            'dl' => $request->has('dl'),
+            'aadhar' => $request->has('aadhar'),
+            'voter_id' => $request->has('voter_id'),
+            'other' => $request->has('other'),
+            'dl_file' => $dlFile,
+            'aadhar_file' => $aadharFile,
+            'voter_id_file' => $voterFile,
+            'other_file' => $otherFile,
+            'profile_picture' => $profilePic,
+        ]);
+
         $secondary = SecondaryDetail::where('customer_booking_id', $customerId)->first();
         if ($secondary) {
             $secondaryDl = uploadFile($request->file('secondary_dl_file'), 'customer-documents');
@@ -167,21 +163,21 @@ class CustomerBookingService
             $secondaryVoter = uploadFile($request->file('secondary_voter_id_file'), 'customer-documents');
             $secondaryOther = uploadFile($request->file('secondary_other_file'), 'customer-documents');
             $secondaryProfile = uploadFile($request->file('secondary_profile_picture'), 'customer-documents');
-            CustomerDocument::updateOrCreate(['secondary_detail_id' => $secondary->id],
-                [
-                    'primary_detail_id' => null,
-                    'dl' => $request->has('secondary_dl'),
-                    'aadhar' => $request->has('secondary_aadhar'),
-                    'voter_id' => $request->has('secondary_voter_id'),
-                    'other' => $request->has('secondary_other'),
-                    'dl_file' => $secondaryDl,
-                    'aadhar_file' => $secondaryAadhar,
-                    'voter_id_file' => $secondaryVoter,
-                    'other_file' => $secondaryOther,
-                    'profile_picture' => $secondaryProfile,
-                ]
-            );
+
+            CustomerDocument::updateOrCreate(['secondary_detail_id' => $secondary->id], [
+                'primary_detail_id' => null,
+                'dl' => $request->has('secondary_dl'),
+                'aadhar' => $request->has('secondary_aadhar'),
+                'voter_id' => $request->has('secondary_voter_id'),
+                'other' => $request->has('secondary_other'),
+                'dl_file' => $secondaryDl,
+                'aadhar_file' => $secondaryAadhar,
+                'voter_id_file' => $secondaryVoter,
+                'other_file' => $secondaryOther,
+                'profile_picture' => $secondaryProfile,
+            ]);
         }
+
         CustomerBooking::where('id', $customerId)->update(['current_step' => 4]);
     }
 
@@ -215,20 +211,13 @@ class CustomerBookingService
 
     public function storeStepFour($customerId, array $data)
     {
-        $oldPlotSale = PlotSaleDetail::where(
-            'customer_booking_id',
-            $customerId
-        )->latest()->first();
+        $oldPlotSale = PlotSaleDetail::where('customer_booking_id', $customerId)
+            ->latest()
+            ->first();
 
         // Same plot already selected → new record mat banao
-        if (
-            $oldPlotSale &&
-            $oldPlotSale->plot_detail_id == ($data['plot_detail_id'] ?? null)
-        ) {
-
-            CustomerBooking::where('id', $customerId)
-                ->update(['current_step' => 5]);
-
+        if ($oldPlotSale && $oldPlotSale->plot_detail_id == ($data['plot_detail_id'] ?? null)) {
+            CustomerBooking::where('id', $customerId)->update(['current_step' => 5]);
             return $oldPlotSale;
         }
 
@@ -252,167 +241,79 @@ class CustomerBookingService
             'booking_date' => $data['booking_date'] ?? null,
         ]);
 
-        CustomerBooking::where('id', $customerId)
-            ->update(['current_step' => 5]);
-
+        CustomerBooking::where('id', $customerId)->update(['current_step' => 5]);
         return $plotSale;
     }
 
     public function storeStepFive($customerId, array $data)
     {
         $paymentMode = $data['payment_mode'] ?? null;
-
         $planType = $data['plan_type'] ?? null;
-
         $plotSaleId = $data['plot_sale_detail_id'];
+        $transactionNumber = $data['transaction_number'] ?? null;
 
-        $transactionNumber =
-            $data['transaction_number'] ?? null;
-
-        if (! $transactionNumber) {
-
-            $transactionNumber =
-                strtoupper($paymentMode ?: 'PAY')
-                .'-'.time();
+        if (!$transactionNumber) {
+            $transactionNumber = strtoupper($paymentMode ?: 'PAY') . '-' . time();
         }
 
-        $receiptNumber =
-            $data['receipt_number']
-            ?? 'REC-'.Str::upper(
-                Str::random(8)
-            );
+        $receiptNumber = $data['receipt_number'] ?? 'REC-' . Str::upper(Str::random(8));
 
-        /*
-        cash/card = booked
-        cheque/dd/neft = hold
-        emi = emi
-        */
-
+        // Determine payment status
+        // cash/card = booked, cheque/dd/neft = hold, emi = emi
         $paymentStatus = 'hold';
-
         if ($planType == 'emi_plan') {
-
             $paymentStatus = 'emi';
-
-        } elseif (
-            in_array(
-                $paymentMode,
-                ['cash', 'card'],
-                true
-            )
-        ) {
-
+        } elseif (in_array($paymentMode, ['cash', 'card'], true)) {
             $paymentStatus = 'booked';
         }
 
         // Prevent duplicate payment
-        $oldPayment = CustomerPayment::where(
-            'customer_booking_id',
-            $customerId
-        )
-            ->where(
-                'plot_sale_detail_id',
-                $plotSaleId
-            )
+        $oldPayment = CustomerPayment::where('customer_booking_id', $customerId)
+            ->where('plot_sale_detail_id', $plotSaleId)
             ->first();
 
-        if (! $oldPayment) {
-
+        if (!$oldPayment) {
             CustomerPayment::create([
-
                 'plan_type' => $planType,
-
                 'booking_amount' => $data['booking_amount'] ?? 0,
-
                 'due_amount' => $data['due_amount'] ?? 0,
-
                 'net_payable_amount' => $data['net_payable_amount'] ?? 0,
-
                 'emi_months' => $data['emi_months'] ?? null,
-
-                'after_booking_payable_amount' => $data['after_booking_payable_amount']
-                    ?? null,
-
+                'after_booking_payable_amount' => $data['after_booking_payable_amount'] ?? null,
                 'remark' => $data['remark'] ?? null,
-
                 'payment_mode' => $paymentMode,
-
                 'account_number' => $data['account_number'] ?? null,
-
                 'bank_name' => $data['bank_name'] ?? null,
-
                 'branch_name' => $data['branch_name'] ?? null,
-
                 'cheque_number' => $data['cheque_number'] ?? null,
-
                 'cheque_date' => $data['cheque_date'] ?? null,
-
                 'dd_number' => $data['dd_number'] ?? null,
-
                 'transaction_number' => $transactionNumber,
-
                 'payment_status' => $paymentStatus,
-
                 'receipt_number' => $receiptNumber,
-
                 'customer_booking_id' => $customerId,
-
                 'plot_sale_detail_id' => $plotSaleId,
-
             ]);
         }
 
         // Plot lock for all payment types
-        $plotSale = PlotSaleDetail::find(
-            $plotSaleId
-        );
-
-        if (
-            $plotSale &&
-            $plotSale->plot_detail_id
-        ) {
-
-            PlotDetail::where(
-                'id',
-                $plotSale->plot_detail_id
-            )->update([
-
-                'status' => 'booked',
-
-            ]);
+        $plotSale = PlotSaleDetail::find($plotSaleId);
+        if ($plotSale && $plotSale->plot_detail_id) {
+            PlotDetail::where('id', $plotSale->plot_detail_id)->update(['status' => 'booked']);
         }
 
         // Booking code always generate once
-        $booking = CustomerBooking::find(
-            $customerId
-        );
-
-        if (
-            $booking &&
-            ! $booking->booking_code
-        ) {
-
+        $booking = CustomerBooking::find($customerId);
+        if ($booking && !$booking->booking_code) {
             $booking->update([
-
-                'booking_code' => 'BK-'.str_pad(
-                    $booking->id,
-                    6,
-                    '0',
-                    STR_PAD_LEFT
-                ),
-
+                'booking_code' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
             ]);
         }
-        // Booking status update
-        CustomerBooking::where(
-            'id',
-            $customerId
-        )->update([
 
+        // Booking status update
+        CustomerBooking::where('id', $customerId)->update([
             'current_step' => 6,
-            'status' => $paymentStatus == 'booked'
-                ? 'completed'
-                : 'pending',
+            'status' => $paymentStatus == 'booked' ? 'completed' : 'pending',
         ]);
     }
 
@@ -422,7 +323,9 @@ class CustomerBookingService
             'primaryDetail.customerDocument',
             'secondaryDetail.customerDocument',
             'plotSaleDetail',
-            'payment'])->findOrFail($id);
+            'payment',
+        ])->findOrFail($id);
+
         if ($customer->payment) {
             $customer->payment->delete();
         }

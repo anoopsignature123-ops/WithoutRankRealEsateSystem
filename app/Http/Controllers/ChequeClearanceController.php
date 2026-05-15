@@ -10,9 +10,7 @@ class ChequeClearanceController extends Controller
 {
     protected ChequeClearanceService $service;
 
-    public function __construct(
-        ChequeClearanceService $service
-    ) {
+    public function __construct(ChequeClearanceService $service) {
         $this->service = $service;
     }
 
@@ -23,27 +21,12 @@ class ChequeClearanceController extends Controller
             'plotSaleDetail.project',
             'plotSaleDetail.block',
             'plotSaleDetail.plotDetail',
-        ])
-            ->where('payment_mode', 'cheque')
-            ->latest()
-            ->get();
-
-        return view(
-            'payment.multiple-cheque-clearance.index',
-            compact('payments')
-        );
+        ])->where('payment_mode', 'cheque')->latest()->get();
+        return view('payment.multiple-cheque-clearance.index',compact('payments'));
     }
 
-    public function storeMultipleChequeClearance(
-        MultipleChequeClearanceRequest $request
-    ) {
-        $this->service->store(
-            $request->validated()
-        );
-
-        return back()->with(
-            'success',
-            'Cheque status updated successfully'
-        );
+    public function storeMultipleChequeClearance(MultipleChequeClearanceRequest $request) {
+        $this->service->store($request->validated());
+        return back()->with('success','Cheque status updated successfully');
     }
 }

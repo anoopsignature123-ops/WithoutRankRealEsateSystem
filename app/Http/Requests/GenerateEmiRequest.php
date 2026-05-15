@@ -14,11 +14,8 @@ class GenerateEmiRequest extends FormRequest
     public function rules(): array
     {
         return [
-
             'emi_months' => 'required|integer|min:1',
-
             'emi_amount' => 'required|numeric|min:1',
-
         ];
     }
 }

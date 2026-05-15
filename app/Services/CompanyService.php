@@ -13,11 +13,7 @@ class CompanyService
 
     public function create(array $data)
     {
-        $data['logo'] = uploadFile(
-            $data['logo'] ?? null,
-            'companies'
-        );
-
+        $data['logo'] = uploadFile($data['logo'] ?? null,'companies');
         return Company::create($data);
     }
 

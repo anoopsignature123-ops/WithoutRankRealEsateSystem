@@ -312,7 +312,7 @@ class ModuleSeeder extends Seeder
                 'slug' => 'associate-advance',
                 'parent_slug' => 'payment',
                 'route_name' => 'admin.associate-advances.index',
-                'active_routes' => 'admin.associate-advance*',
+                'active_routes' => 'admin.associate-advances.*',
                 'icon' => 'bi bi-person-badge',
             ],
 

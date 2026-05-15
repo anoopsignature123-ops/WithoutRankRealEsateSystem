@@ -14,9 +14,7 @@ class AssociateAdvance extends Model
     ];
 
     protected $casts = [
-
         'advance_date' => 'date',
-
     ];
 
     public function associate()
