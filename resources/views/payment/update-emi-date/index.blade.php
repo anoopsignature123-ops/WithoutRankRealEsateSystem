@@ -2,6 +2,14 @@
 
 @section('content')
     <div class="container-fluid mt-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"> Update EMI Date</h3>
+                <small class="text-muted">Single and Multiple EMI Date Update</small>
+            </div>
+
+        </div>
         {{-- Validation Errors --}}
         @if ($errors->any())
             <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4">
@@ -17,10 +25,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h4 class="fw-bold mb-1">Update EMI Date</h4>
-                        <small class="text-muted">Single and Multiple EMI Date Update</small>
-                    </div>
+
 
                     <button type="button" id="bulk_update_btn" class="btn btn-success d-none" data-bs-toggle="modal"
                         data-bs-target="#bulkDateModal">

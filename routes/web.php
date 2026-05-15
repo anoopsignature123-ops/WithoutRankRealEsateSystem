@@ -5,6 +5,7 @@ use App\Http\Controllers\AssociateController;
 use App\Http\Controllers\AssociateTreeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BlockController;
+use App\Http\Controllers\BookingLetterController;
 use App\Http\Controllers\CancelBookingController;
 use App\Http\Controllers\ChequeClearanceController;
 use App\Http\Controllers\CompanyController;
@@ -151,5 +152,11 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
         Route::put('associate-advances/{id}', 'update')->name('associate-advances.update');
         Route::delete('associate-advances/{id}', 'destroy')->name('associate-advances.destroy');
     });
-
+    Route::controller(BookingLetterController::class)->group(function () {
+        Route::get('booking-letter', 'index')->name('booking-letter.index');
+        Route::get('booking-letter/allotement/{id}', 'allotementLetter')
+            ->name('booking-letter.allotement');
+        Route::get('booking-letter/agreement/{id}', 'agreementLetter')
+            ->name('booking-letter.agreement');
+    });
 });

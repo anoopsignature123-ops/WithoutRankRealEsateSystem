@@ -1,14 +1,8 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
     <meta charset="UTF-8">
-
-    <title>
-        Payment Receipt
-    </title>
-
+    <title>Payment Receipt</title>
     <style>
         body {
             font-family: DejaVu Sans;
@@ -109,153 +103,59 @@
             font-style: italic;
         }
     </style>
-
 </head>
 
 <body>
-
     <div class="receipt-box">
-
         {{-- Header --}}
         <div class="header">
-
-            <div class="company-name">
-                SANI INFRA HEIGHT
-            </div>
-
-            <div class="company-tag">
-                Plot Booking & Property Services
-            </div>
-
+            <div class="company-name">SANI INFRA HEIGHT</div>
+            <div class="company-tag">Plot Booking & Property Services</div>
         </div>
-
-
 
         {{-- Title --}}
-        <div class="receipt-title">
-
-            PAYMENT RECEIPT
-
-        </div>
-
-
+        <div class="receipt-title">PAYMENT RECEIPT</div>
 
         {{-- Basic Info --}}
         <table class="top-table">
-
             <tr>
-
-                <td>
-                    <strong>
-                        Receipt No:
-                    </strong>
-
-                    {{ $payment->receipt_number }}
-                </td>
-
-                <td align="right">
-
-                    <strong>
-                        Date:
-                    </strong>
-
-                    {{ $payment->created_at->format('d-M-Y') }}
-
-                </td>
-
+                <td><strong>Receipt No:</strong> {{ $payment->receipt_number }}</td>
+                <td align="right"><strong>Date:</strong> {{ $payment->created_at->format('d-M-Y') }}</td>
             </tr>
-
         </table>
-
-
 
         {{-- Customer Details --}}
         <table class="detail-table">
-
             <tr>
-
-                <th width="30%">
-                    Customer Name
-                </th>
-
-                <td>
-                    {{ $payment->customerBooking->primaryDetail?->name }}
-                </td>
-
+                <th width="30%">Customer Name</th>
+                <td>{{ $payment->customerBooking->primaryDetail?->name }}</td>
             </tr>
-
             <tr>
-
-                <th>
-                    Customer ID
-                </th>
-
-                <td>
-                    {{ $payment->customerBooking->customer_code }}
-                </td>
-
+                <th>Customer ID</th>
+                <td>{{ $payment->customerBooking->customer_code }}</td>
             </tr>
-
             <tr>
-
-                <th>
-                    Payment Mode
-                </th>
-
-                <td>
-                    {{ ucfirst($payment->payment_mode) }}
-                </td>
-
+                <th>Payment Mode</th>
+                <td>{{ ucfirst($payment->payment_mode) }}</td>
             </tr>
-
             <tr>
-
-                <th>
-                    Booking ID
-                </th>
-
-                <td>
-                    {{ $payment->customerBooking->booking_code }}
-                </td>
-
+                <th>Booking ID</th>
+                <td>{{ $payment->customerBooking->booking_code }}</td>
             </tr>
-
         </table>
-
-
 
         {{-- Amount --}}
         <div class="amount-box">
-
-            Amount Paid:
-            ₹ {{ number_format($payment->booking_amount, 2) }}
-
+            Amount Paid: ₹{{ number_format($payment->booking_amount, 2) }}
         </div>
-
-
 
         {{-- Signature --}}
         <div class="signature">
-
-            <div class="signature-line">
-
-                Authorized Signature
-
-            </div>
-
+            <div class="signature-line">Authorized Signature</div>
         </div>
-
-
 
         {{-- Footer --}}
-        <div class="thank-you">
-
-            Thank you for your payment.
-
-        </div>
-
+        <div class="thank-you">Thank you for your payment.</div>
     </div>
-
 </body>
-
 </html>

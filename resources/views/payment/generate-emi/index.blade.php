@@ -2,9 +2,16 @@
 
 @section('content')
     <div class="container-fluid mt-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"> EMI GeneRate</h3>
+                <small class="text-muted">EMI GeneRate</small>
+            </div>
+
+        </div>
         <div class="card shadow-sm border-0">
             <div class="card-body">
-                <h5 class="fw-bold mb-4">EMI GENERATE</h5>
 
                 {{-- Search --}}
                 <form method="GET">
@@ -71,7 +78,8 @@
                                             value="{{ $payment?->emi_months ?? '' }}" placeholder="Enter months">
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control emi-amount" readonly placeholder="EMI Amount">
+                                        <input type="text" class="form-control emi-amount" readonly
+                                            placeholder="EMI Amount">
                                     </td>
                                     {{-- Action --}}
                                     <td>

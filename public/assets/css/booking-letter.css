@@ -1,0 +1,103 @@
+/* Common */
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    padding: 30px;
+}
+
+.letter-box {
+    background: #fff;
+    max-width: 900px;
+    margin: auto;
+    padding: 40px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, .08);
+}
+
+.letter-title {
+    font-size: 22px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.company-name {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.header {
+    text-align: center;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+.date-box {
+    text-align: right;
+    margin-bottom: 30px;
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+}
+
+.detail-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+.label {
+    width: 220px;
+    font-weight: 600;
+    background: #f8f9fa;
+}
+
+.agreement-text {
+    line-height: 30px;
+    text-align: justify;
+}
+
+.signature {
+    margin-top: 70px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.signature-box {
+    width: 220px;
+    text-align: center;
+}
+
+.line {
+    border-top: 1px solid #000;
+    margin-top: 50px;
+    padding-top: 8px;
+}
+
+
+/* Allotement */
+.allotement-letter {
+    border: 2px solid #91cfb2;
+}
+
+.allotement-letter .header {
+    border-bottom: 2px solid #91cfb2;
+}
+
+.allotement-letter .company-name {
+    color: #208154;
+}
+
+
+/* Agreement */
+.agreement-letter {
+    border: 2px solid #91cfb2;
+}
+
+.agreement-letter .header {
+    border-bottom: 2px solid #91cfb2;
+}
+
+.agreement-letter .company-name {
+    color: #208154;
+}

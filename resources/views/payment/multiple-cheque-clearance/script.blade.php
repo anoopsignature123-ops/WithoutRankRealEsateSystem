@@ -3,8 +3,9 @@
         $(document).ready(function() {
             let selectedPayments = [];
 
-            function updateActionButton() {
+            function updateBulkButton() {
                 selectedPayments = [];
+
                 $('.payment_checkbox:checked').each(function() {
                     selectedPayments.push($(this).val());
                 });
@@ -20,21 +21,21 @@
 
             $('#select_all').on('change', function() {
                 $('.payment_checkbox').prop('checked', $(this).is(':checked'));
-                updateActionButton();
+                updateBulkButton();
             });
 
             $(document).on('change', '.payment_checkbox', function() {
-                updateActionButton();
+                updateBulkButton();
 
-                let totalCheckbox = $('.payment_checkbox').length;
-                let checkedCheckbox = $('.payment_checkbox:checked').length;
-
-                $('#select_all').prop('checked', totalCheckbox === checkedCheckbox);
+                let total = $('.payment_checkbox').length;
+                let checked = $('.payment_checkbox:checked').length;
+                $('#select_all').prop('checked', total === checked);
             });
 
             $('#cheque_status').on('change', function() {
                 let status = $(this).val();
-                if (status === 'cancelled' || status === 'bounced' || status === 'pending') {
+
+                if (['cancelled', 'bounced', 'pending'].includes(status)) {
                     $('#reason_box').removeClass('d-none');
                 } else {
                     $('#reason_box').addClass('d-none');

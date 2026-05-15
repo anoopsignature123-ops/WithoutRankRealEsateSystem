@@ -2,13 +2,20 @@
 
 @section('content')
     <div class="container-fluid mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"> EMI Payment</h3>
+                <small class="text-muted">Manage EMI Payment</small>
+            </div>
+
+        </div>
         <form method="POST" action="{{ route('admin.emi-payment.store') }}">
             @csrf
             <div class="row">
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4">
-                            <h4 class="fw-bold mb-4">EMI Payment</h4>
+
 
                             <input type="hidden" name="customer_booking_id" id="customer_booking_id">
                             <input type="hidden" name="plot_sale_detail_id" id="plot_sale_detail_id">
@@ -56,7 +63,8 @@
                                 {{-- Customer Name --}}
                                 <div class="col-md-6 mb-3">
                                     <label class="fw-semibold">Customer Name</label>
-                                    <input id="customer_name" class="form-control bg-light" readonly placeholder="Auto fill">
+                                    <input id="customer_name" class="form-control bg-light" readonly
+                                        placeholder="Auto fill">
                                 </div>
 
                                 {{-- EMI Amount --}}
@@ -81,23 +89,27 @@
                                 {{-- Bank Fields --}}
                                 <div class="col-md-6 mb-3 bank-field d-none">
                                     <label class="fw-semibold">Bank Name</label>
-                                    <input type="text" name="bank_name" class="form-control" placeholder="Enter bank name">
+                                    <input type="text" name="bank_name" class="form-control"
+                                        placeholder="Enter bank name">
                                 </div>
 
                                 <div class="col-md-6 mb-3 bank-field d-none">
                                     <label class="fw-semibold">Account Number</label>
-                                    <input type="text" name="account_number" class="form-control" placeholder="Enter account number">
+                                    <input type="text" name="account_number" class="form-control"
+                                        placeholder="Enter account number">
                                 </div>
 
                                 <div class="col-md-6 mb-3 bank-field d-none">
                                     <label class="fw-semibold">Branch Name</label>
-                                    <input type="text" name="branch_name" class="form-control" placeholder="Enter branch name">
+                                    <input type="text" name="branch_name" class="form-control"
+                                        placeholder="Enter branch name">
                                 </div>
 
                                 {{-- Cheque Fields --}}
                                 <div class="col-md-6 mb-3 cheque-field d-none">
                                     <label class="fw-semibold">Cheque Number</label>
-                                    <input type="text" name="cheque_number" class="form-control" placeholder="Enter cheque number">
+                                    <input type="text" name="cheque_number" class="form-control"
+                                        placeholder="Enter cheque number">
                                 </div>
 
                                 <div class="col-md-6 mb-3 cheque-field d-none">
@@ -108,13 +120,15 @@
                                 {{-- DD Fields --}}
                                 <div class="col-md-6 mb-3 dd-field d-none">
                                     <label class="fw-semibold">DD Number</label>
-                                    <input type="text" name="dd_number" class="form-control" placeholder="Enter DD number">
+                                    <input type="text" name="dd_number" class="form-control"
+                                        placeholder="Enter DD number">
                                 </div>
 
                                 {{-- Transaction Fields --}}
                                 <div class="col-md-6 mb-3 transaction-field d-none">
                                     <label class="fw-semibold">Transaction Number</label>
-                                    <input type="text" name="transaction_number" class="form-control" placeholder="Enter transaction number">
+                                    <input type="text" name="transaction_number" class="form-control"
+                                        placeholder="Enter transaction number">
                                 </div>
 
                                 {{-- Remark --}}
