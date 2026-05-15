@@ -5,6 +5,7 @@ use App\Http\Controllers\AssociateTreeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BlockController;
 use App\Http\Controllers\CancelBookingController;
+use App\Http\Controllers\ChequeClearanceController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomerBookingController;
 use App\Http\Controllers\CustomerListController;
@@ -123,5 +124,13 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
         Route::get('/emi-payment/plots/{id}', 'getPlots')->name('emi-payment.plots');
         Route::get('/emi-payment/details/{id}', 'getBookingDetails')->name('emi-payment.details');
         Route::post('/emi-payment/store', 'store')->name('emi-payment.store');
+    });
+
+    Route::controller(ChequeClearanceController::class)->group(function () {
+        Route::get('/multiple-cheque-clearance', 'multipleChequeClearanceIndex')->name('multiple-cheque-clearance.index');
+        Route::get('/multiple-cheque-clearance/blocks/{id}', 'getBlocksForChequeClearance')->name('multiple-cheque-clearance.blocks');
+        Route::get('/multiple-cheque-clearance/plots/{id}', 'getPlotsForChequeClearance')->name('multiple-cheque-clearance.plots');
+        Route::get('/multiple-cheque-clearance/details/{id}', 'getBookingDetailsForChequeClearance')->name('multiple-cheque-clearance.details');
+        Route::post('/multiple-cheque-clearance/store', 'storeMultipleChequeClearance')->name('multiple-cheque-clearance.store');
     });
 });

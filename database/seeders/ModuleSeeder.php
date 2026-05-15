@@ -244,15 +244,6 @@ class ModuleSeeder extends Seeder
                 'icon' => 'bi bi-file-earmark-text',
             ],
 
-            [
-                'name' => 'Edit Payment Details',
-                'slug' => 'edit-payment-details',
-                'parent_slug' => 'plot-booking',
-                'route_name' => 'admin.edit-payment-details.index',
-                'active_routes' => 'admin.edit-payment-details*',
-                'icon' => 'bi bi-cash-stack',
-            ],
-
             // Parent Module
             [
                 'name' => 'Payment',
@@ -290,21 +281,12 @@ class ModuleSeeder extends Seeder
             ],
 
             [
-                'name' => 'Cheque Clearance',
-                'slug' => 'cheque-clearance',
-                'parent_slug' => 'payment',
-                'route_name' => 'admin.cheque-clearance.index',
-                'active_routes' => 'admin.cheque-clearance*',
-                'icon' => 'bi bi-bank',
-            ],
-
-            [
                 'name' => 'Multiple Cheque Clearance',
                 'slug' => 'multiple-cheque-clearance',
                 'parent_slug' => 'payment',
                 'route_name' => 'admin.multiple-cheque-clearance.index',
                 'active_routes' => 'admin.multiple-cheque-clearance*',
-                'icon' => 'bi bi-files',
+                'icon' => 'bi bi-bank',
             ],
 
             [

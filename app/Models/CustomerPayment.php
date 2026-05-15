@@ -27,6 +27,9 @@ class CustomerPayment extends Model
         'dd_number',
         'transaction_number',
         'manual_receipt_number',
+        'cheque_status',
+        'cheque_reason',
+        'cheque_clearance_date',
     ];
 
     public function customerBooking()
