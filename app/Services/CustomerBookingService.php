@@ -64,9 +64,9 @@ class CustomerBookingService
     public function storeStepOne(array $data, $customerId = null)
     {
         $customerCode = null;
-        if (!$customerId) {
+        if (! $customerId) {
             $lastId = CustomerBooking::max('id') + 1;
-            $customerCode = 'CUST-' . str_pad($lastId, 4, '0', STR_PAD_LEFT);
+            $customerCode = 'CUST-'.str_pad($lastId, 4, '0', STR_PAD_LEFT);
         }
 
         return CustomerBooking::updateOrCreate(['id' => $customerId], [
@@ -218,6 +218,7 @@ class CustomerBookingService
         // Same plot already selected → new record mat banao
         if ($oldPlotSale && $oldPlotSale->plot_detail_id == ($data['plot_detail_id'] ?? null)) {
             CustomerBooking::where('id', $customerId)->update(['current_step' => 5]);
+
             return $oldPlotSale;
         }
 
@@ -242,6 +243,7 @@ class CustomerBookingService
         ]);
 
         CustomerBooking::where('id', $customerId)->update(['current_step' => 5]);
+
         return $plotSale;
     }
 
@@ -252,27 +254,21 @@ class CustomerBookingService
         $plotSaleId = $data['plot_sale_detail_id'];
         $transactionNumber = $data['transaction_number'] ?? null;
 
-        if (!$transactionNumber) {
-            $transactionNumber = strtoupper($paymentMode ?: 'PAY') . '-' . time();
+        if (! $transactionNumber) {
+            $transactionNumber = strtoupper($paymentMode ?: 'PAY').'-'.time();
         }
-
-        $receiptNumber = $data['receipt_number'] ?? 'REC-' . Str::upper(Str::random(8));
-
-        // Determine payment status
-        // cash/card = booked, cheque/dd/neft = hold, emi = emi
+        $receiptNumber = $data['receipt_number'] ?? 'REC-'.Str::upper(Str::random(8));
         $paymentStatus = 'hold';
         if ($planType == 'emi_plan') {
             $paymentStatus = 'emi';
         } elseif (in_array($paymentMode, ['cash', 'card'], true)) {
             $paymentStatus = 'booked';
         }
-
-        // Prevent duplicate payment
         $oldPayment = CustomerPayment::where('customer_booking_id', $customerId)
             ->where('plot_sale_detail_id', $plotSaleId)
             ->first();
 
-        if (!$oldPayment) {
+        if (! $oldPayment) {
             CustomerPayment::create([
                 'plan_type' => $planType,
                 'booking_amount' => $data['booking_amount'] ?? 0,
@@ -293,6 +289,7 @@ class CustomerBookingService
                 'receipt_number' => $receiptNumber,
                 'customer_booking_id' => $customerId,
                 'plot_sale_detail_id' => $plotSaleId,
+                'transaction_category' => 'booking_fee',
             ]);
         }
 
@@ -304,9 +301,9 @@ class CustomerBookingService
 
         // Booking code always generate once
         $booking = CustomerBooking::find($customerId);
-        if ($booking && !$booking->booking_code) {
+        if ($booking && ! $booking->booking_code) {
             $booking->update([
-                'booking_code' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                'booking_code' => 'BK-'.str_pad($booking->id, 6, '0', STR_PAD_LEFT),
             ]);
         }
 

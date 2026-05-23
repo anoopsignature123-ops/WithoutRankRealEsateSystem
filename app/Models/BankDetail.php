@@ -20,6 +20,10 @@ class BankDetail extends Model
         'bank_passbook',
     ];
 
+    protected $casts = [
+        'joining_date' => 'date',
+    ];
+
     public function associate()
     {
         return $this->belongsTo(Associate::class);

@@ -9,7 +9,6 @@ use Illuminate\Notifications\Notifiable;
 class Associate extends Authenticatable
 {
     use HasFactory, Notifiable;
-
     protected $fillable = [
         'associate_id',
         'sponsor_id',
@@ -40,11 +39,8 @@ class Associate extends Authenticatable
 
     public function getAuthPassword()
     {
-        return $this->password; // Aapki table ka password column
+        return $this->password; 
     }
-
-    // toh Laravel ko is function ke zariye batana padta hai:
-
     public function sponsor()
     {
         return $this->belongsTo(Associate::class, 'sponsor_id', 'associate_id');
@@ -102,7 +98,19 @@ class Associate extends Authenticatable
                 break;
             }
         }
-
         return $level;
+    }
+    public function getDownlineIds()
+    {
+        $downlineIds = [];
+        $children = Associate::where('sponsor_id', $this->id)->pluck('id')->toArray();
+        foreach ($children as $childId) {
+            $downlineIds[] = $childId;
+            $childAssociate = Associate::find($childId);
+            if ($childAssociate) {
+                $downlineIds = array_merge($downlineIds, $childAssociate->getDownlineIds());
+            }
+        }
+        return array_unique($downlineIds);
     }
 }

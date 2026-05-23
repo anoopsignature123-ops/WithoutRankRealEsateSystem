@@ -33,8 +33,8 @@ return new class extends Migration
             $table->string('dd_number')->nullable();
             $table->string('transaction_number')->nullable()->comment('NEFT / RTGS / Card Transaction Reference Number');
             $table->enum('payment_status', ['booked', 'hold', 'emi'])->default('hold');
-            $table->enum('cheque_status', ['pending', 'cleared', 'cancelled', 'bounced'])
-                ->default('pending');
+            $table->enum('cheque_status', ['pending', 'cleared', 'cancelled', 'bounced'])->default('pending');
+            $table->enum('transaction_category', ['booking_fee', 'one_time', 'emi_payment'])->default('booking_fee');
             $table->text('cheque_reason')->nullable();
             $table->timestamp('cheque_clearance_date')->nullable();
             $table->date('emi_date')->nullable();

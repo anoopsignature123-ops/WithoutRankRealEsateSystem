@@ -11,9 +11,11 @@ class AssociateDashboardController extends Controller
 
     public function dashboard()
     {
-        $associate = auth()->user(); // Ya guard jo aap use kar rahe hain
+        $associate = auth()->user();
         $data = $this->service->getDashboardStats($associate->id);
+        $monthlyData = $this->service->getMonthlyBusinessData($associate->id);
+        $stats = $this->service->getBusinessStats($associate->id);
 
-        return view('associate_dashboard', compact('associate', 'data'));
+        return view('associate_dashboard', compact('associate', 'data', 'monthlyData', 'stats'));
     }
 }

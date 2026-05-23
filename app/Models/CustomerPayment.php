@@ -31,6 +31,7 @@ class CustomerPayment extends Model
         'cheque_reason',
         'cheque_clearance_date',
         'emi_date',
+        'transaction_category',
     ];
 
     protected $casts = [

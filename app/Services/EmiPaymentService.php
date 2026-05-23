@@ -11,13 +11,11 @@ class EmiPaymentService
     {
         return DB::transaction(function () use ($data) {
             $lastId = CustomerPayment::max('id') + 1;
-            $receiptNumber = 'RCP-' . date('Ymd') . '-' . str_pad($lastId, 4, '0', STR_PAD_LEFT);
-            
+            $receiptNumber = 'RCP-'.date('Ymd').'-'.str_pad($lastId, 4, '0', STR_PAD_LEFT);
             $data['receipt_number'] = $receiptNumber;
             $data['plan_type'] = 'emi_plan';
+            $data['transaction_category'] = 'emi_payment';
             $data['payment_status'] = in_array($data['payment_mode'], ['cheque', 'dd']) ? 'hold' : 'booked';
-            
-            // Optional fields with defaults
             $data['bank_name'] = $data['bank_name'] ?? null;
             $data['account_number'] = $data['account_number'] ?? null;
             $data['branch_name'] = $data['branch_name'] ?? null;
@@ -26,7 +24,6 @@ class EmiPaymentService
             $data['dd_number'] = $data['dd_number'] ?? null;
             $data['transaction_number'] = $data['transaction_number'] ?? null;
             $data['remark'] = $data['remark'] ?? null;
-
             return CustomerPayment::create($data);
         });
     }

@@ -42,6 +42,7 @@ class OneTimePaymentService
                 'receipt_number' => $autoReceiptNumber,
                 'manual_receipt_number' => $data['manual_receipt_number'] ?? null,
                 'plan_type' => 'full_payment',
+                'transaction_category' => 'one_time',
                 'booking_amount' => $payingAmount,
                 'due_amount' => $finalDue,
                 'net_payable_amount' => $totalPlotCost,

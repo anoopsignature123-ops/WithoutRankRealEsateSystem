@@ -107,7 +107,6 @@ class CustomerBookingController extends Controller
             return redirect()->route('customer-booking.index')
                 ->with('success', 'Customer booking completed successfully.');
         }
-
         return back();
     }
 

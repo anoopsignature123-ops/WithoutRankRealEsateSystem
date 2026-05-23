@@ -10,6 +10,7 @@ use App\Http\Controllers\AssociateDirectReportController;
 use App\Http\Controllers\AssociatePanel\AssociateAuthController;
 use App\Http\Controllers\AssociatePanel\AssociateDashboardController;
 use App\Http\Controllers\AssociatePanel\AssociateProfileController;
+use App\Http\Controllers\AssociatePanel\AssociateRegistrationController;
 use App\Http\Controllers\AssociateTeamNewBookingDetailsReportController;
 use App\Http\Controllers\AssociateTreeController;
 use App\Http\Controllers\AuthController;
@@ -369,6 +370,12 @@ Route::prefix('associate-panel')->name('associate-panel.')->group(function () {
             Route::get('/welcome-letter', 'downloadPdf')->name('welcome-letter');
         });
 
+        Route::controller(AssociateRegistrationController::class)->group(function () {
+            Route::get('register', 'create')->name('register-create');
+            Route::post('register', 'store')->name('register-store');
+            Route::get('associate/{id}/edit', 'edit')->name('edit');
+            Route::put('associate/{id}/update', 'update')->name('update');
+        });
     });
 
 });
