@@ -259,9 +259,7 @@ class CustomerBookingService
         }
         $receiptNumber = $data['receipt_number'] ?? 'REC-'.Str::upper(Str::random(8));
         $paymentStatus = 'hold';
-        if ($planType == 'emi_plan') {
-            $paymentStatus = 'emi';
-        } elseif (in_array($paymentMode, ['cash', 'card'], true)) {
+        if (in_array($paymentMode, ['cash', 'card'], true)) {
             $paymentStatus = 'booked';
         }
         $oldPayment = CustomerPayment::where('customer_booking_id', $customerId)
@@ -275,6 +273,7 @@ class CustomerBookingService
                 'due_amount' => $data['due_amount'] ?? 0,
                 'net_payable_amount' => $data['net_payable_amount'] ?? 0,
                 'emi_months' => $data['emi_months'] ?? null,
+                'emi_date' => now() ?? null,
                 'after_booking_payable_amount' => $data['after_booking_payable_amount'] ?? null,
                 'remark' => $data['remark'] ?? null,
                 'payment_mode' => $paymentMode,

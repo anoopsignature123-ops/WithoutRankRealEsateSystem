@@ -48,4 +48,12 @@ class CustomerPayment extends Model
     {
         return $this->belongsTo(PlotSaleDetail::class);
     }
+
+    public function booking()
+    {
+        return $this->belongsTo(
+            CustomerBooking::class,
+            'customer_booking_id'
+        );
+    }
 }

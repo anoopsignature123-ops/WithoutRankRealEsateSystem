@@ -11,6 +11,8 @@ use App\Http\Controllers\AssociatePanel\AssociateAuthController;
 use App\Http\Controllers\AssociatePanel\AssociateDashboardController;
 use App\Http\Controllers\AssociatePanel\AssociateProfileController;
 use App\Http\Controllers\AssociatePanel\AssociateRegistrationController;
+use App\Http\Controllers\AssociatePanel\BookingDetailController;
+use App\Http\Controllers\AssociatePanel\CustomerLedgerController;
 use App\Http\Controllers\AssociateTeamNewBookingDetailsReportController;
 use App\Http\Controllers\AssociateTreeController;
 use App\Http\Controllers\AuthController;
@@ -381,6 +383,19 @@ Route::prefix('associate-panel')->name('associate-panel.')->group(function () {
             Route::get('associate/{id}/download-pdf', 'downloadPdf')->name('associat-download-pdf');
         });
 
+        Route::controller(BookingDetailController::class)->group(function () {
+            Route::get('booking-detail', 'index')->name('booking-detail');
+            Route::get('get-blocks/{projectId}', 'getBlocks')->name('booking.blocks');
+            Route::get('get-plots/{blockId}', 'getPlots')->name('booking.plots');
+            Route::get('get-booking-by-plot/{plotId}', 'getBookingByPlot')->name('booking.by.plot');
+
+            Route::get('team-business-report', 'teamBusinessReport')->name('team-business-report');
+            Route::get('due-emi-amount', 'dueEmiAmount')->name('due-emi-amount');
+        });
+
+        Route::controller(CustomerLedgerController::class)->group(function () {
+            Route::get('customer-ledger', 'customerLedger')->name('customer-ledger');
+        });
     });
 
 });

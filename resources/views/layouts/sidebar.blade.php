@@ -46,7 +46,7 @@
                             <li class="nav-item">
                                 <a href="{{ route('associate-panel.view-profile') }}"
                                     class="nav-link {{ request()->routeIs('associate-panel.view-profile') ? 'active' : '' }}">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>View Profile</p>
                                 </a>
                             </li>
@@ -54,7 +54,7 @@
                             <li class="nav-item">
                                 <a href="{{ route('associate-panel.edit-profile') }}"
                                     class="nav-link {{ request()->routeIs('associate-panel.edit-profile') ? 'active' : '' }}">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>Edit Profile</p>
                                 </a>
                             </li>
@@ -62,7 +62,7 @@
                             <li class="nav-item">
                                 <a href="{{ route('associate-panel.change-password') }}"
                                     class="nav-link {{ request()->routeIs('associate-panel.change-password') ? 'active' : '' }}">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>Change Password</p>
                                 </a>
                             </li>
@@ -70,7 +70,7 @@
                             <li class="nav-item">
                                 <a href="{{ route('associate-panel.welcome-letter') }}"
                                     class="nav-link {{ request()->routeIs('associate-panel.welcome-letter') ? 'active' : '' }}">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>Welcome Letter</p>
                                 </a>
                             </li>
@@ -98,35 +98,22 @@
                             <li class="nav-item">
                                 <a href="{{ route('associate-panel.associate-detail') }}"
                                     class="nav-link {{ request()->routeIs('associate-panel.associate-detail') ? 'active' : '' }}">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>Associate Details</p>
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                <a href="{{ route('associate-panel.booking-detail') }}"
+                                    class="nav-link {{ request()->routeIs('associate-panel.booking-detail') || request()->routeIs('associate-panel.team-business-report') || request()->routeIs('associate-panel.due-emi-amount') ? 'active' : '' }}">
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>Booking Details</p>
                                 </a>
                             </li>
-
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-circle"></i>
-                                    <p>Team Business Report</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-circle"></i>
-                                    <p>Due EMI Details</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                <a href="{{ route('associate-panel.customer-ledger') }}"
+                                    class="nav-link {{ request()->routeIs('associate-panel.customer-ledger') ? 'active' : '' }}">
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>Customer Ledger</p>
                                 </a>
                             </li>
@@ -144,19 +131,19 @@
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>My Downline</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>My Direct</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>My Tree View</p>
                                 </a>
                             </li>
@@ -174,7 +161,7 @@
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>Payout Details</p>
                                 </a>
                             </li>
@@ -192,7 +179,7 @@
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>View E-Pins</p>
                                 </a>
                             </li>
@@ -216,13 +203,13 @@
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>Send Enquiry</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-circle"></i>
+                                    <i class="nav-icon bi bi-circle-fill "></i>
                                     <p>Enquiry Details</p>
                                 </a>
                             </li>
