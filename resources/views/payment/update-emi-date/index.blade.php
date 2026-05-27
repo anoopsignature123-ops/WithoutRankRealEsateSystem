@@ -2,15 +2,16 @@
 
 @section('content')
     <div class="container-fluid mt-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold mb-1"> Update EMI Date</h3>
-                <small class="text-muted">Single and Multiple EMI Date Update</small>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h3 class="fw-bold mb-1 text-dark">Update EMI Date</h3>
+                        <p class="text-muted mb-0 small"> Single and Multiple EMI Date Update </p>
+                    </div>
+                </div>
             </div>
-
         </div>
-        {{-- Validation Errors --}}
         @if ($errors->any())
             <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4">
                 <ul class="mb-0">

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('associate_id')->nullable()->constrained('associates');
             $table->string('query');
             $table->text('description');
+            $table->text('reply')->nullable();
             $table->enum('status', ['Pending', 'Resolved', 'In-Progress'])->default('Pending');
             $table->timestamps();
         });

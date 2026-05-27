@@ -34,6 +34,13 @@ class ModuleSeeder extends Seeder
                 'active_routes' => 'users.*',
                 'icon' => 'bi bi-people',
             ],
+            [
+                'name' => 'Plot Availability',
+                'slug' => 'plot-availability',
+                'icon' => 'bi bi-grid-1x2-fill',
+                'route_name' => 'plot-availability.index',
+                'active_routes' => 'plot-availability*',
+            ],
 
             [
                 'name' => 'Master',
@@ -52,7 +59,7 @@ class ModuleSeeder extends Seeder
 
             [
                 'name' => 'Project',
-                'slug' => 'project-management',
+                'slug' => 'project',
                 'parent_slug' => 'master',
                 'route_name' => 'projects.index',
                 'active_routes' => 'projects.*',
@@ -61,7 +68,7 @@ class ModuleSeeder extends Seeder
 
             [
                 'name' => 'Block',
-                'slug' => 'blocks',
+                'slug' => 'block',
                 'parent_slug' => 'master',
                 'route_name' => 'blocks.index',
                 'active_routes' => 'blocks.*',
@@ -88,7 +95,7 @@ class ModuleSeeder extends Seeder
 
             [
                 'name' => 'PLC / Development Rate',
-                'slug' => 'plc-development-rate',
+                'slug' => 'plot-rates',
                 'parent_slug' => 'master',
                 'route_name' => 'plot-rates.index',
                 'active_routes' => 'plot-rates.*,'.
@@ -99,7 +106,7 @@ class ModuleSeeder extends Seeder
 
             [
                 'name' => 'Project Manipulation',
-                'slug' => 'project-manipulation',
+                'slug' => 'project.manipulation',
                 'parent_slug' => 'master',
                 'route_name' => 'project.manipulation.index',
                 'active_routes' => 'project.manipulation.*',
@@ -108,7 +115,7 @@ class ModuleSeeder extends Seeder
 
             [
                 'name' => 'Rank / Designation',
-                'slug' => 'rank-designation',
+                'slug' => 'designations',
                 'parent_slug' => 'master',
                 'route_name' => 'designations.index',
                 'active_routes' => 'designations.*',
@@ -132,7 +139,7 @@ class ModuleSeeder extends Seeder
 
             [
                 'name' => 'Add Associate',
-                'slug' => 'add-associate',
+                'slug' => 'associate',
                 'parent_slug' => 'associate',
                 'route_name' => 'associate.create',
                 'active_routes' => 'associate.create*',
@@ -159,7 +166,7 @@ class ModuleSeeder extends Seeder
 
             [
                 'name' => 'Downline Associate',
-                'slug' => 'downline-associate',
+                'slug' => 'associate-downline',
                 'parent_slug' => 'associate',
                 'route_name' => 'associate-downline',
                 'active_routes' => 'associate-downline*',
@@ -168,7 +175,7 @@ class ModuleSeeder extends Seeder
 
             [
                 'name' => 'Promotion Report',
-                'slug' => 'promotion-report',
+                'slug' => 'promotion.report',
                 'parent_slug' => 'associate',
                 'route_name' => 'promotion.report',
                 'active_routes' => 'promotion.report*',
@@ -613,6 +620,13 @@ class ModuleSeeder extends Seeder
                 'route_name' => 'enquiry.index',
                 'active_routes' => 'enquiry*',
                 'icon' => 'bi bi-telephone-plus',
+            ],
+            [
+                'name' => 'Support Management',
+                'slug' => 'support-management',
+                'icon' => 'bi bi-headset',
+                'route_name' => 'support.index',
+                'active_routes' => 'support*',
             ],
 
         ];

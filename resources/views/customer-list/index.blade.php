@@ -2,21 +2,18 @@
 
 @section('content')
     <div class="container-fluid mt-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold mb-1">
-                    Customer List
-                </h3>
-
-                <small class="text-muted">
-                    View all customers and their booking details
-                </small>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h3 class="fw-bold mb-1 text-dark">Customer List</h3>
+                        <p class="text-muted mb-0 small"> View all customers and their booking details </p>
+                    </div>
+                    
+                </div>
             </div>
         </div>
-
         <div class="card shadow-sm border-0">
-
             <div class="card-body">
 
                 <div class="table-responsive">

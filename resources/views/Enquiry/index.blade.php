@@ -2,23 +2,30 @@
 @section('content')
     <div class="container-fluid mt-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold mb-1">Enquiry Management</h3>
-                <small class="text-muted">Manage and track all customer enquiries</small>
-            </div>
-        </div>
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white border-bottom-0 pt-3">
-                <h5 class="fw-bold mb-0" id="formTitle">Add New Enquiry</h5>
-            </div>
-            <div class="card-body">
-                @include('enquiry.form')
+        {{-- Header Section --}}
+        <div class="card border-0 shadow-sm mb-4 rounded-4">
+            <div class="card-body p-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-6">
+                        <h4 class="fw-bold mb-1" id="formTitle">Enquiry Management</h4>
+                        <small class="text-muted">Manage and track all customer enquiries</small>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
+        {{-- Form Section (Permission Check) --}}
+        @can('new-enquiry-create')
+        <div class="card shadow-sm border-0 mb-4 rounded-4">
+            <div class="card-body p-4">
+                @include('enquiry.form')
+            </div>
+        </div>
+        @endcan
+
+        {{-- Table Section --}}
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle" id="enquiryTable">
                         <thead class="table-light">
@@ -41,41 +48,27 @@
                                     <td>{{ $key + 1 }}</td>
                                     <td><strong>{{ $enquiry->customer_name }}</strong></td>
                                     <td>{{ $enquiry->mobile_number }}</td>
-                                    <td>
-                                        <span class="badge bg-light text-dark border">
-                                            {{ $enquiry->associate?->associate_name ?? 'N/A' }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-light text-dark border">
-                                            {{ $enquiry->source?->name ?? 'N/A' }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info text-dark border fw-bold">
-                                            {{ $enquiry->enquiryType?->name ?? 'N/A' }}
-                                        </span>
-                                    </td>
+                                    <td><span class="badge bg-light text-dark border">{{ $enquiry->associate?->associate_name ?? 'N/A' }}</span></td>
+                                    <td><span class="badge bg-light text-dark border">{{ $enquiry->source?->name ?? 'N/A' }}</span></td>
+                                    <td><span class="badge bg-info text-dark border fw-bold">{{ $enquiry->enquiryType?->name ?? 'N/A' }}</span></td>
                                     <td>{{ $enquiry->budget ?? 'N/A' }}</td>
-                                    <td>
-                                        {{ $enquiry->followup_date ? \Carbon\Carbon::parse($enquiry->followup_date)->format('d-M-Y') : 'N/A' }}
-                                    </td>
-                                    <td>
-                                        {{ $enquiry->created_at ? $enquiry->created_at->format('d-M-Y') : 'N/A' }}
-                                    </td>
+                                    <td>{{ $enquiry->followup_date ? \Carbon\Carbon::parse($enquiry->followup_date)->format('d-M-Y') : 'N/A' }}</td>
+                                    <td>{{ $enquiry->created_at ? $enquiry->created_at->format('d-M-Y') : 'N/A' }}</td>
                                     <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-outline-primary editBtn"
-                                            data-id="{{ $enquiry->id }}">
+                                        @can('new-enquiry-edit')
+                                        <button type="button" class="btn btn-sm btn-outline-primary editBtn rounded-pill px-3" data-id="{{ $enquiry->id }}">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <form action="{{ route('enquiry.destroy', $enquiry->id) }}" method="POST"
-                                            class="d-inline delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn">
+                                        @endcan
+                                        
+                                        @can('new-enquiry-delete')
+                                        <form action="{{ route('enquiry.destroy', $enquiry->id) }}" method="POST" class="d-inline delete-form">
+                                            @csrf @method('DELETE')
+                                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn rounded-pill px-3">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach
@@ -84,25 +77,20 @@
                 </div>
             </div>
         </div>
-
     </div>
 @endsection
+
 @push('scripts')
     <script>
         $(document).ready(function() {
             $('#enquiryTable').DataTable({
                 pageLength: 10,
                 ordering: true,
-                responsive: true,
-                lengthMenu: [5, 10, 25, 50],
-                language: {
-                    emptyTable: "No enquiries found"
-                }
+                responsive: true
             });
 
             $('.editBtn').click(function() {
                 let id = $(this).data('id');
-                $('.form-control, .form-select').removeClass('is-invalid');
                 $.get('/enquiry/edit/' + id, function(data) {
                     $('#formTitle').text('Edit Enquiry');
                     $('#customer_name').val(data.customer_name);
@@ -117,16 +105,13 @@
                     $('#plot_size').val(data.plot_size);
                     $('#budget').val(data.budget);
                     $('#location').val(data.location);
-                    $('#followup_date').val(data.followup_date ? data.followup_date.substring(0,
-                        10) : '');
+                    $('#followup_date').val(data.followup_date ? data.followup_date.substring(0, 10) : '');
+                    
                     $('#enquiryForm').attr('action', '/enquiry/update/' + id);
                     $('#methodField').html('@method('PUT')');
-                    $('#submitBtn').text('Update Enquiry').removeClass('btn-primary').addClass(
-                        'btn-success');
+                    $('#submitBtn').text('Update Enquiry').removeClass('btn-primary').addClass('btn-success');
                     $('#cancelBtn').removeClass('d-none');
-                    $('html, body').animate({
-                        scrollTop: 0
-                    }, 'fast');
+                    $('html, body').animate({ scrollTop: 0 }, 'fast');
                 });
             });
 
@@ -137,7 +122,6 @@
             function resetForm() {
                 $('#formTitle').text('Add New Enquiry');
                 $('#enquiryForm')[0].reset();
-                $('.form-control, .form-select').removeClass('is-invalid');
                 $('#enquiryForm').attr('action', "{{ route('enquiry.store') }}");
                 $('#methodField').html('');
                 $('#submitBtn').text('Save Enquiry').removeClass('btn-success').addClass('btn-primary');
@@ -148,16 +132,14 @@
                 let form = $(this).closest('form');
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "Enquiry data will be permanently deleted!",
+                    text: "Enquiry will be deleted permanently!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#198754',
                     cancelButtonColor: '#dc3545',
                     confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
+                    if (result.isConfirmed) form.submit();
                 });
             });
         });

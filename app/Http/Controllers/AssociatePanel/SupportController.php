@@ -11,7 +11,9 @@ class SupportController extends Controller
 {
     public function index()
     {
-        $enquiries = Support::where('associate_id', Auth::id())->latest()->get();
+        $enquiries = Support::where('associate_id', Auth::id())
+            ->latest()
+            ->get();
 
         return view('associate-panel.support.index', compact('enquiries'));
     }
@@ -22,6 +24,7 @@ class SupportController extends Controller
             'query' => 'required|string|max:255',
             'description' => 'required|string',
         ]);
+
         Support::create([
             'associate_id' => Auth::id(),
             'query' => $request->input('query'),
@@ -31,5 +34,35 @@ class SupportController extends Controller
 
         return redirect()->route('associate-panel.support.index')
             ->with('success', 'Enquiry submitted successfully!');
+    }
+
+    public function supportList()
+    {
+        $supports = Support::with('associate')
+            ->latest()
+            ->paginate(15);
+
+        return view('support.index', compact('supports'));
+    }
+
+    public function supportDetail(Support $support)
+    {
+        return view('support.detail', compact('support'));
+    }
+
+    public function supportReply(Request $request, Support $support)
+    {
+        $request->validate([
+            'reply' => 'required|string',
+            'status' => 'required|in:Pending,In-Progress,Resolved',
+        ]);
+
+        $support->update([
+            'reply' => $request->reply,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->route('support.detail', $support->id)
+            ->with('success', 'Reply submitted successfully.');
     }
 }

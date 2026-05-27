@@ -2,13 +2,16 @@
 
 @section('content')
     <div class="container-fluid mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold mb-1">Find Receipt & Reprint</h3>
-                <small class="text-muted">Search payments, check status, and download receipts</small>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h3 class="fw-bold mb-1 text-dark">Find Receipt & Reprint </h3>
+                        <p class="text-muted mb-0 small"> Search payments, check status, and download receipts </p>
+                    </div>
+                </div>
             </div>
         </div>
-
         <div class="card p-4">
             <form method="POST" action="{{ route('receipt-reprint.search') }}">
                 @csrf

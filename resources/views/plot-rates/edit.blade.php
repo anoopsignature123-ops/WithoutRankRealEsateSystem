@@ -2,30 +2,24 @@
 
 @section('content')
     <div class="container-fluid mt-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold mb-1">
-                    Edit Plot Rate
-                </h3>
-                <p class="text-muted">
-                    Edit plot Rate
-                </p>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h3 class="fw-bold mb-1 text-dark">Edit Plot Rate</h3>
+                        <p class="text-muted mb-0 small">Update existing plot rate</p>
+                    </div>
+                    <a href="{{ route('plot-rates.index') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">
+                        <i class="bi bi-arrow-left me-1"></i> Back
+                    </a>
+                </div>
             </div>
-            <a href="{{ route('plot-rates.index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i>
-                Back
-            </a>
         </div>
 
         <div class="card shadow-sm border-0">
-
-
-            <div class="card-body">
+            <div class="card-body p-4">
                 <form action="{{ route('plot-rates.update', $plotRate->id) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-
+                    @csrf @method('PUT')
                     @include('plot-rates.form')
                 </form>
             </div>

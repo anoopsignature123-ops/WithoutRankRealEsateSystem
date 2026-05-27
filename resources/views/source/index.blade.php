@@ -1,14 +1,17 @@
 @extends('layouts.app')
 @section('content')
     <div class="container-fluid mt-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold mb-1">Source Management</h3>
-                <small class="text-muted">Manage all sources</small>
+        <div class="card border-0 shadow-sm mb-4 rounded-4">
+            <div class="card-body p-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-3">
+                        <h4 class="fw-bold mb-1">Source Management</h4>
+                        <small class="text-muted">Manage all sources</small>
+                    </div>
+                </div>
             </div>
         </div>
-
+        @can('lead-source-create')
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
                 <form method="POST" id="sourceForm" action="{{ route('source.store') }}">
@@ -28,7 +31,7 @@
                 </form>
             </div>
         </div>
-
+        @endcan
         <div class="card shadow-sm border-0">
             <div class="card-body">
                 <div class="table-responsive">
@@ -50,10 +53,14 @@
                                         {{ $source->created_at ? $source->created_at->format('d-M-Y') : 'N/A' }}
                                     </td>
                                     <td class="text-center">
+                                        @can('lead-source-edit')
                                         <button type="button" class="btn btn-sm btn-outline-primary editBtn"
                                             data-id="{{ $source->id }}" data-name="{{ $source->name }}">
                                             <i class="bi bi-pencil"></i>
                                         </button>
+                                        @endcan
+                                        
+                                        @can('lead-source-delete')
                                         <form action="{{ route('source.destroy', $source->id) }}" method="POST"
                                             class="d-inline delete-form">
                                             @csrf
@@ -62,6 +69,7 @@
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach
@@ -70,22 +78,22 @@
                 </div>
             </div>
         </div>
-
     </div>
 @endsection
+
 @push('scripts')
     <script>
         $(document).ready(function() {
+            // Initialize Table
             $('#sourceTable').DataTable({
                 pageLength: 10,
                 ordering: true,
                 responsive: true,
                 lengthMenu: [5, 10, 25, 50],
-                language: {
-                    emptyTable: "No sources found"
-                }
+                language: { emptyTable: "No sources found" }
             });
 
+            // Edit Button Click
             $('.editBtn').click(function() {
                 let id = $(this).data('id');
                 let name = $(this).data('name');
@@ -94,11 +102,10 @@
                 $('#methodField').html('@method('PUT')');
                 $('#submitBtn').text('Update Source').removeClass('btn-primary').addClass('btn-success');
                 $('#cancelBtn').removeClass('d-none');
-                $('html, body').animate({
-                    scrollTop: 0
-                }, 'fast');
+                $('html, body').animate({ scrollTop: 0 }, 'fast');
             });
 
+            // Cancel Button Click
             $('#cancelBtn').click(function() {
                 resetForm();
             });
@@ -111,6 +118,7 @@
                 $('#cancelBtn').addClass('d-none');
             }
 
+            // Delete Confirmation
             $(document).on('click', '.delete-btn', function() {
                 let form = $(this).closest('form');
                 Swal.fire({

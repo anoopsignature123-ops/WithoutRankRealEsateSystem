@@ -2,23 +2,29 @@
 
 @section('content')
     <div class="container-fluid mt-4">
-        {{-- Header --}}
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold mb-1">Associate Advances</h3>
-                <small class="text-muted">Manage associate advance records</small>
+        {{-- Header Card --}}
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h3 class="fw-bold mb-1 text-dark">Associate Advances</h3>
+                        <p class="text-muted mb-0 small">Manage and track associate advance payments</p>
+                    </div>
+                    @can('associate-advance-create')
+                        <a href="{{ route('associate-advances.create') }}" class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
+                            <i class="bi bi-plus-circle me-1"></i> Add Advance
+                        </a>
+                    @endcan
+                </div>
             </div>
-            <a href="{{ route('associate-advances.create') }}" class="btn btn-success">
-                <i class="bi bi-plus-circle me-1"></i>Add Advance
-            </a>
         </div>
 
         {{-- Listing --}}
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
                 <div class="table-responsive">
-                    <table class="table align-middle table-hover" id="advanceTable">
-                        <thead>
+                    <table class="table table-hover align-middle" id="advanceTable">
+                        <thead class="table-light">
                             <tr>
                                 <th>#</th>
                                 <th>Associate ID</th>
@@ -26,36 +32,33 @@
                                 <th>Advance Amount</th>
                                 <th>Advance Date</th>
                                 <th>Remarks</th>
-                                <th width="120">Action</th>
+                                @if(auth()->user()->can('associate-advance-edit') || auth()->user()->can('associate-advance-delete'))
+                                    <th width="120">Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($advances as $key => $advance)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                    <td>{{ $advance->associate?->associate_id ?? '-' }}</td>
-                                    <td>{{ $advance->associate?->associate_name ?? '-' }}</td>
-                                    <td class="fw-semibold text-success">₹{{ number_format($advance->advance_amount, 2) }}
-                                    </td>
-                                    <td>{{ $advance->advance_date?->format('d-m-Y') }}</td>
+                                    <td><span class="badge bg-light text-dark border">{{ $advance->associate?->associate_id ?? '-' }}</span></td>
+                                    <td class="fw-medium">{{ $advance->associate?->associate_name ?? '-' }}</td>
+                                    <td class="fw-bold text-success">₹{{ number_format($advance->advance_amount, 2) }}</td>
+                                    <td class="text-muted">{{ $advance->advance_date?->format('d-m-Y') }}</td>
                                     <td>{{ $advance->remarks ?? '-' }}</td>
-                                    <td>
-                                        {{-- Edit --}}
-                                        <a href="{{ route('associate-advances.edit', $advance->id) }}"
-                                            class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        {{-- Delete --}}
-                                        <form method="POST"
-                                            action="{{ route('associate-advances.destroy', $advance->id) }}"
-                                            class="d-inline delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
+                                    @if(auth()->user()->can('associate-advance-edit') || auth()->user()->can('associate-advance-delete'))
+                                        <td>
+                                            @can('associate-advance-edit')
+                                                <a href="{{ route('associate-advances.edit', $advance->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                            @endcan
+                                            @can('associate-advance-delete')
+                                                <form method="POST" action="{{ route('associate-advances.destroy', $advance->id) }}" class="d-inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-btn"><i class="bi bi-trash"></i></button>
+                                                </form>
+                                            @endcan
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
@@ -73,17 +76,20 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            // Initialize DataTable if table has data
+            // DataTable initialization
             if ($('#advanceTable tbody tr td').attr('colspan') == undefined) {
-                $('#advanceTable').DataTable();
+                $('#advanceTable').DataTable({
+                    pageLength: 10,
+                    responsive: true
+                });
             }
 
             // Delete confirmation
-            $('.delete-btn').click(function() {
+            $(document).on('click', '.delete-btn', function() {
                 let form = $(this).closest('form');
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "This advance record will be deleted.",
+                    text: "This advance record will be permanently deleted!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#198754',

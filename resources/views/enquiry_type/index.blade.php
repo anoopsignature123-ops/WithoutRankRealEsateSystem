@@ -1,27 +1,35 @@
 @extends('layouts.app')
+
 @section('content')
     <div class="container-fluid mt-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold mb-1">Enquiry Type Configuration</h3>
-                <small class="text-muted">Manage types of customer enquiries</small>
+        {{-- Header Section --}}
+        <div class="card border-0 shadow-sm mb-4 rounded-4">
+            <div class="card-body p-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-6">
+                        <h4 class="fw-bold mb-1">Enquiry Type Configuration</h4>
+                        <small class="text-muted">Manage types of customer enquiries</small>
+                    </div>
+                </div>
             </div>
         </div>
 
-
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white border-bottom-0 pt-3">
+        {{-- Form Section (Permission Check) --}}
+        @can('enquiry-type-create')
+        <div class="card shadow-sm border-0 mb-4 rounded-4">
+            <div class="card-header bg-white border-bottom-0 pt-4">
                 <h5 class="fw-bold mb-0" id="formTitle">Add New Lead Type</h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 @include('enquiry_type.form')
             </div>
         </div>
+        @endcan
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
+        {{-- Table Section --}}
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle" id="enquiryTypeTable">
                         <thead class="table-light">
@@ -36,27 +44,23 @@
                             @foreach ($enquiryTypes as $key => $type)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                    <td>
-                                        <span class="fw-bold">
-                                            {{ ucfirst($type->name) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {{ $type->created_at ? $type->created_at->format('d-M-Y') : 'N/A' }}
-                                    </td>
+                                    <td><span class="fw-bold">{{ ucfirst($type->name) }}</span></td>
+                                    <td>{{ $type->created_at ? $type->created_at->format('d-M-Y') : 'N/A' }}</td>
                                     <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-outline-primary editBtn"
-                                            data-id="{{ $type->id }}">
+                                        @can('enquiry-type-edit')
+                                        <button type="button" class="btn btn-sm btn-outline-primary editBtn rounded-pill px-3" data-id="{{ $type->id }}">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <form action="{{ route('enquiry-type.destroy', $type->id) }}" method="POST"
-                                            class="d-inline delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn">
+                                        @endcan
+                                        
+                                        @can('enquiry-type-delete')
+                                        <form action="{{ route('enquiry-type.destroy', $type->id) }}" method="POST" class="d-inline delete-form">
+                                            @csrf @method('DELETE')
+                                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn rounded-pill px-3">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach
@@ -65,7 +69,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 @endsection
 
@@ -75,27 +78,20 @@
             $('#enquiryTypeTable').DataTable({
                 pageLength: 10,
                 ordering: true,
-                responsive: true,
-                lengthMenu: [5, 10, 25, 50],
-                language: {
-                    emptyTable: "No lead types configured yet"
-                }
+                responsive: true
             });
 
             $('.editBtn').click(function() {
                 let id = $(this).data('id');
                 $('.form-control').removeClass('is-invalid');
                 $.get('/enquiry-type/edit/' + id, function(data) {
-                    $('#formTitle').text('Edit lead Type');
+                    $('#formTitle').text('Edit Lead Type');
                     $('#name').val(data.name);
                     $('#enquiryTypeForm').attr('action', '/enquiry-type/update/' + id);
                     $('#methodField').html('@method('PUT')');
-                    $('#submitBtn').text('Update Type').removeClass('btn-primary').addClass(
-                        'btn-success');
+                    $('#submitBtn').text('Update Type').removeClass('btn-primary').addClass('btn-success');
                     $('#cancelBtn').removeClass('d-none');
-                    $('html, body').animate({
-                        scrollTop: 0
-                    }, 'fast');
+                    $('html, body').animate({ scrollTop: 0 }, 'fast');
                 });
             });
 
@@ -104,9 +100,8 @@
             });
 
             function resetForm() {
-                $('#formTitle').text('Add New lead Type');
+                $('#formTitle').text('Add New Lead Type');
                 $('#enquiryTypeForm')[0].reset();
-                $('.form-control').removeClass('is-invalid');
                 $('#enquiryTypeForm').attr('action', "{{ route('enquiry-type.store') }}");
                 $('#methodField').html('');
                 $('#submitBtn').text('Save Type').removeClass('btn-success').addClass('btn-primary');
@@ -124,9 +119,7 @@
                     cancelButtonColor: '#dc3545',
                     confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
+                    if (result.isConfirmed) form.submit();
                 });
             });
         });

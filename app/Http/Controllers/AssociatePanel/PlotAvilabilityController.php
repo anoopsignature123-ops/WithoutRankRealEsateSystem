@@ -40,4 +40,34 @@ class PlotAvilabilityController extends Controller
 
         return view('associate-panel.plot-avilable.index', compact('plots', 'projects', 'blocks'));
     }
+
+    public function index(Request $request)
+    {
+        $query = PlotDetail::with(['project', 'block', 'plotSaleDetail']);
+
+        if ($request->filled('project_id')) {
+            $query->where('project_id', $request->project_id);
+        }
+        if ($request->filled('block_id')) {
+            $query->where('block_id', $request->block_id);
+        }
+
+        $plots = $query->get()->each(function ($plot) {
+            $plot->current_status = 'Available';
+            if ($plot->plotSaleDetail) {
+                $plot->current_status = ($plot->plotSaleDetail->booking_status == 'alloted') ? 'Alloted Plot' : 'Booked Plot';
+            }
+            if ($plot->status == 'hold') {
+                $plot->current_status = 'Hold Plot';
+            }
+            if (PlotRegistry::where('plot_detail_id', $plot->id)->exists()) {
+                $plot->current_status = 'Registry Plot';
+            }
+        });
+
+        $projects = Project::all();
+        $blocks = Block::all();
+
+        return view('plot-avilable.index', compact('plots', 'projects', 'blocks'));
+    }
 }

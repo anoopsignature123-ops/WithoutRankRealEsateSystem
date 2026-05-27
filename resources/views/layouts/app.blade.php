@@ -32,7 +32,7 @@
         @include('layouts.header')
         @include('layouts.sidebar')
         <main class="app-main">
-
+           
             @yield('content')
 
         </main>

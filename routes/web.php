@@ -354,6 +354,14 @@ Route::middleware('auth')->group(function () {
         Route::put('enquiry/update/{id}', 'update')->name('enquiry.update');
         Route::delete('enquiry/delete/{id}', 'destroy')->name('enquiry.destroy');
     });
+    Route::controller(SupportController::class)->group(function () {
+        Route::get('/support', 'supportList')->name('support.index');
+        Route::get('/support/{support}', 'supportDetail')->name('support.detail');
+        Route::post('/support-reply/{support}', 'supportReply')->name('support.reply');
+    });
+    Route::controller(PlotAvilabilityController::class)->group(function () {
+        Route::get('plot-availability', 'index')->name('plot-availability.index');
+    });
 });
 
 // ------------------Associate Routes-------------

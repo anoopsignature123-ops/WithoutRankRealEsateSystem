@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Support extends Model
 {
-    protected $fillable = ['associate_id', 'query', 'description', 'status'];
+    protected $fillable = ['associate_id', 'query', 'description', 'reply', 'status'];
 
     public function associate()
     {

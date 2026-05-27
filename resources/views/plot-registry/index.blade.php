@@ -2,14 +2,18 @@
 
 @section('content')
     <div class="container-fluid mt-4">
-
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h3 class="fw-bold mb-1 text-dark">Plot Registry </h3>
+                        <p class="text-muted mb-0 small"> Select plot and create registry details </p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
-
-                <div class="mb-4">
-                    <h4 class="fw-bold mb-1">Plot Registry</h4>
-                    <small class="text-muted">Select plot and create registry details</small>
-                </div>
                 <form method="POST" action="{{ route('plot-registry.store') }}" id="registryForm">
                     @csrf
                     <div class="row">

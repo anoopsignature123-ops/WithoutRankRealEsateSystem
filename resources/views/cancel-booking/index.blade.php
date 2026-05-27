@@ -1,9 +1,19 @@
 @extends('layouts.app')
 @section('content')
     <div class="container-fluid mt-4">
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h3 class="fw-bold mb-1 text-dark">Cancel Booking </h3>
+                        <p class="text-muted mb-0 small"> Cancel Booking </p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4">
-                <h5 class="fw-bold mb-4 border-bottom pb-2">Cancel Booking</h5>
+               
 
                 @if (session('success'))
                     <div class="alert alert-success">{{ session('success') }}</div>

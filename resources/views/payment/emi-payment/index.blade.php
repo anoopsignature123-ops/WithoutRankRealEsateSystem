@@ -2,12 +2,15 @@
 
 @section('content')
     <div class="container-fluid mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold mb-1"> EMI Payment</h3>
-                <small class="text-muted">Manage EMI Payment</small>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h3 class="fw-bold mb-1 text-dark">EMI Payment</h3>
+                        <p class="text-muted mb-0 small"> Manage EMI Payment </p>
+                    </div>
+                </div>
             </div>
-
         </div>
         <form method="POST" action="{{ route('emi-payment.store') }}">
             @csrf
@@ -15,11 +18,8 @@
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4">
-
-
                             <input type="hidden" name="customer_booking_id" id="customer_booking_id">
                             <input type="hidden" name="plot_sale_detail_id" id="plot_sale_detail_id">
-
                             <div class="row">
                                 {{-- Project --}}
                                 <div class="col-md-6 mb-3">
