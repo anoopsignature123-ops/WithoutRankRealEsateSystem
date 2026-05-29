@@ -59,6 +59,7 @@ use App\Http\Controllers\PlotPaymentController;
 use App\Http\Controllers\PlotRateController;
 use App\Http\Controllers\PlotRegistryController;
 use App\Http\Controllers\PlotTypeController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectManipulationController;
 use App\Http\Controllers\ReceiptReprintController;
@@ -88,6 +89,12 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::controller(ProfileController::class)->group(function () {
+        Route::get('profile', 'index')->name('profile');
+        Route::post('profile/update', 'update')->name('profile.update');
+        Route::get('change-password', 'changePasswordPage')->name('change-password');
+        Route::post('change-password', 'changePassword')->name('change-password.update');
+    });
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::resource('users', UserController::class);
     Route::resource('roles', RoleController::class);
@@ -229,7 +236,7 @@ Route::middleware('auth')->group(function () {
             ->name('plot-booking-details-report.blocks');
         Route::get('plot-booking-details-report/block-plc/{id}', 'getBlockPlcTypes')->name('plot-booking-details-report.plc');
     });
-    
+
     Route::controller(EmiPaymentDetailsController::class)->group(function () {
         Route::get('emi-payment-details-report', 'index')->name('emi-payment-details-report.index');
         Route::get('emi-payment-details-report/export', 'export')->name('emi-payment-details-report.export');

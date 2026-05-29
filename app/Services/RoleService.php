@@ -8,13 +8,42 @@ use Spatie\Permission\Models\Role;
 
 class RoleService
 {
-    private $actions = ['list', 'create', 'edit', 'delete', 'view'];
+    private $actions = ['list', 'modify'];
 
     private $hiddenModules = ['roles', 'permissions'];
 
-    public function getActions()
+    private $moduleActionMap = [
+        'dashboard' => ['list'],
+        'project-manipulation' => ['list', 'modify'],
+        'associate-tree' => ['list'],
+        'associate-create' => ['list', 'modify'], 
+        'associate-details' => ['list', 'modify'],
+        'direct-associate' => ['list'],
+        'associate-downline' => ['list'],
+        'promotion.report' => ['list'],
+        'customer-list' => ['list'],
+    ];
+
+    public function getActions($slug = null)
     {
-        return $this->actions;
+        if (! $slug) {
+            return $this->actions;
+        }
+
+        return array_key_exists($slug, $this->moduleActionMap)
+            ? $this->moduleActionMap[$slug]
+            : $this->actions;
+    }
+
+    public function getModules()
+    {
+        return Module::whereNull('parent_id')
+            ->whereNotIn('slug', $this->hiddenModules)
+            ->with(['children' => function ($query) {
+                $query->whereNotIn('slug', $this->hiddenModules);
+            }])
+            ->orderBy('sort_order')
+            ->get();
     }
 
     public function getRoles()
@@ -24,14 +53,14 @@ class RoleService
         return Role::where('name', '!=', $loggedInRole)->latest()->get();
     }
 
-    public function getModules()
-    {
-        return Module::whereNull('parent_id')->whereNotIn('slug', $this->hiddenModules)->with(['children' => function ($query) {
-            $query->whereNotIn('slug', $this->hiddenModules);
-        },
-        ])
-            ->orderBy('sort_order')->get();
-    }
+    // public function getModules()
+    // {
+    //     return Module::whereNull('parent_id')->whereNotIn('slug', $this->hiddenModules)->with(['children' => function ($query) {
+    //         $query->whereNotIn('slug', $this->hiddenModules);
+    //     },
+    //     ])
+    //         ->orderBy('sort_order')->get();
+    // }
 
     public function createRole(array $data)
     {

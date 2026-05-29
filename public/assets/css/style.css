@@ -153,3 +153,13 @@ body {
     overflow: auto;
     white-space: nowrap;
 }
+
+
+.form-check-input:checked {
+        background-color: #198754 !important; /* Bootstrap success green */
+        border-color: #198754 !important;
+    }
+    /* Switch toggle ke liye */
+    .form-switch .form-check-input:checked {
+        background-color: #198754 !important;
+    }

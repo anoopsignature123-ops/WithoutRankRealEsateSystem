@@ -139,7 +139,7 @@ class ModuleSeeder extends Seeder
 
             [
                 'name' => 'Add Associate',
-                'slug' => 'associate',
+                'slug' => 'associate-create',
                 'parent_slug' => 'associate',
                 'route_name' => 'associate.create',
                 'active_routes' => 'associate.create*',

@@ -1,10 +1,14 @@
 @php
     $isAssociate = auth()->guard('associate')->check();
     $currentUser = $isAssociate ? auth()->guard('associate')->user() : auth()->user();
-    $profilePhoto =
-        $isAssociate && $currentUser->photo
+    $profilePhoto = $isAssociate
+        ? ($currentUser->photo
             ? getFileUrl($currentUser->photo)
-            : asset('assets/images/user2-160x160.jpg');
+            : asset('assets/images/user2-160x160.jpg'))
+        : ($currentUser->profile_image
+            ? getFileUrl($currentUser->profile_image)
+            : asset('assets/images/user2-160x160.jpg'));
+
 @endphp
 <nav class="app-header navbar navbar-expand bg-body">
     <div class="container-fluid">
@@ -14,12 +18,12 @@
                     <i class="bi bi-list"></i>
                 </a>
             </li>
-            <li class="nav-item d-none d-md-block">
+            {{-- <li class="nav-item d-none d-md-block">
                 <a href="#" class="nav-link">Home</a>
             </li>
             <li class="nav-item d-none d-md-block">
                 <a href="#" class="nav-link">Contact</a>
-            </li>
+            </li> --}}
         </ul>
         <ul class="navbar-nav ms-auto">
             <li class="nav-item dropdown user-menu">
@@ -49,9 +53,15 @@
                         </small>
                     </li>
                     <li>
-                        <a href="{{ $isAssociate ? route('associate-panel.view-profile') : '#' }}"
+                        <a href="{{ $isAssociate ? route('associate-panel.view-profile') : route('profile') }}"
                             class="dropdown-item py-2 d-flex align-items-center">
-                            <i class="bi bi-person me-2"></i> Profile
+                            <i class="bi bi-person me-2"></i> Manage Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ $isAssociate ? route('associate-panel.change-password') : route('change-password') }}" class="dropdown-item py-2 d-flex align-items-center">
+                            <i class="bi bi-shield-lock me-2"></i>
+                            Change Password
                         </a>
                     </li>
                     <li>

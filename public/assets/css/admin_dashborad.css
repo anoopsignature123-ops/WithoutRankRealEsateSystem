@@ -1,0 +1,116 @@
+/* Premium Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes cardShine {
+    0% {
+        transform: translateX(-100%) rotate(45deg);
+    }
+
+    100% {
+        transform: translateX(200%) rotate(45deg);
+    }
+}
+
+@keyframes fillProgress {
+    from {
+        width: 0%;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.hover-lift {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    text-decoration: none;
+    display: block;
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+.card-fill-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    opacity: 0.05;
+    z-index: 0;
+    pointer-events: none;
+    animation: fillProgress 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.premium-shine-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: skewX(-25deg) translateX(-150%);
+    z-index: 1;
+}
+
+.hover-lift:hover .premium-shine-layer {
+    animation: cardShine 0.8s ease-in-out;
+}
+
+.glass-header {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    min-height: 100px;
+}
+
+.glass-header::after {
+    content: "";
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: rgba(13, 110, 253, 0.1);
+    filter: blur(40px);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+
+.text-purple { color: #6f42c1; }
+.bg-purple { background-color: #6f42c1; }
+.table thead th { font-size: 0.85rem; text-transform: uppercase; color: #6c757d; }
+
+.card .bi {
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+    padding: 5px;
+}
+.card .bi:hover {
+    color: #198754;  
+}
+
+

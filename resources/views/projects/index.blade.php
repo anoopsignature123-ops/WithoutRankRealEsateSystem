@@ -12,7 +12,7 @@
                         <p class="text-muted mb-0 small">Manage all projects</p>
                     </div>
 
-                    @can('project-create')
+                    @can('project-modify')
                         <a href="{{ route('projects.create') }}" 
                            class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
                             <i class="bi bi-plus-circle me-1"></i> Add Project
@@ -33,7 +33,7 @@
                                 <th>Site Name</th>
                                 <th>Site Location</th>
                                 <th>Date</th>
-                                @if (auth()->user()->can('project-edit') || auth()->user()->can('project-delete'))
+                                @if (auth()->user()->can('project-modify'))
                                     <th width="150">Action</th>
                                 @endif
                             </tr>
@@ -46,16 +46,14 @@
                                     <td>{{ $project->location }}</td>
                                     <td>{{ $project->date }}</td>
 
-                                    @if (auth()->user()->can('project-edit') || auth()->user()->can('project-delete'))
+                                    @if (auth()->user()->can('project-modify'))
                                         <td>
-                                            @can('project-edit')
+
                                                 <a href="{{ route('projects.edit', $project->id) }}" 
                                                    class="btn btn-sm btn-outline-primary me-1" title="Edit">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
-                                            @endcan
-
-                                            @can('project-delete')
+                                    
                                                 <form method="POST" action="{{ route('projects.destroy', $project->id) }}" 
                                                       class="d-inline delete-form">
                                                     @csrf
@@ -64,7 +62,7 @@
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
-                                            @endcan
+                                        
                                         </td>
                                     @endif
                                 </tr>

@@ -97,4 +97,11 @@ class CustomerBooking extends Model
             CancelBooking::class
         );
     }
+
+
+    // CustomerBooking.php mein
+public function latestPayment()
+{
+    return $this->hasOne(CustomerPayment::class)->latestOfMany();
+}
 }
