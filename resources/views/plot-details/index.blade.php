@@ -12,8 +12,9 @@
                         <p class="text-muted mb-0 small">Manage plot details and inventory</p>
                     </div>
 
-                    @can('plot-details-create')
-                        <a href="{{ route('plot-details.create') }}" class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
+                    @can('plot-details-modify')
+                        <a href="{{ route('plot-details.create') }}"
+                            class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
                             <i class="bi bi-plus-circle me-1"></i> Add Plot
                         </a>
                     @endcan
@@ -31,7 +32,8 @@
                             <select name="project_id" id="filter_project_id" class="form-control form-select select2">
                                 <option value="">All Projects</option>
                                 @foreach ($projects as $project)
-                                    <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
+                                    <option value="{{ $project->id }}"
+                                        {{ request('project_id') == $project->id ? 'selected' : '' }}>
                                         {{ $project->name }}
                                     </option>
                                 @endforeach
@@ -45,8 +47,10 @@
                         </div>
                         <div class="col-md-4 d-flex align-items-end gap-2">
                             <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Filter</button>
-                            <a href="{{ route('plot-details.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-clockwise me-1"></i>Reset</a>
-                            <a href="{{ route('plot-details.export', request()->all()) }}" class="btn btn-success"><i class="bi bi-download me-1"></i>Export</a>
+                            <a href="{{ route('plot-details.index') }}" class="btn btn-secondary"><i
+                                    class="bi bi-arrow-clockwise me-1"></i>Reset</a>
+                            <a href="{{ route('plot-details.export', request()->all()) }}" class="btn btn-success"><i
+                                    class="bi bi-download me-1"></i>Export</a>
                         </div>
                     </div>
                 </form>
@@ -69,7 +73,7 @@
                                 <th>Area</th>
                                 <th>Rate</th>
                                 <th>Status</th>
-                                @if(auth()->user()->can('plot-details-edit') || auth()->user()->can('plot-details-delete'))
+                                @if (auth()->user()->can('plot-details-modify'))
                                     <th>Action</th>
                                 @endif
                             </tr>
@@ -86,27 +90,34 @@
                                     <td>{{ number_format($plot->plot_area, 2) }}</td>
                                     <td>{{ number_format($plot->plot_rate, 2) }}</td>
                                     <td>
-                                        <span class="badge {{ $plot->status == 'available' ? 'bg-success' : 'bg-danger' }}">
+                                        <span
+                                            class="badge {{ $plot->status == 'available' ? 'bg-success' : 'bg-danger' }}">
                                             {{ ucfirst($plot->status) }}
                                         </span>
                                     </td>
-                                    @if(auth()->user()->can('plot-details-edit') || auth()->user()->can('plot-details-delete'))
+                                    @if (auth()->user()->can('plot-details-edit'))
                                         <td>
-                                            <a href="{{ route('plot-details.show', $plot->id) }}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
-                                            @can('plot-details-edit')
-                                                <a href="{{ route('plot-details.edit', $plot->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                                            @endcan
-                                            @can('plot-details-delete')
-                                                <form method="POST" action="{{ route('plot-details.destroy', $plot->id) }}" class="d-inline delete-form">
-                                                    @csrf @method('DELETE')
-                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-btn"><i class="bi bi-trash"></i></button>
-                                                </form>
-                                            @endcan
+                                            <a href="{{ route('plot-details.show', $plot->id) }}"
+                                                class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
+
+                                            <a href="{{ route('plot-details.edit', $plot->id) }}"
+                                                class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+
+
+                                            <form method="POST" action="{{ route('plot-details.destroy', $plot->id) }}"
+                                                class="d-inline delete-form">
+                                                @csrf @method('DELETE')
+                                                <button type="button" class="btn btn-sm btn-outline-danger delete-btn"><i
+                                                        class="bi bi-trash"></i></button>
+                                            </form>
+
                                         </td>
                                     @endif
                                 </tr>
                             @empty
-                                <tr><td colspan="10" class="text-center">No data found</td></tr>
+                                <tr>
+                                    <td colspan="10" class="text-center">No data found</td>
+                                </tr>
                             @endforelse
                         </tbody>
                     </table>

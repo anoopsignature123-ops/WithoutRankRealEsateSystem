@@ -11,7 +11,7 @@
                 </div>
             </div>
         </div>
-        @can('lead-source-create')
+        @can('lead-source-modify')
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
                 <form method="POST" id="sourceForm" action="{{ route('source.store') }}">
@@ -53,14 +53,14 @@
                                         {{ $source->created_at ? $source->created_at->format('d-M-Y') : 'N/A' }}
                                     </td>
                                     <td class="text-center">
-                                        @can('lead-source-edit')
+                                        @can('lead-source-modify')
                                         <button type="button" class="btn btn-sm btn-outline-primary editBtn"
                                             data-id="{{ $source->id }}" data-name="{{ $source->name }}">
                                             <i class="bi bi-pencil"></i>
                                         </button>
                                         @endcan
                                         
-                                        @can('lead-source-delete')
+                                        @can('lead-source-modify')
                                         <form action="{{ route('source.destroy', $source->id) }}" method="POST"
                                             class="d-inline delete-form">
                                             @csrf

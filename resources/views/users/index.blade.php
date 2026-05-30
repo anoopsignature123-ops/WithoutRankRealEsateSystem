@@ -3,7 +3,7 @@
     <div class="container-fluid mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="fw-bold">Users Management</h3>
-            @can('users-create')
+            @can('users-modify')
                 <a href="{{ route('users.create') }}" class="btn btn-success">
                     + Add User
                 </a>
@@ -48,18 +48,18 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @can('users-view')
+                                        @can('users-list')
                                             <a href="{{ route('users.show', $user->id) }}" class="btn btn-sm btn-outline-info">
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                         @endcan
-                                        @can('users-edit')
+                                        @can('users-modify')
                                             <a href="{{ route('users.edit', $user->id) }}"
                                                 class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                         @endcan
-                                        @can('users-delete')
+                                        @can('users-modify')
                                             <form action="{{ route('users.destroy', $user->id) }}" method="POST"
                                                 class="d-inline delete-form">
                                                 @csrf

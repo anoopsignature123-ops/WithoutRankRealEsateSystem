@@ -7,7 +7,7 @@
                 <h3 class="fw-bold mb-1">Company Profile</h3>
                 <small class="text-muted">Manage company details and activation state</small>
             </div>
-            @can('company-profile-create')
+            @can('company-profile-modify')
                 <a href="{{ route('company.create') }}" class="btn btn-success shadow-sm">
                     <i class="bi bi-plus-circle me-1"></i> Add Company
                 </a>
@@ -26,7 +26,7 @@
                                 <th>Email</th>
                                 <th>Contact</th>
                                 <th width="200">Status</th>
-                                @if (auth()->user()->can('company-profile-edit') || auth()->user()->can('company-profile-delete'))
+                                @if (auth()->user()->can('company-profile-modify'))
                                     <th width="120">Action</th>
                                 @endif
                             </tr>
@@ -57,16 +57,13 @@
                                             </label>
                                         </div>
                                     </td>
-                                    @if (auth()->user()->can('company-profile-edit') || auth()->user()->can('company-profile-delete'))
+                                    @if (auth()->user()->can('company-profile-modify'))
                                         <td>
-                                            @can('company-profile-edit')
+                                           
                                                 <a href="{{ route('company.edit', $company->id) }}"
                                                     class="btn btn-sm btn-outline-primary me-1" title="Edit">
                                                     <i class="bi bi-pencil"></i>
-                                                </a>
-                                            @endcan
-
-                                            @can('company-profile-delete')
+                                               </a>                                    
                                                 <form method="POST" action="{{ route('company.destroy', $company->id) }}"
                                                     class="d-inline delete-form">
                                                     @csrf
@@ -76,7 +73,7 @@
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
-                                            @endcan
+                                             
                                         </td>
                                     @endif
                                 </tr>

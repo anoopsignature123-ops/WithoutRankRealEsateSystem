@@ -16,7 +16,7 @@
         </div>
 
         {{-- Form Section (Permission Check) --}}
-        @can('enquiry-type-create')
+        @can('enquiry-type-modify')
         <div class="card shadow-sm border-0 mb-4 rounded-4">
             <div class="card-header bg-white border-bottom-0 pt-4">
                 <h5 class="fw-bold mb-0" id="formTitle">Add New Lead Type</h5>
@@ -47,13 +47,13 @@
                                     <td><span class="fw-bold">{{ ucfirst($type->name) }}</span></td>
                                     <td>{{ $type->created_at ? $type->created_at->format('d-M-Y') : 'N/A' }}</td>
                                     <td class="text-center">
-                                        @can('enquiry-type-edit')
+                                        @can('enquiry-type-modify')
                                         <button type="button" class="btn btn-sm btn-outline-primary editBtn rounded-pill px-3" data-id="{{ $type->id }}">
                                             <i class="bi bi-pencil"></i>
                                         </button>
                                         @endcan
                                         
-                                        @can('enquiry-type-delete')
+                                        @can('enquiry-type-modify')
                                         <form action="{{ route('enquiry-type.destroy', $type->id) }}" method="POST" class="d-inline delete-form">
                                             @csrf @method('DELETE')
                                             <button type="button" class="btn btn-sm btn-outline-danger delete-btn rounded-pill px-3">

@@ -99,11 +99,11 @@
                                         <small class="text-muted">{{ $support->created_at->format('h:i A') }}</small>
                                     </td>
                                     <td class="text-center">
-                                        @can('support-management-view')
+                                        
                                         <a href="{{ route('support.detail', $support->id) }}" class="btn btn-success btn-sm rounded-pill px-3" title="Show Detail">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        @endcan
+                                        
                                     </td>
                                 </tr>
                             @empty

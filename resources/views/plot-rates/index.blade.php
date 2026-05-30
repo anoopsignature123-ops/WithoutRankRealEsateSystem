@@ -10,8 +10,9 @@
                         <h3 class="fw-bold mb-1 text-dark">Plot Rate Master</h3>
                         <p class="text-muted mb-0 small">Manage and configure plot rates</p>
                     </div>
-                    @can('plc-development-rate-create')
-                        <a href="{{ route('plot-rates.create') }}" class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
+                    @can('plc-development-rate-modify')
+                        <a href="{{ route('plot-rates.create') }}"
+                            class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
                             <i class="bi bi-plus-circle me-1"></i> Add Plot Rate
                         </a>
                     @endcan
@@ -31,7 +32,7 @@
                                 <th>Project</th>
                                 <th>Block</th>
                                 <th>Plot Rate</th>
-                                @if(auth()->user()->can('plc-development-rate-edit') || auth()->user()->can('plc-development-rate-delete'))
+                                @if (auth()->user()->can('plc-development-rate-modify'))
                                     <th width="150">Action</th>
                                 @endif
                             </tr>
@@ -43,17 +44,20 @@
                                     <td>{{ $plotRate->project?->name }}</td>
                                     <td>{{ $plotRate->block?->block }}</td>
                                     <td>{{ number_format($plotRate->plot_rate, 2, '.', '') }}</td>
-                                    @if(auth()->user()->can('plc-development-rate-edit') || auth()->user()->can('plc-development-rate-delete'))
+                                    @if (auth()->user()->can('plc-development-rate-modify'))
                                         <td>
-                                            @can('plc-development-rate-edit')
-                                                <a href="{{ route('plot-rates.edit', $plotRate->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                                            @endcan
-                                            @can('plc-development-rate-delete')
-                                                <form action="{{ route('plot-rates.destroy', $plotRate->id) }}" method="POST" class="d-inline delete-form">
-                                                    @csrf @method('DELETE')
-                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-btn"><i class="bi bi-trash"></i></button>
-                                                </form>
-                                            @endcan
+
+                                            <a href="{{ route('plot-rates.edit', $plotRate->id) }}"
+                                                class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+
+
+                                            <form action="{{ route('plot-rates.destroy', $plotRate->id) }}" method="POST"
+                                                class="d-inline delete-form">
+                                                @csrf @method('DELETE')
+                                                <button type="button" class="btn btn-sm btn-outline-danger delete-btn"><i
+                                                        class="bi bi-trash"></i></button>
+                                            </form>
+
                                         </td>
                                     @endif
                                 </tr>

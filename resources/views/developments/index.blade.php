@@ -10,7 +10,7 @@
                         <h3 class="fw-bold mb-1 text-dark">Development Master</h3>
                         <p class="text-muted mb-0 small">Manage development amounts</p>
                     </div>
-                    @can('plc-development-rate-create')
+                    @can('plc-development-rate-modify')
                         <a href="{{ route('developments.create') }}" class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
                             <i class="bi bi-plus-circle me-1"></i> Add Development
                         </a>
@@ -29,7 +29,7 @@
                             <tr>
                                 <th width="80">#</th>
                                 <th>Amount</th>
-                                @if(auth()->user()->can('plc-development-rate-edit') || auth()->user()->can('plc-development-rate-delete'))
+                                @if(auth()->user()->can('plc-development-rate-modify'))
                                     <th width="150">Action</th>
                                 @endif
                             </tr>
@@ -39,17 +39,17 @@
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
                                     <td>₹ {{ number_format($development->amount, 2, '.', '') }}</td>
-                                    @if(auth()->user()->can('plc-development-rate-edit') || auth()->user()->can('plc-development-rate-delete'))
+                                    @if(auth()->user()->can('plc-development-rate-modify'))
                                         <td>
-                                            @can('plc-development-rate-edit')
+                                            
                                                 <a href="{{ route('developments.edit', $development->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                                            @endcan
-                                            @can('plc-development-rate-delete')
+                                            
+                                            
                                                 <form action="{{ route('developments.destroy', $development->id) }}" method="POST" class="d-inline">
                                                     @csrf @method('DELETE')
                                                     <button type="button" class="btn btn-sm btn-outline-danger delete-btn"><i class="bi bi-trash"></i></button>
                                                 </form>
-                                            @endcan
+                                             
                                         </td>
                                     @endif
                                 </tr>

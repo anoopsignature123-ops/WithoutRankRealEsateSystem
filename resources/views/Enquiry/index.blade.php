@@ -15,7 +15,7 @@
         </div>
 
         {{-- Form Section (Permission Check) --}}
-        @can('new-enquiry-create')
+        @can('new-enquiry-modify')
         <div class="card shadow-sm border-0 mb-4 rounded-4">
             <div class="card-body p-4">
                 @include('enquiry.form')
@@ -55,13 +55,13 @@
                                     <td>{{ $enquiry->followup_date ? \Carbon\Carbon::parse($enquiry->followup_date)->format('d-M-Y') : 'N/A' }}</td>
                                     <td>{{ $enquiry->created_at ? $enquiry->created_at->format('d-M-Y') : 'N/A' }}</td>
                                     <td class="text-center">
-                                        @can('new-enquiry-edit')
+                                        @can('new-enquiry-modify')
                                         <button type="button" class="btn btn-sm btn-outline-primary editBtn rounded-pill px-3" data-id="{{ $enquiry->id }}">
                                             <i class="bi bi-pencil"></i>
                                         </button>
                                         @endcan
                                         
-                                        @can('new-enquiry-delete')
+                                        @can('new-enquiry-modify')
                                         <form action="{{ route('enquiry.destroy', $enquiry->id) }}" method="POST" class="d-inline delete-form">
                                             @csrf @method('DELETE')
                                             <button type="button" class="btn btn-sm btn-outline-danger delete-btn rounded-pill px-3">

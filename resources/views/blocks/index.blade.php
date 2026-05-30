@@ -12,9 +12,8 @@
                         <p class="text-muted mb-0 small">Manage all project blocks</p>
                     </div>
 
-                    @can('blocks-create')
-                        <a href="{{ route('blocks.create') }}" 
-                           class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
+                    @can('blocks-modify')
+                        <a href="{{ route('blocks.create') }}" class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
                             <i class="bi bi-plus-circle me-1"></i> Add Block
                         </a>
                     @endcan
@@ -32,7 +31,7 @@
                                 <th>#</th>
                                 <th>Project Name</th>
                                 <th>Block Name</th>
-                                @if (auth()->user()->can('blocks-edit') || auth()->user()->can('blocks-delete'))
+                                @if (auth()->user()->can('blocks-modify'))
                                     <th width="150">Action</th>
                                 @endif
                             </tr>
@@ -43,24 +42,23 @@
                                     <td>{{ $key + 1 }}</td>
                                     <td>{{ $block->project?->name }}</td>
                                     <td>{{ ucfirst($block->block) }}</td>
-                                    @if (auth()->user()->can('blocks-edit') || auth()->user()->can('blocks-delete'))
+                                    @if (auth()->user()->can('blocks-modify'))
                                         <td>
-                                            @can('blocks-edit')
-                                                <a href="{{ route('blocks.edit', $block->id) }}" 
-                                                   class="btn btn-sm btn-outline-primary me-1" title="Edit">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                            @endcan
-                                            @can('blocks-delete')
-                                                <form method="POST" action="{{ route('blocks.destroy', $block->id) }}" 
-                                                      class="d-inline delete-form">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-btn" title="Delete">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
-                                            @endcan
+                                            <a href="{{ route('blocks.edit', $block->id) }}"
+                                                class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+
+                                            <form method="POST" action="{{ route('blocks.destroy', $block->id) }}"
+                                                class="d-inline delete-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="btn btn-sm btn-outline-danger delete-btn"
+                                                    title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+
                                         </td>
                                     @endif
                                 </tr>
@@ -82,7 +80,8 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            if ($('#blocksTable tbody tr').length > 0 && $('#blocksTable tbody tr td').attr('colspan') == undefined) {
+            if ($('#blocksTable tbody tr').length > 0 && $('#blocksTable tbody tr td').attr('colspan') ==
+                undefined) {
                 $('#blocksTable').DataTable({
                     pageLength: 10,
                     ordering: true,

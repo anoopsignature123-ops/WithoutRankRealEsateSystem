@@ -87,7 +87,7 @@
             @endforeach
 
             <div class="d-flex justify-content-end py-4">
-                <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm">
+                <button type="submit" class="btn btn-success px-5 rounded-pill shadow-sm">
                     <i class="bi bi-save me-2"></i> Update Role Configuration
                 </button>
             </div>

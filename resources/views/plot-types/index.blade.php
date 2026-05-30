@@ -12,9 +12,9 @@
                         <p class="text-muted mb-0 small">Manage all plot types</p>
                     </div>
 
-                    @can('plot-types-create')
-                        <a href="{{ route('plot-types.create') }}" 
-                           class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
+                    @can('plot-types-modify')
+                        <a href="{{ route('plot-types.create') }}"
+                            class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
                             <i class="bi bi-plus-circle me-1"></i> Add Plot Type
                         </a>
                     @endcan
@@ -32,7 +32,7 @@
                                 <th>#</th>
                                 <th>Plot Type Name</th>
                                 <th>Date</th>
-                                @if (auth()->user()->can('plot-types-edit') || auth()->user()->can('plot-types-delete'))
+                                @if (auth()->user()->can('plot-types-modify'))
                                     <th width="150">Action</th>
                                 @endif
                             </tr>
@@ -44,25 +44,26 @@
                                     <td>{{ $plotType->plot_type_name }}</td>
                                     <td>{{ $plotType->date ?? 'N/A' }}</td>
 
-                                    @if (auth()->user()->can('plot-types-edit') || auth()->user()->can('plot-types-delete'))
+                                    @if (auth()->user()->can('plot-types-modify'))
                                         <td>
-                                            @can('plot-types-edit')
-                                                <a href="{{ route('plot-types.edit', $plotType->id) }}" 
-                                                   class="btn btn-sm btn-outline-primary me-1" title="Edit">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                            @endcan
 
-                                            @can('plot-types-delete')
-                                                <form method="POST" action="{{ route('plot-types.destroy', $plotType->id) }}" 
-                                                      class="d-inline delete-form">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-btn" title="Delete">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
-                                            @endcan
+                                            <a href="{{ route('plot-types.edit', $plotType->id) }}"
+                                                class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+
+
+
+                                            <form method="POST" action="{{ route('plot-types.destroy', $plotType->id) }}"
+                                                class="d-inline delete-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="btn btn-sm btn-outline-danger delete-btn"
+                                                    title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+
                                         </td>
                                     @endif
                                 </tr>
@@ -84,7 +85,8 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            if ($('#plotTypeTable tbody tr').length > 0 && $('#plotTypeTable tbody tr td').attr('colspan') == undefined) {
+            if ($('#plotTypeTable tbody tr').length > 0 && $('#plotTypeTable tbody tr td').attr('colspan') ==
+                undefined) {
                 $('#plotTypeTable').DataTable({
                     pageLength: 10,
                     ordering: true,

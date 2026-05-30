@@ -23,8 +23,8 @@
                         style="width: 70px; height: 70px; background:   backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3);">
                         <div class="welcome-profile overflow-hidden p-0">
                             <div class="welcome-profile overflow-hidden p-0">
-                                {!! Auth::user()->image
-                                    ? '<img src="' . getFileUrl(Auth::user()->image) . '" alt="Profile" class="w-100 h-100 object-fit-cover">'
+                                {!! Auth::user()->profile_image
+                                    ? '<img src="' . getFileUrl(Auth::user()->profile_image) . '" alt="Profile" class="w-100 h-100 object-fit-cover">'
                                     : '<span class="fs-2 fw-bold text-white">' . substr(Auth::user()->name ?? 'A', 0, 1) . '</span>' !!}
                             </div>
                         </div>

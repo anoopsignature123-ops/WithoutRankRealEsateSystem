@@ -10,8 +10,9 @@
                         <h3 class="fw-bold mb-1 text-dark">Associate Advances</h3>
                         <p class="text-muted mb-0 small">Manage and track associate advance payments</p>
                     </div>
-                    @can('associate-advance-create')
-                        <a href="{{ route('associate-advances.create') }}" class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
+                    @can('associate-advance-modify')
+                        <a href="{{ route('associate-advances.create') }}"
+                            class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
                             <i class="bi bi-plus-circle me-1"></i> Add Advance
                         </a>
                     @endcan
@@ -32,7 +33,7 @@
                                 <th>Advance Amount</th>
                                 <th>Advance Date</th>
                                 <th>Remarks</th>
-                                @if(auth()->user()->can('associate-advance-edit') || auth()->user()->can('associate-advance-delete'))
+                                @if (auth()->user()->can('associate-advance-modify'))
                                     <th width="120">Action</th>
                                 @endif
                             </tr>
@@ -41,22 +42,28 @@
                             @forelse($advances as $key => $advance)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                    <td><span class="badge bg-light text-dark border">{{ $advance->associate?->associate_id ?? '-' }}</span></td>
+                                    <td><span
+                                            class="badge bg-light text-dark border">{{ $advance->associate?->associate_id ?? '-' }}</span>
+                                    </td>
                                     <td class="fw-medium">{{ $advance->associate?->associate_name ?? '-' }}</td>
                                     <td class="fw-bold text-success">₹{{ number_format($advance->advance_amount, 2) }}</td>
                                     <td class="text-muted">{{ $advance->advance_date?->format('d-m-Y') }}</td>
                                     <td>{{ $advance->remarks ?? '-' }}</td>
-                                    @if(auth()->user()->can('associate-advance-edit') || auth()->user()->can('associate-advance-delete'))
+                                    @if (auth()->user()->can('associate-advance-modify'))
                                         <td>
-                                            @can('associate-advance-edit')
-                                                <a href="{{ route('associate-advances.edit', $advance->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                                            @endcan
-                                            @can('associate-advance-delete')
-                                                <form method="POST" action="{{ route('associate-advances.destroy', $advance->id) }}" class="d-inline">
-                                                    @csrf @method('DELETE')
-                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-btn"><i class="bi bi-trash"></i></button>
-                                                </form>
-                                            @endcan
+
+                                            <a href="{{ route('associate-advances.edit', $advance->id) }}"
+                                                class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+
+
+                                            <form method="POST"
+                                                action="{{ route('associate-advances.destroy', $advance->id) }}"
+                                                class="d-inline">
+                                                @csrf @method('DELETE')
+                                                <button type="button" class="btn btn-sm btn-outline-danger delete-btn"><i
+                                                        class="bi bi-trash"></i></button>
+                                            </form>
+
                                         </td>
                                     @endif
                                 </tr>
