@@ -123,56 +123,165 @@
         <div class="row g-4 mb-4 align-items-stretch">
 
             <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 d-flex flex-column">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="fw-bold mb-0">
-                            Visitors Overview
-                        </h5>
+                    <div class="card-header bg-white border-0 p-4 pb-0">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    <i class="bi bi-graph-up-arrow text-success me-2"></i>
+                                    Business Overview
+                                </h5>
+                                <p class="text-muted small mb-0">
+                                    Month wise confirmed amount and due amount summary.
+                                </p>
+                            </div>
 
-                        <div class="d-flex gap-3 text-muted">
-                            <i class="bi bi-arrow-clockwise" title="Refresh" onclick="refreshChart()"
-                                style="cursor:pointer"></i>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-light btn-sm rounded-circle" onclick="refreshChart()">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
 
-                            <i class="bi bi-bar-chart" title="Toggle Chart Type" onclick="toggleChartType()"
-                                style="cursor:pointer"></i>
+                                <button type="button" class="btn btn-light btn-sm rounded-circle"
+                                    onclick="toggleChartType()">
+                                    <i class="bi bi-bar-chart"></i>
+                                </button>
 
-                            <i class="bi bi-download" title="Download" onclick="downloadChart()" style="cursor:pointer"></i>
+                                <button type="button" class="btn btn-light btn-sm rounded-circle"
+                                    onclick="downloadChart()">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="flex-grow: 1; position: relative; min-height: 300px;">
-                        <canvas id="mainChart"></canvas>
+                    <div class="card-body p-4">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-4 border bg-success bg-opacity-10">
+                                    <small class="text-muted fw-semibold">Confirmed Amount</small>
+                                    <h5 class="fw-bold text-success mb-0">
+                                        ₹ {{ number_format($confirmedPayment ?? 0, 2) }}
+                                    </h5>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-4 border bg-light">
+                                    <small class="text-muted fw-semibold">Due Amount</small>
+                                    <h5 class="fw-bold text-dark mb-0">
+                                        ₹ {{ number_format($pendingPayment ?? 0, 2) }}
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="position: relative; min-height: 330px;">
+                            <canvas id="mainChart"></canvas>
+                        </div>
                     </div>
 
                 </div>
             </div>
 
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 d-flex flex-column">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
 
-                    <h5 class="fw-bold mb-3">
-                        Plot Status
-                    </h5>
+                    {{-- Header --}}
+                    <div class="card-header bg-white border-0 p-4 pb-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    <i class="bi bi-pie-chart-fill text-success me-2"></i>
+                                    Plot Status
+                                </h5>
 
-                    <div style="flex-grow: 1; position: relative; min-height: 200px;">
-                        <canvas id="pieChart"></canvas>
+                                <p class="text-muted small mb-0">
+                                    Live plot inventory overview
+                                </p>
+                            </div>
+
+                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center"
+                                style="width:50px;height:50px;">
+                                <i class="bi bi-grid-3x3-gap-fill fs-5"></i>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mt-3 pt-3 border-top d-flex justify-content-around text-center">
-                        <div>
-                            <small class="text-muted d-block">Occupied</small>
-                            <span class="fw-bold">
-                                {{ ($booked ?? 0) + ($hold ?? 0) + ($registry ?? 0) }}
-                            </span>
+                    {{-- Chart --}}
+                    <div class="card-body px-4 pt-3 pb-2">
+                        <div style="height:260px; position:relative;">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+
+                    {{-- Status Cards --}}
+                    <div class="px-4 pb-4">
+
+                        <div class="row g-3">
+
+                            <div class="col-6">
+                                <div class="border rounded-4 p-3 text-center bg-light">
+                                    <small class="text-muted d-block mb-1">
+                                        Available
+                                    </small>
+
+                                    <h5 class="fw-bold text-success mb-0">
+                                        {{ $available ?? 0 }}
+                                    </h5>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="border rounded-4 p-3 text-center bg-light">
+                                    <small class="text-muted d-block mb-1">
+                                        Occupied
+                                    </small>
+
+                                    <h5 class="fw-bold text-danger mb-0">
+                                        {{ ($booked ?? 0) + ($hold ?? 0) + ($registry ?? 0) }}
+                                    </h5>
+                                </div>
+                            </div>
+
+                            <div class="col-4">
+                                <div class="text-center">
+                                    <div class="small text-muted">
+                                        Booked
+                                    </div>
+
+                                    <div class="fw-bold text-danger">
+                                        {{ $booked ?? 0 }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-4">
+                                <div class="text-center">
+                                    <div class="small text-muted">
+                                        Hold
+                                    </div>
+
+                                    <div class="fw-bold text-warning">
+                                        {{ $hold ?? 0 }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-4">
+                                <div class="text-center">
+                                    <div class="small text-muted">
+                                        Registry
+                                    </div>
+
+                                    <div class="fw-bold text-primary">
+                                        {{ $registry ?? 0 }}
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
-                        <div>
-                            <small class="text-muted d-block">Available</small>
-                            <span class="fw-bold text-success">
-                                {{ $available ?? 0 }}
-                            </span>
-                        </div>
                     </div>
 
                 </div>
@@ -184,11 +293,9 @@
         <div class="row g-4 mb-4">
 
             <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
 
-                    <div
-                        class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex align-items-center flex-wrap gap-2">
-
+                    <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex align-items-center flex-wrap gap-2">
                         <h5 class="fw-bold mb-0 text-dark me-auto">
                             <i class="bi bi-calendar-check me-2 text-success"></i>
                             Current Month's Dues
@@ -196,12 +303,9 @@
 
                         <div class="px-3 py-1 rounded-pill d-flex align-items-center shadow-sm"
                             style="background-color: #d1e7dd; color: #0f5132; font-weight: 600; font-size: 0.85rem; border: 1px solid #badbcc;">
-
                             <span class="spinner-grow spinner-grow-sm me-2" style="width: 0.5rem; height: 0.5rem;"></span>
-
                             {{ $monthlyDues->count() }} Pending Due
                         </div>
-
                     </div>
 
                     <div class="card-body p-4">
@@ -209,13 +313,15 @@
 
                             <table class="table table-hover align-middle mb-0">
 
-                                <thead class="table-light">
+                                <thead style="background:#2f9b6b;color:#fff;">
                                     <tr>
                                         <th>Sr.</th>
                                         <th>Booking ID</th>
                                         <th>Project</th>
                                         <th>Customer</th>
                                         <th>Plot No.</th>
+                                        <th>Payment Type</th>
+                                        <th>Mode</th>
                                         <th>Amount</th>
                                         <th>Due Date</th>
                                     </tr>
@@ -225,9 +331,7 @@
                                     @forelse($monthlyDues as $index => $due)
                                         <tr>
                                             <td>
-                                                <span class="text-muted small">
-                                                    #{{ $index + 1 }}
-                                                </span>
+                                                <span class="text-muted small">#{{ $index + 1 }}</span>
                                             </td>
 
                                             <td>
@@ -244,15 +348,44 @@
                                                 <div class="fw-semibold">
                                                     {{ $due->customerBooking?->primaryDetail?->name ?? ($due->customerBooking?->customer_name ?? 'N/A') }}
                                                 </div>
-
                                                 <small class="text-muted">
                                                     {{ $due->customerBooking?->customer_code ?? '' }}
                                                 </small>
                                             </td>
 
                                             <td>
-                                                <span class="badge bg-light text-dark border">
+                                                <span class="badge bg-light text-dark border rounded-pill px-3">
                                                     {{ $due->plotSaleDetail?->plotDetail?->plot_number ?? 'N/A' }}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                @if ($due->plan_type == 'emi_plan')
+                                                    <span
+                                                        class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2">
+                                                        EMI Plan
+                                                    </span>
+                                                @elseif ($due->plan_type == 'full_payment')
+                                                    <span
+                                                        class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                                        Full Payment
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+                                                        {{ $due->plan_type ? ucwords(str_replace('_', ' ', $due->plan_type)) : 'N/A' }}
+                                                    </span>
+                                                @endif
+                                            </td>
+
+                                            <td>
+                                                @php
+                                                    $modeLabel = $due->payment_mode
+                                                        ? ucwords(str_replace('_', ' / ', $due->payment_mode))
+                                                        : 'N/A';
+                                                @endphp
+
+                                                <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+                                                    {{ $modeLabel }}
                                                 </span>
                                             </td>
 
@@ -271,7 +404,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-center text-muted py-5">
+                                            <td colspan="9" class="text-center text-muted py-5">
                                                 <i class="bi bi-check-circle fs-2 d-block mb-2 text-success"></i>
                                                 No pending dues for this month
                                             </td>
@@ -288,46 +421,96 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-                    <h5 class="fw-bold mb-4 text-dark">
-                        <i class="bi bi-wallet2 me-2"></i>
-                        Financial Summary
-                    </h5>
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                    {{-- Header --}}
+                    <div class="p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    <i class="bi bi-wallet2 me-2"></i>
+                                    Total Earnings
+                                </h5>
 
-                    <div class="d-flex flex-column gap-3">
-
-                        {{-- Confirmed Payment --}}
-                        <div class="p-3 border rounded-4 d-flex align-items-center">
-                            <div class="bg-success bg-opacity-10 p-3 rounded-3 me-3 text-success">
-                                <i class="bi bi-check-circle-fill fs-4"></i>
+                                <small class="opacity-75">
+                                    Business payment overview
+                                </small>
                             </div>
 
-                            <div>
-                                <small class="text-muted d-block">
-                                    Confirmed Payment
-                                </small>
-
-                                <span class="fs-5 fw-bold text-dark">
-                                    ₹ {{ number_format($confirmedPayment, 2) }}
-                                </span>
+                            <div class="bg-white bg-opacity-25 rounded-3 p-3">
+                                <i class="bi bi-cash-stack fs-3"></i>
                             </div>
                         </div>
 
-                        {{-- Pending Payment --}}
-                        <div class="p-3 border rounded-4 d-flex align-items-center">
-                            <div class="bg-warning bg-opacity-10 p-3 rounded-3 me-3 text-warning">
-                                <i class="bi bi-hourglass-split fs-4"></i>
+                    </div>
+
+                    {{-- Body --}}
+                    <div class="card-body p-4">
+
+                        {{-- Total Business --}}
+                        <div class="bg-light rounded-4 p-3 mb-4 text-center">
+
+                            <small class="text-muted d-block mb-1">
+                                Total Business Volume
+                            </small>
+
+                            <h3 class="fw-bold text-success mb-0">
+                                ₹ {{ number_format($confirmedPayment + $pendingPayment, 2) }}
+                            </h3>
+
+                        </div>
+
+                        <div class="d-flex flex-column gap-3">
+
+                            {{-- Confirmed --}}
+                            <div class="earning-box success">
+
+                                <div class="icon">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+
+                                <div class="flex-grow-1">
+
+                                    <small class="text-muted">
+                                        Confirmed Payment
+                                    </small>
+
+                                    <h5 class="fw-bold mb-0 text-success">
+                                        ₹ {{ number_format($confirmedPayment, 2) }}
+                                    </h5>
+
+                                </div>
+
+                                <div class="badge bg-success-subtle text-success px-3 py-2">
+                                    Received
+                                </div>
+
                             </div>
 
-                            <div>
-                                <small class="text-muted d-block">
-                                    Pending Payment
-                                </small>
+                            {{-- Pending --}}
+                            <div class="earning-box warning">
 
-                                <span class="fs-5 fw-bold text-dark">
-                                    ₹ {{ number_format($pendingPayment, 2) }}
-                                </span>
+                                <div class="icon">
+                                    <i class="bi bi-hourglass-split"></i>
+                                </div>
+
+                                <div class="flex-grow-1">
+
+                                    <small class="text-muted">
+                                        Pending Payment
+                                    </small>
+
+                                    <h5 class="fw-bold mb-0 text-warning">
+                                        ₹ {{ number_format($pendingPayment, 2) }}
+                                    </h5>
+
+                                </div>
+
+                                <div class="badge bg-warning-subtle text-warning px-3 py-2">
+                                    Pending
+                                </div>
+
                             </div>
+
                         </div>
 
                     </div>
@@ -343,8 +526,8 @@
     @php
         $safeVisitorsData = $visitorsData ?? [
             'labels' => [],
-            'registered' => [],
-            'guests' => [],
+            'monthlyPaidAmount' => [],
+            'monthlyDueAmount' => [],
         ];
     @endphp
     <script>
@@ -356,84 +539,131 @@
         let myMainChart = null;
 
         if (mainChartCanvas) {
-            const ctx = mainChartCanvas.getContext('2d');
+            const mainChartCtx = mainChartCanvas.getContext('2d');
 
-            const getChartConfig = (type) => ({
-                type: type,
-                data: {
-                    labels: chartData.labels,
-                    datasets: [{
-                            label: 'Registered Users',
-                            data: chartData.registered,
-                            backgroundColor: type === 'bar' ? '#20c997' : 'rgba(32, 201, 151, 0.25)',
-                            borderColor: '#20c997',
-                            borderWidth: 2,
-                            borderRadius: 4,
-                            tension: 0.4,
-                            fill: type === 'line'
-                        },
-                        {
-                            label: 'Guest Visitors',
-                            data: chartData.guests,
-                            backgroundColor: type === 'bar' ? '#e9ecef' : 'rgba(108, 117, 125, 0.18)',
-                            borderColor: '#adb5bd',
-                            borderWidth: 2,
-                            borderRadius: 4,
-                            tension: 0.4,
-                            fill: type === 'line'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20
+            const formatINR = function(value) {
+                return '₹ ' + Number(value || 0).toLocaleString('en-IN');
+            };
+
+            const getChartConfig = function(type) {
+                return {
+                    type: type,
+                    data: {
+                        labels: chartData.labels || [],
+                        datasets: [{
+                                label: 'Confirmed Amount',
+                                data: chartData.monthlyPaidAmount || [],
+                                backgroundColor: type === 'bar' ?
+                                    '#20c997' : 'rgba(32, 201, 151, 0.18)',
+                                borderColor: '#20c997',
+                                borderWidth: 3,
+                                borderRadius: 8,
+                                borderSkipped: false,
+                                tension: 0.45,
+                                fill: type === 'line',
+                                pointBackgroundColor: '#20c997',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: type === 'line' ? 4 : 0,
+                                pointHoverRadius: 6
+                            },
+                            {
+                                label: 'Due Amount',
+                                data: chartData.monthlyDueAmount || [],
+                                backgroundColor: type === 'bar' ?
+                                    '#e9ecef' : 'rgba(108, 117, 125, 0.15)',
+                                borderColor: '#adb5bd',
+                                borderWidth: 3,
+                                borderRadius: 8,
+                                borderSkipped: false,
+                                tension: 0.45,
+                                fill: type === 'line',
+                                pointBackgroundColor: '#adb5bd',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: type === 'line' ? 4 : 0,
+                                pointHoverRadius: 6
                             }
-                        }
+                        ]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 22,
+                                    font: {
+                                        weight: '600'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#111827',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                padding: 12,
+                                cornerRadius: 10,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + formatINR(context.raw);
+                                    }
+                                }
                             }
                         },
-                        x: {
-                            grid: {
-                                display: false
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return formatINR(value);
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0,0,0,0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
                             }
                         }
                     }
-                }
-            });
+                };
+            };
 
-            myMainChart = new Chart(mainChartCanvas, getChartConfig('bar'));
+            myMainChart = new Chart(mainChartCtx, getChartConfig('bar'));
 
             window.downloadChart = function() {
                 const link = document.createElement('a');
                 link.href = mainChartCanvas.toDataURL('image/png');
-                link.download = 'visitors-overview.png';
+                link.download = 'business-overview.png';
                 link.click();
-            }
+            };
 
             window.refreshChart = function() {
                 window.location.reload();
-            }
+            };
 
             window.toggleChartType = function() {
                 const newType = myMainChart.config.type === 'bar' ? 'line' : 'bar';
+
                 myMainChart.destroy();
-                myMainChart = new Chart(mainChartCanvas, getChartConfig(newType));
-            }
+                myMainChart = new Chart(mainChartCtx, getChartConfig(newType));
+            };
         }
 
         if (pieChartCanvas) {
-            new Chart(pieChartCanvas, {
+            const pieChartCtx = pieChartCanvas.getContext('2d');
+
+            new Chart(pieChartCtx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Booked', 'Hold', 'Registry', 'Available'],
@@ -447,25 +677,37 @@
                         backgroundColor: [
                             '#dc3545',
                             '#ffc107',
-                            '#6f42c1',
+                            '#0d6efd',
                             '#198754'
                         ],
-                        hoverOffset: 15,
-                        borderRadius: 10,
-                        spacing: 5
+                        borderColor: '#ffffff',
+                        borderWidth: 3,
+                        hoverOffset: 14,
+                        borderRadius: 8,
+                        spacing: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '75%',
+                    cutout: '74%',
                     plugins: {
                         legend: {
                             position: 'bottom',
                             labels: {
                                 usePointStyle: true,
-                                padding: 20
+                                padding: 18,
+                                font: {
+                                    weight: '600'
+                                }
                             }
+                        },
+                        tooltip: {
+                            backgroundColor: '#111827',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            padding: 12,
+                            cornerRadius: 10
                         }
                     }
                 },
@@ -476,29 +718,31 @@
                         const height = chart.height;
                         const ctx = chart.ctx;
 
-                        ctx.restore();
-
-                        ctx.font = "bold 25px sans-serif";
-                        ctx.textBaseline = "middle";
-                        ctx.fillStyle = "#333";
-
-                        const text =
-                            "{{ ($booked ?? 0) + ($hold ?? 0) + ($registry ?? 0) + ($available ?? 0) }}";
-                        const textX = Math.round((width - ctx.measureText(text).width) / 2);
-                        const textY = height / 2.3;
-
-                        ctx.fillText(text, textX, textY);
-
-                        ctx.font = "12px sans-serif";
-                        ctx.fillStyle = "#888";
-
-                        const label = "TOTAL PLOTS";
-                        const labelX = Math.round((width - ctx.measureText(label).width) / 2);
-                        const labelY = height / 1.7;
-
-                        ctx.fillText(label, labelX, labelY);
+                        const totalPlots =
+                            {{ ($booked ?? 0) + ($hold ?? 0) + ($registry ?? 0) + ($available ?? 0) }};
 
                         ctx.save();
+
+                        ctx.font = 'bold 32px sans-serif';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillStyle = '#111827';
+
+                        const totalText = String(totalPlots);
+                        const totalTextX = Math.round((width - ctx.measureText(totalText).width) / 2);
+                        const totalTextY = height / 2.28;
+
+                        ctx.fillText(totalText, totalTextX, totalTextY);
+
+                        ctx.font = '600 13px sans-serif';
+                        ctx.fillStyle = '#6b7280';
+
+                        const labelText = 'TOTAL';
+                        const labelTextX = Math.round((width - ctx.measureText(labelText).width) / 2);
+                        const labelTextY = height / 1.65;
+
+                        ctx.fillText(labelText, labelTextX, labelTextY);
+
+                        ctx.restore();
                     }
                 }]
             });

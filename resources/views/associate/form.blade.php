@@ -28,7 +28,7 @@
                             @foreach ($ranks as $rank)
                                 <option value="{{ $rank->id }}"
                                     {{ old('rank_id', $associate->rank_id ?? '') == $rank->id ? 'selected' : '' }}>
-                                    {{ $rank->designation }}
+                                    {{ $rank->designation }} / {{ $rank->commission }}
                                 </option>
                             @endforeach
                         @endif
@@ -130,25 +130,31 @@
                     @enderror
                 </div>
                 {{-- City --}}
-                <div class="col-md-3 mb-3">
+                {{-- <div class="col-md-3 mb-3">
                     <label class="mb-2">City</label>
                     <input type="text" name="city" value="{{ old('city', $associate->city ?? '') }}"
                         class="form-control" placeholder="Enter City">
                     @error('city')
                         <small class="text-danger d-block ">{{ $message }}</small>
                     @enderror
-                </div>
+                </div> --}}
                 {{-- State --}}
-                <div class="col-md-3 mb-3">
+                {{-- <div class="col-md-3 mb-3">
                     <label class="mb-2">State</label>
                     <input type="text" name="state" value="{{ old('state', $associate->state ?? '') }}"
                         class="form-control" placeholder="Enter State">
                     @error('state')
                         <small class="text-danger d-block">{{ $message }}</small>
                     @enderror
-                </div>
+                </div> --}}
+               
+                @include('state-city', [
+                    'states' => $states,
+                    'selectedState' => old('state', $associate->state ?? ''),
+                    'selectedCity' => old('city', $associate->city ?? ''),
+                ])
                 {{-- Mobile --}}
-                <div class="col-md-3 mb-3">
+                <div class="col-md-3 mb-3 mt-3">
                     <label class="mb-2">Mobile Number</label>
                     <input type="text" name="mobile_number"
                         value="{{ old('mobile_number', $associate->mobile_number ?? '') }}" class="form-control"
@@ -158,7 +164,7 @@
                     @enderror
                 </div>
                 {{-- Email --}}
-                <div class="col-md-3 mb-3">
+                <div class="col-md-3 mb-3 mt-3">
                     <label class="mb-2">Email</label>
                     <input type="email" name="email" value="{{ old('email', $associate->email ?? '') }}"
                         class="form-control" placeholder="Enter Email">
@@ -166,7 +172,7 @@
                         <small class="text-danger d-block ">{{ $message }}</small>
                     @enderror
                 </div>
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3 mt-3">
                     <label class="mb-2">PAN Card Number</label>
                     <input type="text" name="pancard_number"
                         value="{{ old('pancard_number', $associate->pancard_number ?? '') }}" class="form-control"
@@ -537,8 +543,8 @@
                     response.forEach(function(rank) {
 
                         options += `
-                        <option value="${rank.id}">
-                            ${rank.designation}
+                       <option value="${rank.id}">
+                            ${rank.designation} / ${rank.rank_number}
                         </option>
                     `;
 

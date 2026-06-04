@@ -53,6 +53,52 @@
             <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
         @enderror
     </div>
+
+    {{-- Target From --}}
+    <div class="col-md-6">
+        <label class="form-label fw-semibold text-secondary mb-2">
+            Target From <span class="text-danger">*</span>
+        </label>
+
+        <div class="d-flex align-items-stretch">
+            <span class="input-group-text bg-light text-muted px-3 border-end-0" style="border: 1px solid #ced4da;">
+                <i class="bi bi-graph-up-arrow"></i>
+            </span>
+
+            <input type="number" name="target_from" placeholder="Enter target from"
+                class="form-control rounded-start-0 @error('target_from') is-invalid @enderror"
+                value="{{ old('target_from', $designationRank->target_from ?? '') }}">
+        </div>
+
+        @error('target_from')
+            <div class="invalid-feedback d-block mt-1">
+                {{ $message }}
+            </div>
+        @enderror
+    </div>
+
+    {{-- Target To --}}
+    <div class="col-md-6">
+        <label class="form-label fw-semibold text-secondary mb-2">
+            Target To <span class="text-danger">*</span>
+        </label>
+
+        <div class="d-flex align-items-stretch">
+            <span class="input-group-text bg-light text-muted px-3 border-end-0" style="border: 1px solid #ced4da;">
+                <i class="bi bi-bullseye"></i>
+            </span>
+
+            <input type="number" name="target_to" placeholder="Enter target to"
+                class="form-control rounded-start-0 @error('target_to') is-invalid @enderror"
+                value="{{ old('target_to', $designationRank->target_to ?? '') }}">
+        </div>
+
+        @error('target_to')
+            <div class="invalid-feedback d-block mt-1">
+                {{ $message }}
+            </div>
+        @enderror
+    </div>
 </div>
 
 {{-- Form Action Button --}}

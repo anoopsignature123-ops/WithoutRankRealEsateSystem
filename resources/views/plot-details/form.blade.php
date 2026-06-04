@@ -208,12 +208,12 @@
                 <option value="available"
                     {{ old('status', $plotDetail->status ?? '') == 'available' ? 'selected' : '' }}>Available
                 </option>
-                <option value="booked" {{ old('status', $plotDetail->status ?? '') == 'booked' ? 'selected' : '' }}>
+                {{-- <option value="booked" {{ old('status', $plotDetail->status ?? '') == 'booked' ? 'selected' : '' }}>
                     Booked</option>
                 <option value="hold" {{ old('status', $plotDetail->status ?? '') == 'hold' ? 'selected' : '' }}>
                     Hold</option>
                 <option value="registry"
-                    {{ old('status', $plotDetail->status ?? '') == 'registry' ? 'selected' : '' }}>Registry</option>
+                    {{ old('status', $plotDetail->status ?? '') == 'registry' ? 'selected' : '' }}>Registry</option> --}}
             </select>
         </div>
     </div>

@@ -19,7 +19,7 @@ class PlotDetailService
             }
         }
 
-        return $query->latest()->get();
+        return $query->get();
     }
 
     public function store(array $data)

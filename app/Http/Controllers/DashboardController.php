@@ -101,10 +101,38 @@ class DashboardController extends Controller
 
     private function getVisitorsData()
     {
+        $labels = [];
+        $monthlyPaidAmount = [];
+        $monthlyDueAmount = [];
+
+        $startMonth = now()->startOfMonth();
+
+        for ($i = 0; $i < 10; $i++) {
+            $month = $startMonth->copy()->addMonths($i);
+
+            $labels[] = $month->format('M');
+
+            $baseQuery = CustomerPayment::whereMonth('created_at', $month->month)
+                ->whereYear('created_at', $month->year);
+
+            $monthlyPaidAmount[] = (float) (clone $baseQuery)
+                ->where('booking_status', 'booked')
+                ->sum('paid_amount');
+
+            $monthlyDueAmount[] = (float) CustomerPayment::whereIn('id', function ($query) use ($month) {
+                $query->selectRaw('MAX(id)')
+                    ->from('customer_payments')
+                    ->whereMonth('created_at', $month->month)
+                    ->whereYear('created_at', $month->year)
+                    ->whereNotNull('plot_sale_detail_id')
+                    ->groupBy('customer_booking_id', 'plot_sale_detail_id');
+            })->sum('due_amount');
+        }
+
         return [
-            'labels' => ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            'registered' => [3500, 2500, 5000, 3000, 2800, 3200, 2600, 4534, 2700, 3100],
-            'guests' => [4800, 4200, 7000, 6200, 5800, 6500, 5000, 7675, 6000, 5500],
+            'labels' => $labels,
+            'monthlyPaidAmount' => $monthlyPaidAmount,
+            'monthlyDueAmount' => $monthlyDueAmount,
         ];
     }
 }

@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Agreement Letter</title>
+
     <style>
         @page {
             size: A4;
@@ -12,7 +13,7 @@
         }
 
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, DejaVu Sans, sans-serif;
+            font-family: DejaVu Sans, sans-serif;
             font-size: 12px;
             line-height: 1.5;
             color: #000;
@@ -38,7 +39,6 @@
             margin-bottom: 8px;
         }
 
-        /* ब्लैक हेडर बॉक्स */
         .title-box {
             background-color: #000;
             color: #fff;
@@ -71,7 +71,6 @@
             margin-bottom: 10px;
         }
 
-        /* पॉइंट्स की लिस्ट */
         .legal-points {
             list-style-type: none;
             padding: 0;
@@ -95,7 +94,6 @@
             width: 50%;
         }
 
-        /* विटनेस ब्लॉक */
         .witness-section {
             line-height: 1.6;
         }
@@ -120,10 +118,6 @@
             line-height: 1.4;
         }
 
-        .sig-name {
-            font-weight: normal;
-        }
-
         .sig-party {
             font-weight: bold;
         }
@@ -133,19 +127,34 @@
 <body>
 
     @php
-        $plot = $booking->plotSaleDetail;
+        $primary = $booking->primaryDetail;
+        $plotSale = $booking->plotSaleDetail;
+        $plotDetail = $plotSale?->plotDetail;
+        $project = $plotSale?->project;
+        $block = $plotSale?->block;
+
+        $customerName = strtoupper($primary?->name ?? '-');
+        $relationTitle = strtoupper($primary?->title ?? '');
+        $relationName = strtoupper($primary?->relation_name ?? '-');
+        $address = $primary?->permanent_address ?? $primary?->address ?? '-';
+
+        $projectName = $project?->name ?? 'Sani Infra Height';
+        $blockName = $block?->block ?? '-';
+        $plotNumber = $plotDetail?->plot_number ?? '-';
+        $plotArea = $plotSale?->plot_area ?? '-';
     @endphp
 
     <div class="header">
         <span class="company-name">Sani Infra Height</span>
-        <span class="company-sub">Sani Infra Height</span>
+        <span class="company-sub">Allotment / Agreement Department</span>
         <div class="title-box">Agreement Letter</div>
     </div>
 
     <div class="content">
+
         <p>
-            This Agreement is executed between M/s Sani Infra Height., through its director, Sri
-            ........................................................, son of Sri
+            This Agreement is executed between M/s <strong>Sani Infra Height</strong>, through its director,
+            Sri ........................................................, son of Sri
             ........................................................, resident of
             ........................................................; hereinafter referred to as 'First Party';
         </p>
@@ -153,11 +162,11 @@
         <div class="center-text">AND</div>
 
         <p>
-            M/s <strong>{{ strtoupper($booking->primaryDetail?->name ?? 'SHIVAM') }}</strong>, through its
-            ........................, Sri ........................................................, son of Sri
-            ........................................................, resident of
-            <strong>{{ $booking->primaryDetail?->address ?? '........................................................' }}</strong>;
-            hereinafter referred to as 'Second Party'
+            Sri/Smt. <strong>{{ $customerName }}</strong>,
+            {{ $relationTitle ? $relationTitle . ' ' : '' }} Sri
+            <strong>{{ $relationName }}</strong>,
+            resident of <strong>{{ $address }}</strong>;
+            hereinafter referred to as 'Second Party'.
         </p>
 
         <p>
@@ -168,9 +177,11 @@
         </p>
 
         <p>
-            WHEREAS, the First Party is owner-in-possession of certain land, situated at Sani Infra Height and is in the
-            processes of acquiring more lands for the purpose of development of a mini township under the brand name
-            Sani Infra Height; hereinafter referred to as the 'Project Land'.
+            WHEREAS, the First Party is owner-in-possession of certain land situated at
+            <strong>{{ $projectName }}</strong>, Block <strong>{{ $blockName }}</strong>,
+            Plot No. <strong>{{ $plotNumber }}</strong>, area <strong>{{ $plotArea }}</strong> Sq.Ft.,
+            and is developing the said project under the brand name
+            <strong>{{ $projectName }}</strong>; hereinafter referred to as the 'Project Land'.
         </p>
 
         <p>
@@ -191,42 +202,55 @@
         <ul class="legal-points">
             <li>1. That the First Party desires to focus on the activity of Land Procurement and Marketing of the
                 aforesaid project, hence-fore is engaging to the Second Party to obtain their services.</li>
+
             <li>2. That the Second Party shall develop all the activities as listed in the annexure. The list of the
                 activities/jobs can be amended by the parties with mutual consent, from time to time as per the
                 requirement of the project.</li>
+
             <li>3. That the First Party shall provide the possession of the common lands to the Second Party to develop
                 facilities and infrastructure. However, wherever required the Second Party shall be responsible for
                 taking the properties on lease from the interested plot/farm owners and utilised them for purposes
                 related with the development of facilities/infrastructure and other associated activities e.g.
                 horticulture/ farming etc.</li>
+
             <li>4. That the Second Party shall meet be responsible for their commitment to the 3rd Party, whatsoever and
                 the First Party shall not be responsible for them.</li>
+
             <li>5. That charges/expenses for all the activities assigned to the Second Party by the First Party shall be
                 paid by the First Party as per the mutual agreed rate/charges. These charges will vary with the change
                 of the job responsibility assigned.</li>
+
             <li>6. That all the work related with the site development e.g. roads, lighting, landscaping etc. shall also
                 be handed over to the Sani Infra Height Estate Management Agency.</li>
+
             <li>7. That, the terms the 'First Party' and the 'Second Party', unless repugnant to the context hereof,
                 shall mean and include their legal heirs, executors, administrators, successors, nominee etc.</li>
+
             <li>8. That the 'Terms &amp; Conditions' of this 'Agreement' as set out hereinafter are out of free will,
                 accord, mutual consent and without coercion.</li>
+
             <li>9. That, this 'Agreement' may be altered, modified, amended or surrendered only by registered
                 'Supplementary Agreement'. The 'Supplementary Agreement' shall be part of this 'Agreement'.</li>
+
             <li>10. That, the terms used in this 'Agreement' shall be inclusive of each other and also include
                 modifications of the Lease. Words of any gender used in this Lease shall be held to include any other
                 gender, and words in singular shall be held to include the plural and the plural to include the
                 singular, when the sense require.</li>
+
             <li>11. That, any notice or demand desired or required to be given hereunder shall be in writing and deemed
                 given when personally delivered or sent through postage prepaid Registered Post/Speed Post and addressed
                 as set forth above.</li>
+
             <li>12. That, if either party brings an action to enforce the terms hereof or declare rights hereunder the
                 prevailing party in any such action, on trial or appeal, shall be entitled to his reasonable attorney's
                 fees to be paid by the losing party as fixed by the court.</li>
+
             <li>13. That, in the event of any dispute or difference arising out of or in connection with the 'Terms
                 &amp; Conditions' of this 'Agreement', the claims shall be referred to the arbitration of any arbitrator
                 as consented to by the both parties. In the event of non-consent between the parties, on the name of
                 Arbitrator, the Competent Civil Court at Lucknow shall be entitled to appoint an arbitrator. The
                 jurisdiction of dispute, if any, shall be at Lucknow only.</li>
+
             <li>14. That the First Party shall keep the original 'Agreement' and the Second Party shall keep the
                 'Photocopy/Certified Copy' thereof.</li>
         </ul>
@@ -260,17 +284,19 @@
 
                 <td class="signature-section">
                     <div class="sig-block">
-                        <div class="sig-name">(Sani Infra Height)</div>
+                        <div>(Sani Infra Height)</div>
                         <div class="sig-party">First Party</div>
                     </div>
 
                     <div class="sig-block" style="margin-bottom: 0px;">
-                        <div class="sig-name">({{ strtoupper($booking->primaryDetail?->name ?? 'SHIVAM') }})</div>
+                        <div>({{ $customerName }})</div>
                         <div class="sig-party">Second Party</div>
                     </div>
                 </td>
             </tr>
         </table>
+
     </div>
 </body>
+
 </html>

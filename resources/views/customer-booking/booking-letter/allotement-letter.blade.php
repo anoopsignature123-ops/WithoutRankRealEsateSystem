@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Allotment Letter</title>
+
     <style>
         @page {
             size: A4;
@@ -11,7 +12,7 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: DejaVu Sans, Arial, sans-serif;
             font-size: 14px;
             line-height: 1.4;
             color: #000;
@@ -26,7 +27,7 @@
 
         p {
             margin: 0 0 16px 0;
-            text-indent: 0px;
+            text-indent: 0;
         }
 
         .center-heading {
@@ -100,11 +101,34 @@
 <body>
 
     @php
-        $plot = $booking->plotSaleDetail;
+        $primary = $booking->primaryDetail;
+        $plotSale = $booking->plotSaleDetail;
+        $plotDetail = $plotSale?->plotDetail;
+        $project = $plotSale?->project;
+        $block = $plotSale?->block;
+        $payment = $booking->payments?->first() ?? $booking->payment;
+
+        $customerName = strtoupper($primary?->name ?? '-');
+        $customerAddress = $primary?->permanent_address ?? $primary?->address ?? '-';
+
+        $projectName = strtoupper($project?->name ?? 'SANI INFRA HEIGHT');
+        $blockName = $block?->block ?? '-';
+        $plotNumber = $plotDetail?->plot_number ?? '-';
+        $plotArea = $plotSale?->plot_area ? number_format($plotSale->plot_area, 2) : '0.00';
+
+        $bookingAmount = $payment?->booking_amount ? number_format($payment->booking_amount, 2) . '/-' : '0.00/-';
+        $paymentMode = $payment?->payment_mode ? ucwords(str_replace('_', ' ', $payment->payment_mode)) : '-';
+        $paymentDate = $payment?->created_at ? $payment->created_at->format('d/m/Y') : '-';
+
+        $letterDate = $booking->created_at ?? now();
     @endphp
 
     <div class="content">
-        <p>This PAL is made on the 21th day of May, 2026</p>
+
+        <p>
+            This PAL is made on the <strong>{{ $letterDate->format('dS') }}</strong> day of
+            <strong>{{ $letterDate->format('F, Y') }}</strong>
+        </p>
 
         <div class="center-heading">BETWEEN</div>
 
@@ -117,37 +141,39 @@
         <div class="center-heading">AND</div>
 
         <p>
-            <strong>{{ strtoupper($booking->primaryDetail?->name ?? 'SHIVAM') }}</strong>, resident of
-            <strong>{{ $booking->primaryDetail?->permanent_address ?? 'SWWSSW, UP' }}</strong>(Here in after called
-            Second Party) which expression shall unless it be repugnant to the context or meaning there of shall mean
-            and include his/her legal representative, executors and administrators and assignee;
+            <strong>{{ $customerName }}</strong>, resident of
+            <strong>{{ $customerAddress }}</strong> (Here in after called Second Party) which expression shall unless it
+            be repugnant to the context or meaning there of shall mean and include his/her legal representative,
+            executors and administrators and assignee;
         </p>
 
         <p>
             This PAL between the above said both the parties is as per the Terms &amp; Conditions (Annexure-A) &amp;
-            Payment Schedule (Annexure-B) of the attached Booking Form for the said Property Unit (Plot No -
-            <strong>{{ $plot?->plotDetail?->plot_number ?? 'A-1' }}</strong> , Area
-            <strong>{{ $plot?->plot_area ? number_format($plot->plot_area, 2) : '1000.00' }} Sq.ft.</strong>) as per the
-            attached map of the project SANI INFRA HEIGHT of the First Party (SANI INFRA HEIGHT).
+            Payment Schedule (Annexure-B) of the attached Booking Form for the said Property Unit
+            (Project - <strong>{{ $projectName }}</strong>,
+            Block - <strong>{{ $blockName }}</strong>,
+            Plot No - <strong>{{ $plotNumber }}</strong>,
+            Area <strong>{{ $plotArea }} Sq.ft.</strong>) as per the attached map of the project
+            <strong>{{ $projectName }}</strong> of the First Party (SANI INFRA HEIGHT).
         </p>
 
         <p>
-            An amount of Rs.
-            <strong>{{ $booking->payments?->first()?->booking_amount ? number_format($booking->payments->first()->booking_amount, 2) . '/-' : '10000.00/-' }}</strong>
-            - By <strong>{{ ucfirst($booking->payments?->first()?->payment_mode ?? 'Cash') }}</strong> Dated-
-            <strong>{{ $booking->payments?->first()?->created_at ? $booking->payments->first()->created_at->format('d/m/Y') : '16/10/2024' }}</strong>
-            received as booking amount.
+            An amount of Rs. <strong>{{ $bookingAmount }}</strong>
+            - By <strong>{{ $paymentMode }}</strong> Dated-
+            <strong>{{ $paymentDate }}</strong> received as booking amount.
         </p>
 
         <p>
-            Where as this plot allotment letter (PAL) has been executed on this 21th day of May, 2026 between both the
-            parties will fully and without any pressure in the presence of the witness. This PAL is being prepared and
-            signed in the duplicate with a copy of the same available with both the parties.
+            Whereas this plot allotment letter (PAL) has been executed on this
+            <strong>{{ $letterDate->format('dS') }}</strong> day of
+            <strong>{{ $letterDate->format('F, Y') }}</strong> between both the parties will fully and without any
+            pressure in the presence of the witness. This PAL is being prepared and signed in the duplicate with a copy
+            of the same available with both the parties.
         </p>
 
         <div class="details-block">
             <div>Place : Lucknow</div>
-            <div>Dated:21th May 2026</div>
+            <div>Dated: {{ $letterDate->format('dS F Y') }}</div>
         </div>
 
         <table class="signature-table">
@@ -159,10 +185,11 @@
                         <div class="company-bottom">SANI INFRA HEIGHT</div>
                     </div>
                 </td>
+
                 <td class="text-right">
                     <div class="party-title">SECOND PARTY</div>
                     <div class="signatory-info">
-                        <div>{{ strtoupper($booking->primaryDetail?->name ?? 'SHIVAM') }}</div>
+                        <div>{{ $customerName }}</div>
                     </div>
                 </td>
             </tr>
@@ -173,11 +200,13 @@
                 <td class="text-left">
                     <div class="witness-title">(Witness 1)</div>
                 </td>
+
                 <td class="text-right">
                     <div class="witness-title">(Witness 2)</div>
                 </td>
             </tr>
         </table>
+
     </div>
 
 </body>

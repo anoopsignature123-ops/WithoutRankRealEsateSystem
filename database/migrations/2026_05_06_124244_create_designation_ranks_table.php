@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('designation')->nullable();
             $table->string('rank_number')->nullable();
-            $table->string('commission')->nullable();
+            $table->decimal('commission', 5, 2)->default(0);
+            $table->decimal('target_from', 15, 2)->default(0);
+            $table->decimal('target_to', 15, 2)->default(0);
             $table->timestamps();
         });
     }

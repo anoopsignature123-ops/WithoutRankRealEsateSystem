@@ -18,11 +18,11 @@ use Illuminate\Support\Str;
 class CustomerBookingService
 {
     public function getAll()
-{
-    return CustomerBooking::with([
-        'primaryDetail.customerDocument',
-    ])->latest()->get();
-}
+    {
+        return CustomerBooking::with([
+            'primaryDetail.customerDocument',
+        ])->latest()->get();
+    }
 
     public function getAssociates()
     {

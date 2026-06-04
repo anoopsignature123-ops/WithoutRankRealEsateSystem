@@ -15,7 +15,6 @@ class AssociateDashboardController extends Controller
         $data = $this->service->getDashboardStats($associate->id);
         $monthlyData = $this->service->getMonthlyBusinessData($associate->id);
         $stats = $this->service->getBusinessStats($associate->id);
-
         return view('associate_dashboard', compact('associate', 'data', 'monthlyData', 'stats'));
     }
 }

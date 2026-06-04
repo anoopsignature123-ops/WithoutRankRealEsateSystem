@@ -7,15 +7,19 @@ use App\Models\Associate;
 use App\Models\DesignationRank;
 use App\Services\AssociateService;
 use App\Services\ExcelExportService;
+use App\Services\LocationService;
 use Illuminate\Http\Request;
 
 class AssociateController extends Controller
 {
     protected $associateService;
 
-    public function __construct(AssociateService $associateService)
+    protected $locationService;
+
+    public function __construct(AssociateService $associateService, LocationService $locationService)
     {
         $this->associateService = $associateService;
+        $this->locationService = $locationService;
     }
 
     public function index(Request $request)
@@ -28,6 +32,7 @@ class AssociateController extends Controller
     public function create()
     {
         $data = $this->associateService->createData();
+        $data['states'] = $this->locationService->getStates();
 
         return view('associate.create', $data);
     }
@@ -35,7 +40,7 @@ class AssociateController extends Controller
     public function getSponsorRanks($associateId)
     {
         $associate = Associate::where('associate_id', $associateId)->with('rank')->firstOrFail();
-        $ranks = DesignationRank::where('rank_number', '<=', $associate->rank->rank_number)->orderByDesc('rank_number')->get();
+        $ranks = DesignationRank::where('rank_number', '<=', $associate->rank->rank_number)->get();
 
         return response()->json($ranks);
     }
@@ -50,13 +55,15 @@ class AssociateController extends Controller
     public function show($id)
     {
         $associate = Associate::with(['rank', 'bankDetail', 'sponsor', 'underPlace'])->findOrFail($id);
+        $states = $this->locationService->getStates();
 
-        return view('associate.show', compact('associate'));
+        return view('associate.show', compact('associate', 'states'));
     }
 
     public function edit($id)
     {
         $data = $this->associateService->editData($id);
+        $data['states'] = $this->locationService->getStates();
 
         return view('associate.edit', $data);
     }

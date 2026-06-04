@@ -102,7 +102,9 @@
                     ],
                 ];
             @endphp
+            
             @foreach ($cards as $card)
+            
                 <div class="col-12 col-md-4">
                     <a href="{{ $card['url'] }}" class="text-decoration-none h-100 d-block">
                         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden position-relative transition-hover">

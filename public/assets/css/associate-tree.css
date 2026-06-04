@@ -1,19 +1,102 @@
-.card,
-.card-body,
-.org-chart-wrapper,
-.org-level,
-.children-wrapper,
-.child-node,
-.node-wrapper {
-    overflow: visible !important;
+.tree-page-header {
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    border: 1px solid #d1fae5;
+    border-radius: 18px;
+    padding: 22px 24px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.tree-page-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.tree-title-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #198754, #22c55e);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+}
+
+.tree-page-header h3 {
+    color: #0f172a;
+}
+
+.tree-page-header p {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.tree-search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 8px;
+    border-radius: 14px;
+}
+
+.tree-search-form .form-control {
+    width: 300px;
+    height: 42px;
+    border-radius: 10px;
+}
+
+.tree-search-form .btn {
+    height: 42px;
+    border-radius: 10px;
+    padding: 0 18px;
+    font-weight: 600;
+}
+
+.tree-main-card {
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+    border: 1px solid #eef2f7;
+}
+
+.tree-scroll-area {
     position: relative;
+    width: 100%;
+        height: calc(100vh - 250px);
+        min-height: 620px;
+        overflow: auto;
+        padding: 35px;
+        background:
+            radial-gradient(circle at 15% 20%, rgba(25, 135, 84, 0.08), transparent 28%),
+            radial-gradient(circle at 85% 10%, rgba(59, 130, 246, 0.07), transparent 24%),
+            linear-gradient(180deg, #f8fafc 0%, #eef7f2 100%);
+    }
+    
+    .tree-bg-pattern {
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(148, 163, 184, 0.13) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(148, 163, 184, 0.13) 1px, transparent 1px);
+        background-size: 28px 28px;
+        pointer-events: none;
 }
 
 .org-chart-wrapper {
-    width: 100%;
+    position: relative;
+        z-index: 2;
     min-width: max-content;
-    overflow: auto !important;
-    padding: 40px;
+    padding: 35px 70px;
     text-align: center;
 }
 
@@ -21,201 +104,224 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
 }
 
 .node-wrapper {
+    position: relative;
     display: inline-block;
     z-index: 5;
 }
 
 .node-wrapper:hover {
-    z-index: 999999;
+    z-index: 9999;
 }
 
 .associate-card {
     position: relative;
+    width: 150px;
     background: #ffffff;
-    border: 2px solid #e5e7eb;
-    border-radius: 20px;
-    min-width: 170px;
-    padding: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+    border: 1px solid #dce5ef;
+        border-radius: 18px;
+        padding: 14px 10px;
+        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.09);
+        transition: all 0.25s ease;
     cursor: pointer;
-    transition: .3s ease;
 }
 
 .associate-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
+        border-color: #198754;
+        box-shadow: 0 15px 35px rgba(25, 135, 84, 0.18);
 }
 
 .avatar-circle {
-    width: 70px;
-    height: 70px;
-    margin: auto;
+    width: 50px;
+        height: 50px;
+        margin: 0 auto 10px;
     border-radius: 50%;
-    background: #22c55e;
-    color: #fff;
+    background: linear-gradient(135deg, #198754, #20c997);
+        color: #ffffff;
     display: flex;
-    justify-content: center;
     align-items: center;
-    font-size: 34px;
+    justify-content: center;
+    font-size: 23px;
 }
 
 .associate-code {
-    margin-top: 12px;
-    background: #4f46e5;
-    color: white;
-    padding: 8px;
+    background: #eef2ff;
+        color: #4338ca;
+        border: 1px solid #c7d2fe;
     border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
+    padding: 5px 7px;
+        font-size: 10px;
+        font-weight: 800;
+        margin-bottom: 6px;
+        white-space: nowrap;
 }
 
 .associate-name {
-    margin-top: 8px;
-    background: #55ca78;
-    color: white;
-    padding: 8px;
+    background: #ecfdf5;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
     border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
+    padding: 6px 7px;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1.3;
+        min-height: 34px;
+    }
+    
+    .associate-rank {
+        margin-top: 7px;
+        font-size: 10px;
+        color: #64748b;
+        font-weight: 700;
 }
 
 .vertical-line {
     width: 2px;
-    height: 35px;
+    height: 30px;
     background: #94a3b8;
 }
 
 .children-wrapper {
     display: flex;
     justify-content: center;
-    gap: 40px;
-    margin-top: 20px;
+    gap: 30px;
+        margin-top: 15px;
+        position: relative;
 }
 
 .children-wrapper::before {
     content: '';
     position: absolute;
-    top: -18px;
-    left: 0;
-    right: 0;
+    top: -15px;
+        left: 75px;
+        right: 75px;
     height: 2px;
     background: #94a3b8;
 }
 
+.child-node {
+    position: relative;
+}
 .child-node::before {
     content: '';
     position: absolute;
-    top: -18px;
+    top: -15px;
     left: 50%;
-    transform: translateX(-50%);
     width: 2px;
-    height: 18px;
+        height: 15px;
+    transform: translateX(-50%);
     background: #94a3b8;
 }
 
 .associate-tooltip {
     position: absolute;
-    top: calc(100% + 15px);
+    top: calc(100% + 12px);
     left: 50%;
-
-    transform: translateX(-50%);
-
+    transform: translateX(-50%) translateY(8px);
     width: 270px;
-
     background: #ffffff;
-
-    border-radius: 14px;
-
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
-
-    border: 1px solid #e2e8f0;
-
+    border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
     opacity: 0;
     visibility: hidden;
-
-    transition: .3s ease;
-
-    z-index: 999999;
+    transition: all 0.25s ease;
+        z-index: 99999;
+        overflow: hidden;
 }
 
 .node-wrapper:hover .associate-tooltip {
     opacity: 1;
     visibility: visible;
+    transform: translateX(-50%) translateY(0);
 }
 
 .associate-tooltip::before {
     content: '';
-
     position: absolute;
-
     bottom: 100%;
     left: 50%;
-
     transform: translateX(-50%);
-
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-bottom: 8px solid #5ab366;
+    border-bottom: 8px solid #198754;
 }
 
 .tooltip-header {
-    background: #65d16e;
-
+    background: linear-gradient(135deg, #198754, #16a34a);
     color: #ffffff;
-
+    padding: 13px;
     text-align: center;
+}
 
-    padding: 12px;
-
+.tooltip-title {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 800;
+    }
 
-    border-radius: 14px 14px 0 0;
+.tooltip-subtitle {
+    font-size: 11px;
+    opacity: 0.9;
+    margin-top: 3px;
 }
 
 .tooltip-body {
-    padding: 14px;
-
-    background: white;
-
-    border-radius: 0 0 14px 14px;
+    padding: 12px;
 }
 
-.tooltip-body p {
-    margin-bottom: 8px;
-
-    padding-bottom: 8px;
-
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
     border-bottom: 1px solid #f1f5f9;
+    font-size: 12px;
+    }
 
-    font-size: 13px;
-
-    color: #475569;
-}
-
-.tooltip-body p:last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
+.info-row:last-child {
     border-bottom: none;
 }
 
-@media(max-width:768px) {
+.info-row span {
+    color: #64748b;
+    font-weight: 600;
+}
 
-    .children-wrapper {
-        gap: 20px;
+.info-row strong {
+    color: #0f172a;
+    font-weight: 800;
+    text-align: right;
+}
+
+@media (max-width: 768px) {
+
+    .tree-page-header,
+    .tree-search-form {
+        width: 100%;
     }
 
-    .associate-card {
-        min-width: 140px;
-        padding: 14px;
+        .tree-search-form {
+            flex-direction: column;
+            align-items: stretch;
     }
 
-    .associate-tooltip {
-        width: 220px;
+        .tree-search-form .form-control,
+        .tree-search-form .btn {
+            width: 100%;
     }
 
+        .tree-scroll-area {
+            padding: 18px;
+            min-height: 520px;
+    }
+
+        .org-chart-wrapper {
+            padding: 20px;
+        }
 }
 
 

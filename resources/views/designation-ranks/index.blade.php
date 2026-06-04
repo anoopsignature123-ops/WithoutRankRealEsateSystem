@@ -11,7 +11,8 @@
                         <p class="text-muted mb-0 small">Manage and configure designations and ranks</p>
                     </div>
                     @can('rank-designation-modify')
-                        <a href="{{ route('designations.create') }}" class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
+                        <a href="{{ route('designations.create') }}"
+                            class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
                             <i class="bi bi-plus-circle me-1"></i> Add Designation
                         </a>
                     @endcan
@@ -30,7 +31,9 @@
                                 <th>Designation Name</th>
                                 <th>Rank Number</th>
                                 <th>Commission (%)</th>
-                                @if(auth()->user()->can('rank-designation-modify'))
+                                <th>Target From</th>
+                                <th>Target To</th>
+                                @if (auth()->user()->can('rank-designation-modify'))
                                     <th width="150">Action</th>
                                 @endif
                             </tr>
@@ -42,17 +45,22 @@
                                     <td>{{ $designation->designation }}</td>
                                     <td>{{ $designation->rank_number }}</td>
                                     <td>{{ number_format($designation->commission, 2) }} %</td>
-                                    @if(auth()->user()->can('rank-designation-modify'))
+                                    <td>₹{{ number_format($designation->target_from) }}</td>
+                                    <td>₹{{ number_format($designation->target_to) }}</td>
+                                    @if (auth()->user()->can('rank-designation-modify'))
                                         <td>
-                                             
-                                                <a href="{{ route('designations.edit', $designation->id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                                            
-                                             
-                                                <form action="{{ route('designations.destroy', $designation->id) }}" method="POST" class="d-inline">
-                                                    @csrf @method('DELETE')
-                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-btn"><i class="bi bi-trash"></i></button>
-                                                </form>
-                                            
+
+                                            <a href="{{ route('designations.edit', $designation->id) }}"
+                                                class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+
+
+                                            <form action="{{ route('designations.destroy', $designation->id) }}"
+                                                method="POST" class="d-inline">
+                                                @csrf @method('DELETE')
+                                                <button type="button" class="btn btn-sm btn-outline-danger delete-btn"><i
+                                                        class="bi bi-trash"></i></button>
+                                            </form>
+
                                         </td>
                                     @endif
                                 </tr>

@@ -34,7 +34,7 @@ class AssociateService
     {
         $associates = Associate::with('rank')->get();
         $defaultRank = DesignationRank::orderByDesc('rank_number')->first();
-
+        
         return ['associates' => $associates, 'defaultRank' => $defaultRank];
     }
 

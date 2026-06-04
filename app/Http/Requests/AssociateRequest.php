@@ -31,7 +31,7 @@ class AssociateRequest extends FormRequest
                 'unique:associates,mobile_number,'.$associateId,
             ],
             'email' => [
-                'required',
+                'nullable',
                 'email',
                 'unique:associates,email,'.$associateId,
             ],
@@ -40,23 +40,23 @@ class AssociateRequest extends FormRequest
             'state' => ['required', 'string', 'max:50'],
             'pancard_number' => $isUpdate
                 ? ['nullable']
-                : ['required', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/', 'unique:associates,pancard_number,'.$associateId],
+                : ['nullable', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/', 'unique:associates,pancard_number,'.$associateId],
             'aadhar_number' => $isUpdate
                 ? ['nullable']
-                : ['required', 'regex:/^[0-9]{12}$/', 'unique:associates,aadhar_number,'.$associateId],
+                : ['nullable', 'regex:/^[0-9]{12}$/', 'unique:associates,aadhar_number,'.$associateId],
 
-            'bank_name' => ['required', 'string', 'max:100'],
-            'account_number' => ['required', 'regex:/^[0-9]{9,18}$/'],
-            'ifsc_code' => ['required', 'regex:/^[A-Z]{4}0[A-Z0-9]{6}$/'],
-            'account_holder_name' => ['required', 'string', 'max:100'],
+            'bank_name' => ['nullable', 'string', 'max:100'],
+            'account_number' => ['nullable', 'regex:/^[0-9]{9,18}$/'],
+            'ifsc_code' => ['nullable', 'regex:/^[A-Z]{4}0[A-Z0-9]{6}$/'],
+            'account_holder_name' => ['nullable', 'string', 'max:100'],
             'nominee_name' => ['nullable', 'string', 'max:100'],
             'nominee_relation' => ['nullable', 'string', 'max:50'],
             'nominee_age' => ['nullable', 'integer', 'min:1', 'max:120'],
             'joining_date' => ['nullable', 'date'],
-            'photo' => [$associateId ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'id_proof_photo' => [$associateId ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'pancard_photo' => [$associateId ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'bank_passbook' => [$associateId ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'photo' => [$associateId ? 'nullable' : 'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'id_proof_photo' => [$associateId ? 'nullable' : 'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'pancard_photo' => [$associateId ? 'nullable' : 'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'bank_passbook' => [$associateId ? 'nullable' : 'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ];
     }
 

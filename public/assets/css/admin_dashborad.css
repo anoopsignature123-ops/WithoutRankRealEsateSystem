@@ -114,3 +114,37 @@
 }
 
 
+.earning-box {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px;
+    border-radius: 16px;
+    border: 1px solid #edf2f7;
+    transition: .3s;
+}
+
+.earning-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+}
+
+.earning-box .icon {
+    width: 55px;
+    height: 55px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.earning-box.success .icon {
+    background: rgba(25, 135, 84, .12);
+    color: #198754;
+}
+
+.earning-box.warning .icon {
+    background: rgba(255, 193, 7, .12);
+    color: #f59f00;
+}
