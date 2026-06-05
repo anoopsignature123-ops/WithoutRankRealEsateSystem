@@ -1,39 +1,208 @@
+/* =========================
+   SIDEBAR
+========================= */
 .app-sidebar {
-    background: #198754 !important; 
+    background: linear-gradient(180deg, #145f3b 0%, #198754 45%, #157347 100%) !important;
     border-right: none;
     width: 260px;
+    box-shadow: 6px 0 22px rgba(15, 23, 42, 0.08);
+    }
+    
+    .sidebar-brand,
+    .brand-link {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
 }
 
 .sidebar-menu .nav-link {
-    color: rgba(255, 255, 255, 0.938) !important;
-    padding: 12px 20px;
-    margin: 4px 12px;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
+    color: rgba(255, 255, 255, 0.92) !important;
+        padding: 12px 18px;
+        margin: 5px 12px;
+        border-radius: 12px;
+        font-size: 0.94rem;
+        font-weight: 600;
+        transition: all 0.25s ease;
 }
 
 .sidebar-menu .nav-link:hover {
-    background: rgba(255, 255, 255, 0.171);
+    background: rgba(255, 255, 255, 0.14);
     color: #ffffff !important;
+    transform: translateX(3px);
 }
 
 .sidebar-menu .nav-link.active {
-    background: #ffffff !important; 
-    color: #2fa76f !important; 
-    font-weight: 700;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    background: #ffffff !important;
+    color: #157347 !important;
+        font-weight: 800;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
 }
+
 .sidebar-menu .nav-link.active .nav-icon {
-    color: #198754 !important;
+    color: #157347 !important;
 }
+
 .nav-icon {
     color: rgba(255, 255, 255, 0.9) !important;
     margin-right: 12px;
 }
 
-/* Payement Summry Css */
+/* =========================
+   HEADER
+========================= */
 
+.header-navbar {
+    min-height: 78px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #eef2f7;
+    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06);
+}
+
+.header-icon-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: #ecfdf5;
+    color: #157347;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border: 1px solid #bbf7d0;
+    transition: all 0.25s ease;
+}
+
+.header-icon-btn:hover {
+    background: #157347;
+    color: #ffffff;
+    border-color: #157347;
+    box-shadow: 0 8px 18px rgba(25, 135, 84, 0.22);
+}
+
+.header-date-box {
+    text-align: right;
+    padding: 9px 16px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #eef2f7;
+    line-height: 1.2;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+}
+
+.header-badge {
+    font-size: 10px;
+    padding: 5px 7px;
+}
+
+.header-user-box {
+    padding: 7px 12px !important;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px solid #eef2f7;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+}
+
+.header-user-box:hover {
+    background: #f8fafc;
+    border-color: #bbf7d0;
+}
+
+.header-user-img {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #198754;
+    padding: 2px;
+    background: #ffffff;
+}
+
+.header-dropdown {
+    width: 300px;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-top: 14px !important;
+}
+
+.header-dropdown-top {
+    padding: 24px 18px;
+    background: linear-gradient(135deg, #145f3b, #198754);
+}
+
+.header-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.header-dropdown-item i {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #ecfdf5;
+    color: #198754;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-dropdown-item:hover {
+    background: #f8fafc;
+}
+
+
+/* =========================
+   DASHBOARD HEADER / WELCOME
+========================= */
+
+.welcome-profile {
+    width: 70px;
+    height: 70px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* =========================
+   COMMON CARDS / TABLES
+========================= */
+
+.card {
+    border-radius: 18px;
+}
+
+.table thead th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 800;
+    color: #475569;
+    vertical-align: middle;
+}
+
+.table tbody td {
+    vertical-align: middle;
+}
+
+.btn {
+    font-weight: 600;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+}
+
+/* =========================
+   PAYMENT SUMMARY
+========================= */
 
 .payment-summary-box {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -89,7 +258,61 @@
     font-weight: 600;
 }
 
+/* =========================
+   EARNING BOX
+========================= */
+
+.earning-box {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px;
+    border-radius: 16px;
+    border: 1px solid #edf2f7;
+    transition: 0.25s ease;
+}
+
+.earning-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+.earning-box .icon {
+    width: 55px;
+    height: 55px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.earning-box.success .icon {
+    background: rgba(25, 135, 84, 0.12);
+    color: #198754;
+}
+
+.earning-box.warning .icon {
+    background: rgba(255, 193, 7, 0.14);
+    color: #f59f00;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
 @media (max-width: 768px) {
+    .header-navbar {
+            min-height: 68px;
+        }
+    
+        .header-dropdown {
+            width: 280px;
+        }
+    
+        .header-date-box {
+            display: none;
+        }
     .payment-summary-header {
         flex-direction: column;
     }

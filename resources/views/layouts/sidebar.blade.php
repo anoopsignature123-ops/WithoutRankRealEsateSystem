@@ -1,5 +1,5 @@
 <aside class="app-sidebar shadow" data-bs-theme="dark">
-    <div class="sidebar-brand bg-success">
+    <div class="sidebar-brand">
         <a href="#" >
             <img src="{{ asset('assets/images/admin.png') }}" alt="Logo" height="50px" width="150px" />
         </a>
