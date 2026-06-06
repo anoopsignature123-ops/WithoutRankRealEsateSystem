@@ -45,12 +45,24 @@
                         <div class="row g-3">
                             @php
                                 $details = [
-                                    ['title' => 'Joining Date', 'value' => $associate->created_at?->format('d M Y'), 'icon' => 'bi-calendar-check'],
-                                    ['title' => 'Sponsor', 'value' => $associate->sponsor->associate_name ?? 'Direct', 'icon' => 'bi-people-fill'],
-                                    ['title' => 'Rank', 'value' => $associate->rank->designation ?? 'N/A', 'icon' => 'bi-award-fill'],
+                                    [
+                                        'title' => 'Joining Date',
+                                        'value' => $associate->created_at?->format('d M Y'),
+                                        'icon' => 'bi-calendar-check',
+                                    ],
+                                    [
+                                        'title' => 'Sponsor',
+                                        'value' => $associate->sponsor->associate_name ?? 'Direct',
+                                        'icon' => 'bi-people-fill',
+                                    ],
+                                    [
+                                        'title' => 'Rank',
+                                        'value' => $associate->rank->designation ?? 'N/A',
+                                        'icon' => 'bi-award-fill',
+                                    ],
                                 ];
                             @endphp
-                            @foreach($details as $item)
+                            @foreach ($details as $item)
                                 <div class="col-md-4">
                                     <div class="p-3 rounded-4 h-100 text-white"
                                         style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
@@ -66,68 +78,136 @@
                     </div>
                 </div>
             </div>
-        </div>
-
+        </div> 
         <div class="row g-4 mb-4">
-            @php
-                $cards = [
-                    [
-                        'title' => 'My Direct',
-                        'count' => $data['direct_count'],
-                        'icon' => 'bi-person-plus-fill',
-                        'bg' => 'bg-primary-subtle',
-                        'text' => 'text-primary',
-                        'border' => '#0d6efd',
-                        'url' => route('associate-panel.my-direct'),
-                    ],
-
-                    [
-                        'title' => 'My Team',
-                        'count' => $data['team_count'],
-                        'icon' => 'bi-people-fill',
-                        'bg' => 'bg-success-subtle',
-                        'text' => 'text-success',
-                        'border' => '#198754',
-                        'url' => route('associate-panel.my-tree'),
-                    ],
-
-                    [
-                        'title' => 'Self Business',
-                        'count' => '₹ ' . number_format($data['total_business'], 2),
-                        'icon' => 'bi-currency-rupee',
-                        'bg' => 'bg-warning-subtle',
-                        'text' => 'text-warning',
-                        'border' => '#f59e0b',
-                        'url' => '#',
-                    ],
-                ];
-            @endphp
-            
-            @foreach ($cards as $card)
-            
-                <div class="col-12 col-md-4">
-                    <a href="{{ $card['url'] }}" class="text-decoration-none h-100 d-block">
-                        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden position-relative transition-hover">
-                            <div style="height: 5px; background: {{ $card['border'] }};"></div>
-                            <div class="card-body p-4">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <p class="text-uppercase text-muted fw-semibold small mb-2"
-                                            style="letter-spacing: 1px;">
-                                            {{ $card['title'] }}
-                                        </p>
-                                        <h2 class="fw-bold text-dark mb-0">{{ $card['count'] }}</h2>
-                                    </div>
-                                    <div class="{{ $card['bg'] }} rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                                        style="width:70px;height:70px;">
-                                        <i class="bi {{ $card['icon'] }} {{ $card['text'] }} fs-2"></i>
-                                    </div>
+            {{-- My Direct --}}
+            <div class="col-xl-4 col-md-6">
+                <a href="{{ route('associate-panel.my-direct') }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted text-uppercase fw-semibold">My Direct</small>
+                                    <h4 class="fw-bold text-dark mb-0 mt-2">{{ $data['direct_count'] }}</h4>
+                                </div>
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-4 d-flex align-items-center justify-content-center"
+                                    style="width:56px;height:56px;">
+                                    <i class="bi bi-person-plus-fill fs-3"></i>
                                 </div>
                             </div>
                         </div>
-                    </a>
+                    </div>
+                </a>
+            </div>
+
+            {{-- My Team --}}
+            <div class="col-xl-4 col-md-6">
+                <a href="{{ route('associate-panel.my-tree') }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted text-uppercase fw-semibold">My Team</small>
+                                    <h4 class="fw-bold text-dark mb-0 mt-2">{{ $data['team_count'] }}</h4>
+                                </div>
+                                <div class="bg-success bg-opacity-10 text-success rounded-4 d-flex align-items-center justify-content-center"
+                                    style="width:56px;height:56px;">
+                                    <i class="bi bi-people-fill fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            {{-- Self Business --}}
+            <div class="col-xl-4 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted text-uppercase fw-semibold">Self Business</small>
+                                <h4 class="fw-bold text-dark mb-0 mt-2">
+                                    ₹{{ number_format($data['total_business'], 2) }}
+                                </h4>
+                            </div>
+                            <div class="bg-warning bg-opacity-10 text-warning rounded-4 d-flex align-items-center justify-content-center"
+                                style="width:56px;height:56px;">
+                                <i class="bi bi-currency-rupee fs-3"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            @endforeach
+            </div>
+
+            {{-- Self Commission --}}
+            <div class="col-xl-4 col-md-6">
+                <a href="{{ route('associate-panel.payout-details', ['commission_type' => 'self']) }}"
+                    class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted text-uppercase fw-semibold">Self Commission</small>
+                                    <h4 class="fw-bold text-success mb-0 mt-2">
+                                        ₹{{ number_format($payoutStats['self_commission'], 2) }}
+                                    </h4>
+                                </div>
+                                <div class="bg-success bg-opacity-10 text-success rounded-4 d-flex align-items-center justify-content-center"
+                                    style="width:56px;height:56px;">
+                                    <i class="bi bi-person-check-fill fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            {{-- Team Commission --}}
+            <div class="col-xl-4 col-md-6">
+                <a href="{{ route('associate-panel.payout-details', ['commission_type' => 'team']) }}"
+                    class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted text-uppercase fw-semibold">Team Commission</small>
+                                    <h4 class="fw-bold text-primary mb-0 mt-2">
+                                        ₹{{ number_format($payoutStats['team_commission'], 2) }}
+                                    </h4>
+                                </div>
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-4 d-flex align-items-center justify-content-center"
+                                    style="width:56px;height:56px;">
+                                    <i class="bi bi-diagram-3-fill fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            {{-- Total Commission --}}
+            <div class="col-xl-4 col-md-6">
+                <a href="{{ route('associate-panel.payout-details') }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted text-uppercase fw-semibold">Total Commission</small>
+                                    <h4 class="fw-bold text-warning mb-0 mt-2">
+                                        ₹{{ number_format($payoutStats['total_payout'], 2) }}
+                                    </h4>
+                                </div>
+                                <div class="bg-warning bg-opacity-10 text-warning rounded-4 d-flex align-items-center justify-content-center"
+                                    style="width:56px;height:56px;">
+                                    <i class="bi bi-wallet2 fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
         </div>
         {{-- Chart Section --}}
         <div class="row g-4 mb-4">
@@ -284,7 +364,8 @@
             <div class="col-12">
                 <div class="card border-0 shadow-sm bg-white rounded-3">
                     <div class="card-header bg-transparent border-0 p-4">
-                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-receipt-cutoff text-theme-green me-2"></i>Recent
+                        <h5 class="fw-bold mb-0 text-dark"><i
+                                class="bi bi-receipt-cutoff text-theme-green me-2"></i>Recent
                             Payment History</h5>
                     </div>
                     <div class="card-body p-0 table-responsive">
@@ -328,32 +409,32 @@
 
 @push('scripts')
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             const businessCtx = document.getElementById('businessStackedChart').getContext('2d');
             new Chart(businessCtx, {
                 type: 'bar',
                 data: {
                     labels: ['Self Business', 'Team Business'],
                     datasets: [{
-                        label: 'Pending',
-                        data: [
+                            label: 'Pending',
+                            data: [
                                 {{ $stats['self']['pending'] }},
-                            {{ $stats['team']['pending'] }}
-                        ],
-                        backgroundColor: '#dc3545',
-                        borderRadius: 8,
-                        barThickness: 40
-                    },
-                    {
-                        label: 'Confirmed',
-                        data: [
+                                {{ $stats['team']['pending'] }}
+                            ],
+                            backgroundColor: '#dc3545',
+                            borderRadius: 8,
+                            barThickness: 40
+                        },
+                        {
+                            label: 'Confirmed',
+                            data: [
                                 {{ $stats['self']['confirmed'] }},
-                            {{ $stats['team']['confirmed'] }}
-                        ],
-                        backgroundColor: '#198754',
-                        borderRadius: 8,
-                        barThickness: 40
-                    }
+                                {{ $stats['team']['confirmed'] }}
+                            ],
+                            backgroundColor: '#198754',
+                            borderRadius: 8,
+                            barThickness: 40
+                        }
                     ]
                 },
                 options: {
@@ -378,7 +459,7 @@
                             backgroundColor: '#212529',
                             padding: 12,
                             callbacks: {
-                                label: function (context) {
+                                label: function(context) {
                                     let value = context.raw || 0;
                                     return context.dataset.label +
                                         ': ₹ ' + Number(value).toLocaleString('en-IN');
@@ -401,7 +482,7 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                callback: function (value) {
+                                callback: function(value) {
                                     return '₹ ' + Number(value).toLocaleString('en-IN');
                                 }
                             }
@@ -421,7 +502,7 @@
 
                         data: [
 
-                                {{ $data['confirmed_sales'] ?? 0 }},
+                            {{ $data['confirmed_sales'] ?? 0 }},
 
                             {{ $data['pending_sales'] ?? 0 }}
 
@@ -479,7 +560,7 @@
 
                             callbacks: {
 
-                                label: function (context) {
+                                label: function(context) {
 
                                     return context.label +
                                         ': ₹ ' +

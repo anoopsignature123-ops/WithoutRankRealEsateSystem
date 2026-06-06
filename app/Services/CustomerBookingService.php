@@ -251,12 +251,8 @@ class CustomerBookingService
         $plotSaleId = $data['plot_sale_detail_id'];
         $transactionNumber = $data['transaction_number'] ?? strtoupper($paymentMode ?: 'PAY').'-'.time();
         $receiptNumber = $data['receipt_number'] ?? 'REC-'.Str::upper(Str::random(8));
-
-        // Determine Status
-        $isInstantPayment = in_array($paymentMode, ['cash', 'card'], true);
+        $isInstantPayment = in_array($paymentMode, ['cash', 'card', 'neft_rtgs'], true);
         $bookingStatus = $isInstantPayment ? 'booked' : 'hold';
-
-        // 1. Customer Payment Create
         $oldPayment = CustomerPayment::where('customer_booking_id', $customerId)
             ->where('plot_sale_detail_id', $plotSaleId)
             ->first();

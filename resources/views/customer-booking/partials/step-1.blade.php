@@ -17,16 +17,13 @@
     </div>
 
     <div class="card-body p-4">
-
         <div class="row g-3">
-
             <div class="col-md-4">
                 <label class="card h-100 border rounded-4 p-3 cursor-pointer">
                     <div class="d-flex align-items-start gap-3">
                         <input class="form-check-input customerType mt-1" type="radio" name="customer_type"
                             value="returning_customer" id="returningCustomer"
                             {{ old('customer_type', $customer->customer_type ?? '') == 'returning_customer' ? 'checked' : '' }}>
-
                         <div>
                             <div class="fw-bold mb-1">
                                 <i class="bi bi-arrow-repeat text-success me-1"></i>

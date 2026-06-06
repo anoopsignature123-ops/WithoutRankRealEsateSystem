@@ -55,11 +55,9 @@
     <div class="container-fluid py-4">
 
         {{-- Page Header --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+        <div class="card border-0 shadow-sm rounded-4 mb-2 overflow-hidden">
             <div class="card-body p-4">
-
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
                     <div class="d-flex align-items-center gap-3">
                         <div class="bg-success bg-opacity-10 text-success rounded-4 d-flex align-items-center justify-content-center"
                             style="width:58px;height:58px;">
@@ -87,30 +85,9 @@
 
             </div>
         </div>
-
         {{-- Booking Form Card --}}
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-
-            <div class="card-header bg-white border-0 px-4 pt-4 pb-0">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <div>
-                        <h5 class="fw-bold mb-1">
-                            Booking Form
-                        </h5>
-
-                        <small class="text-muted">
-                            Complete all required steps to finish customer booking.
-                        </small>
-                    </div>
-
-                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
-                        Step {{ $step }} of 5
-                    </span>
-                </div>
-            </div>
-
             <div class="card-body p-4">
-
                 @include('customer-booking.partials.stepper', ['step' => $step])
 
                 <form method="POST"

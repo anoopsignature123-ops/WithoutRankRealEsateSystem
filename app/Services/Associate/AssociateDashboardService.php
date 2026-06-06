@@ -3,6 +3,7 @@
 namespace App\Services\Associate;
 
 use App\Models\Associate;
+use App\Models\CommissionPayout;
 use App\Models\CustomerBooking;
 use App\Models\CustomerPayment;
 use Illuminate\Support\Collection;
@@ -159,5 +160,27 @@ class AssociateDashboardService
             ->sortByDesc('id')
             ->unique('customer_booking_id')
             ->values();
+    }
+
+    public function getPayoutStats(int $associateId): array
+    {
+        $payouts = CommissionPayout::where('associate_id', $associateId)->get();
+
+        $selfCommission = $payouts
+            ->where('commission_type', 'self')
+            ->sum('commission_amount');
+
+        $teamCommission = $payouts
+            ->where('commission_type', 'team')
+            ->sum('commission_amount');
+
+        return [
+            'self_commission' => $selfCommission,
+            'team_commission' => $teamCommission,
+            'total_payout' => $selfCommission + $teamCommission,
+            'pending_payout' => $payouts
+                ->where('status', 'pending')
+                ->sum('commission_amount'),
+        ];
     }
 }

@@ -374,6 +374,31 @@ class ModuleSeeder extends Seeder
                 'icon' => 'bi bi-gear',
             ],
 
+            // Commission Payout Module
+            [
+                'name' => 'Commission Payout',
+                'slug' => 'commission-payout',
+                'icon' => 'bi bi-cash-stack',
+            ],
+
+            [
+                'name' => 'Generate Commission',
+                'slug' => 'generate-commission',
+                'parent_slug' => 'commission-payout',
+                'route_name' => 'generate-commission.index',
+                'active_routes' => 'generate-commission*',
+                'icon' => 'bi bi-calculator',
+            ],
+
+            [
+                'name' => 'Commission Ledger',
+                'slug' => 'commission-ledger',
+                'parent_slug' => 'commission-payout',
+                'route_name' => 'commission-ledger.index',
+                'active_routes' => 'commission-ledger*',
+                'icon' => 'bi bi-list-ul',
+            ],
+ 
             // Parent Module
             [
                 'name' => 'Report',

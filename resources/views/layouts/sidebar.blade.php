@@ -1,6 +1,6 @@
 <aside class="app-sidebar shadow" data-bs-theme="dark">
     <div class="sidebar-brand">
-        <a href="#" >
+        <a href="#">
             <img src="{{ asset('assets/images/admin.png') }}" alt="Logo" height="50px" width="150px" />
         </a>
     </div>
@@ -172,15 +172,23 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon bi bi-envelope"></i>
-                            <p>My Account<i class="nav-arrow bi bi-chevron-right"></i></p>
+                    <li
+                        class="nav-item
+                            {{ request()->routeIs('associate-panel.payout-details') ? 'menu-open' : '' }}">
+                         
+                       <a href="#"
+                            class="nav-link
+                                {{ request()->routeIs('associate-panel.payout-details') ? 'active' : '' }}">
+                             <i class="nav-icon bi bi-cash-stack"></i>
+                            <p>My Account <i class="nav-arrow bi bi-chevron-right"></i></p>
                         </a>
+
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="nav-icon bi bi-record-fill "></i>
+                                <a href="{{ route('associate-panel.payout-details') }}"
+                                    class="nav-link {{ request()->routeIs('associate-panel.payout-details*') ? 'active' : '' }}">
+                                   
+                                    <i class="nav-icon bi bi-record-fill"></i>
                                     <p>Payout Details</p>
                                 </a>
                             </li>

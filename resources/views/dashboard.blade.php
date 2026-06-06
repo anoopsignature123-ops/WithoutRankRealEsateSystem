@@ -130,10 +130,10 @@
                             <div>
                                 <h5 class="fw-bold mb-1">
                                     <i class="bi bi-graph-up-arrow text-success me-2"></i>
-                                    Business Overview
+                                    Monthly Collections & Dues
                                 </h5>
                                 <p class="text-muted small mb-0">
-                                    Month wise confirmed amount and due amount summary.
+                                   View month-wise confirmed payment collections and outstanding due amounts.
                                 </p>
                             </div>
 
@@ -161,7 +161,7 @@
                                 <div class="p-3 rounded-4 border bg-success bg-opacity-10">
                                     <small class="text-muted fw-semibold">Confirmed Amount</small>
                                     <h5 class="fw-bold text-success mb-0">
-                                        ₹ {{ number_format($confirmedPayment ?? 0, 2) }}
+                                        ₹ {{ number_format($businessConfirmedPayment ?? 0, 2) }}
                                     </h5>
                                 </div>
                             </div>
@@ -170,7 +170,7 @@
                                 <div class="p-3 rounded-4 border bg-light">
                                     <small class="text-muted fw-semibold">Due Amount</small>
                                     <h5 class="fw-bold text-dark mb-0">
-                                        ₹ {{ number_format($pendingPayment ?? 0, 2) }}
+                                        ₹ {{ number_format($businesspendingPayment ?? 0, 2) }}
                                     </h5>
                                 </div>
                             </div>

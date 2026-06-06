@@ -122,4 +122,9 @@ class Associate extends Authenticatable
 
         return array_unique($downlineIds);
     }
+
+    public function commissionPayouts()
+    {
+        return $this->hasMany(CommissionPayout::class);
+    }
 }

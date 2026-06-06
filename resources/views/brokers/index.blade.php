@@ -97,7 +97,7 @@
                     ordering: true,
                     columnDefs: [{
                         orderable: false,
-                        targets: [10] // Total 11 columns, index 10 is the last one (Actions)
+                        targets: [10] 
                     }],
                     language: {
                         searchPlaceholder: "Search brokers..."

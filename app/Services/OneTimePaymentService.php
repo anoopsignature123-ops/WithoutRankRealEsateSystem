@@ -13,10 +13,7 @@ class OneTimePaymentService
     public function store(array $data)
     {
         return DB::transaction(function () use ($data) {
-            // $booking = CustomerBooking::with('plotSaleDetail')->findOrFail($data['customer_booking_id']);
-            // $plotSale = $booking->plotSaleDetail;
             $booking = CustomerBooking::findOrFail($data['customer_booking_id']);
-
             $plotSale = PlotSaleDetail::where('id', $data['plot_sale_detail_id'])
                 ->where('customer_booking_id', $booking->id)
                 ->firstOrFail();
@@ -24,7 +21,6 @@ class OneTimePaymentService
                 throw new Exception('Plot sale details not found.');
             }
             $totalPlotCost = (float) $plotSale->total_plot_cost;
-            // $alreadyPaid = CustomerPayment::where('customer_booking_id', $booking->id)->sum('booking_amount');
             $alreadyPaid = CustomerPayment::where('customer_booking_id', $booking->id)
                 ->where('plot_sale_detail_id', $plotSale->id)
                 ->sum('paid_amount');

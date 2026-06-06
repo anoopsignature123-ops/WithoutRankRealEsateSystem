@@ -8,6 +8,7 @@ use App\Http\Controllers\AssociateChainReportController;
 use App\Http\Controllers\AssociateController;
 use App\Http\Controllers\AssociateDirectReportController;
 use App\Http\Controllers\AssociatePanel\AssociateAuthController;
+use App\Http\Controllers\AssociatePanel\AssociateCommissionController;
 use App\Http\Controllers\AssociatePanel\AssociateDashboardController;
 use App\Http\Controllers\AssociatePanel\AssociateProfileController;
 use App\Http\Controllers\AssociatePanel\AssociateRegistrationController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\CancelBookingController;
 use App\Http\Controllers\CancelPlotBookingReportController;
 use App\Http\Controllers\ChequeClearanceController;
 use App\Http\Controllers\ChequeDetailsReportController;
+use App\Http\Controllers\CommissionPayoutController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomerBookingController;
 use App\Http\Controllers\CustomerDetailReportController;
@@ -398,7 +400,8 @@ Route::middleware('auth')->group(function () {
         Route::get('payment-transfer/plots/{block}', 'getPlots')->name('payment-transfer.plots');
         Route::get('payment-transfer/payments/{plot}', 'getPayments')->name('payment-transfer.payments');
         Route::get('payment-transfer/customers', 'getCustomers')->name('payment-transfer.customers');
-        Route::get('payment-transfer/customer-plots/{customerBooking}', 'getCustomerPlots')->name('payment-transfer.customer-plots');
+        Route::get('payment-transfer/customer-plots/{customerBooking}', 'getCustomerPlots')
+            ->name('payment-transfer.customer-plots');
     });
 
     Route::controller(PlotChangeController::class)->group(function () {
@@ -410,6 +413,18 @@ Route::middleware('auth')->group(function () {
         Route::get('plot-change/booking/{plot}', 'getBookingData')->name('plot-change.booking');
         Route::get('plot-change/new-plot/{plot}', 'getNewPlotData')->name('plot-change.new-plot');
     });
+    Route::controller(CommissionPayoutController::class)->group(function () {
+        Route::get('/generate-commission', 'index')->name('generate-commission.index');
+        Route::post('/generate-commission', 'store')->name('generate-commission.store');
+        Route::get('/commission-ledger', 'commissionList')->name('commission-ledger.index');
+
+        Route::get('/commission-ledger/export/excel', 'exportCommissionExcel')->name('commission-ledger.export.excel');
+        Route::get('/commission-ledger/export/pdf', 'exportCommissionPdf')->name('commission-ledger.export.pdf');
+
+        Route::get('/commission-ledger/{commission}/export/excel', 'exportSingleExcel')->name('commission-ledger.single.excel');
+        Route::get('/commission-ledger/{commission}/export/pdf', 'exportSinglePdf')->name('commission-ledger.single.pdf');
+    });
+
 });
 
 // ------------------Associate Routes-------------
@@ -465,6 +480,16 @@ Route::prefix('associate-panel')->name('associate-panel.')->group(function () {
             Route::get('/support', 'index')->name('support.index');
             Route::post('/support', 'store')->name('support.store');
         });
-    });
 
+        Route::controller(AssociateCommissionController::class)->group(function () {
+            Route::get('payout-details', 'index')->name('payout-details');
+
+            Route::get('payout-details/export/excel', 'exportExcel')->name('payout-details.export.excel');
+            Route::get('payout-details/export/pdf', 'exportPdf')->name('payout-details.export.pdf');
+
+            Route::get('payout-details/{commission}/export/excel', 'exportSingleExcel')->name('payout-details.single.excel');
+            Route::get('payout-details/{commission}/export/pdf', 'exportSinglePdf')->name('payout-details.single.pdf');
+        });
+
+    });
 });

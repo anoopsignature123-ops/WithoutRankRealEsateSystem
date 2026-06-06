@@ -47,11 +47,8 @@
                                 Associate ID
                             </label>
 
-                            <input type="text"
-                                name="associate_id"
-                                value="{{ request('associate_id') }}"
-                                placeholder="Enter associate id"
-                                class="form-control">
+                            <input type="text" name="associate_id" value="{{ request('associate_id') }}"
+                                placeholder="Enter associate id" class="form-control">
                         </div>
 
                         <div class="col-lg-3 col-md-6">
@@ -59,10 +56,7 @@
                                 From Date
                             </label>
 
-                            <input type="date"
-                                name="from_date"
-                                value="{{ request('from_date') }}"
-                                class="form-control">
+                            <input type="date" name="from_date" value="{{ request('from_date') }}" class="form-control">
                         </div>
 
                         <div class="col-lg-3 col-md-6">
@@ -70,10 +64,7 @@
                                 To Date
                             </label>
 
-                            <input type="date"
-                                name="to_date"
-                                value="{{ request('to_date') }}"
-                                class="form-control">
+                            <input type="date" name="to_date" value="{{ request('to_date') }}" class="form-control">
                         </div>
 
                         <div class="col-lg-3 col-md-6">
@@ -84,9 +75,8 @@
                                     Search
                                 </button>
 
-                                <a href="{{ route('associate-downline') }}"
-                                    class="btn btn-light border px-4">
-                                    Reset
+                                <a href="{{ route('associate-downline') }}" class="btn btn-light border px-4">
+                                    <i class="fa-solid fa-arrow-rotate-left"></i> Reset
                                 </a>
 
                                 <a href="{{ route('associate-downline.export', request()->query()) }}"
@@ -129,13 +119,12 @@
                             @forelse ($associates as $key => $item)
                                 <tr>
                                     <td>
-                                        <span class="text-muted small">
-                                            #{{ $key + 1 }}
-                                        </span>
+
                                     </td>
 
                                     <td>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                        <span
+                                            class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
                                             {{ $item->associate_id }}
                                         </span>
                                     </td>
@@ -192,13 +181,27 @@
         $(document).ready(function() {
 
             if ($('#downlineTable tbody tr td').attr('colspan') == undefined) {
-                $('#downlineTable').DataTable({
+                
+
+                let table = $('#downlineTable').DataTable({
                     pageLength: 10,
-                    ordering: true,
-                    searching: false,
                     responsive: true,
-                    lengthMenu: [5, 10, 25, 50]
+                    lengthMenu: [5, 10, 25, 50],
+                    columnDefs: [{
+                        targets: 0,
+                        orderable: false,
+                        searchable: false
+                    }]
                 });
+
+                table.on('order.dt search.dt draw.dt', function() {
+                    table.column(0, {
+                        search: 'applied',
+                        order: 'applied'
+                    }).nodes().each(function(cell, i) {
+                        cell.innerHTML = '#' + (i + 1);
+                    });
+                }).draw();
             }
 
         });

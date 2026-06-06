@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PlotDetail;
 use App\Models\Project;
 use App\Services\ExcelExportService;
 use App\Services\PdfExportService;
@@ -24,11 +25,31 @@ class ProjectManipulationController extends Controller
         return view('project-manipulation.index', compact('projects', 'plots'));
     }
 
+    // public function updateStatus(Request $request)
+    // {
+    //     $this->projectManipulationService->updateStatus($request->all());
+
+    //     return back()->with('success', 'Status updated successfully.');
+    // }
+
     public function updateStatus(Request $request)
     {
-        $this->projectManipulationService->updateStatus($request->all());
+        $request->validate([
+            'plot_id' => ['required', 'exists:plot_details,id'],
+            'status' => ['required', 'in:available,booked,hold,registry'],
+        ]);
 
-        return back()->with('success', 'Status updated successfully.');
+        $plot = PlotDetail::findOrFail($request->plot_id);
+
+        if ($plot->status === 'booked') {
+            return back()->with('error', 'Booked plot status cannot be changed.');
+        }
+
+        $plot->update([
+            'status' => $request->status,
+        ]);
+
+        return back()->with('success', 'Plot status updated successfully.');
     }
 
     public function getPlotsByProject($projectId)

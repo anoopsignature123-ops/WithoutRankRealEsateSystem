@@ -8,12 +8,14 @@ use App\Models\CustomerPayment;
 use App\Models\PlotDetail;
 use App\Models\PlotRegistry;
 use App\Models\Project;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        $businessChartData = $this->getVisitorsData();
         $data = [
             'projectCount' => Project::count(),
             'totalPlot' => PlotDetail::count(),
@@ -23,10 +25,12 @@ class DashboardController extends Controller
             'visitorsData' => $this->getVisitorsData(),
             'monthlyDues' => $this->getMonthlyDues(),
             'totalOutstanding' => $this->calculateOutstanding(),
-            'totalOverdue' => $this->calculateOverdue(),
-
+            // 'totalOverdue' => $this->calculateOverdue(),
             'confirmedPayment' => CustomerPayment::sum('booking_amount'),
             'pendingPayment' => CustomerPayment::sum('due_amount'),
+            'businessConfirmedPayment' => $businessChartData['monthlyPaidAmount'][0] ?? 0,
+            'businesspendingPayment' => $businessChartData['monthlyDueAmount'][0] ?? 0,
+
         ];
 
         return view('dashboard', array_merge($data, $data['plotStats']));
@@ -48,26 +52,64 @@ class DashboardController extends Controller
 
     private function getMonthlyDues()
     {
-        return CustomerPayment::with([
+        $monthlyDues = collect();
+
+        $emiPlans = CustomerPayment::with([
             'customerBooking.primaryDetail',
             'plotSaleDetail.project',
             'plotSaleDetail.block',
             'plotSaleDetail.plotDetail',
         ])
             ->where('plan_type', 'emi_plan')
-            ->where('payment_status', 'pending')
-            ->where('due_amount', '>', 0)
-            ->whereMonth('emi_date', now()->month)
-            ->whereYear('emi_date', now()->year)
-            ->whereIn('id', function ($query) {
-                $query->selectRaw('MAX(id)')
-                    ->from('customer_payments')
-                    ->where('plan_type', 'emi_plan')
-                    ->whereNotNull('plot_sale_detail_id')
-                    ->groupBy('customer_booking_id', 'plot_sale_detail_id');
-            })
-            ->latest()
+            ->where('transaction_category', 'booking_fee')
+            ->whereNotNull('customer_booking_id')
+            ->whereNotNull('plot_sale_detail_id')
+            ->whereNotNull('emi_months')
+            ->where('emi_months', '>', 0)
             ->get();
+
+        $currentMonth = now()->startOfMonth();
+        $currentMonthEnd = now()->endOfMonth();
+
+        foreach ($emiPlans as $emiPlan) {
+            $emiStartDate = Carbon::parse($emiPlan->emi_date ?? $emiPlan->created_at)->startOfMonth();
+
+            $monthDifference = $emiStartDate->diffInMonths($currentMonth, false);
+
+            if ($monthDifference < 0 || $monthDifference >= $emiPlan->emi_months) {
+                continue;
+            }
+
+            $monthlyEmiAmount = (float) ($emiPlan->after_booking_payable_amount ?? 0);
+
+            if ($monthlyEmiAmount <= 0) {
+                $monthlyEmiAmount = (float) ($emiPlan->due_amount / $emiPlan->emi_months);
+            }
+
+            $totalPaidTillCurrentMonth = CustomerPayment::where('customer_booking_id', $emiPlan->customer_booking_id)
+                ->where('plot_sale_detail_id', $emiPlan->plot_sale_detail_id)
+                ->where('transaction_category', 'emi_payment')
+                ->whereIn('payment_status', ['paid', 'cleared'])
+                ->whereDate('created_at', '<=', $currentMonthEnd)
+                ->sum('paid_amount');
+
+            $totalDueBeforeCurrentMonth = $monthlyEmiAmount * $monthDifference;
+
+            $paidAdjustedForCurrentMonth = $totalPaidTillCurrentMonth - $totalDueBeforeCurrentMonth;
+
+            $paidAdjustedForCurrentMonth = max(0, min($paidAdjustedForCurrentMonth, $monthlyEmiAmount));
+
+            $currentMonthPending = $monthlyEmiAmount - $paidAdjustedForCurrentMonth;
+
+            if ($currentMonthPending > 0) {
+                $emiPlan->due_amount = round($currentMonthPending, 2);
+                $emiPlan->emi_date = $currentMonth;
+
+                $monthlyDues->push($emiPlan);
+            }
+        }
+
+        return $monthlyDues->sortByDesc('id')->values();
     }
 
     private function calculateOutstanding()
@@ -107,26 +149,82 @@ class DashboardController extends Controller
 
         $startMonth = now()->startOfMonth();
 
+        $emiPlans = CustomerPayment::where('plan_type', 'emi_plan')
+            ->where('transaction_category', 'booking_fee')
+            ->whereNotNull('customer_booking_id')
+            ->whereNotNull('plot_sale_detail_id')
+            ->whereNotNull('emi_months')
+            ->where('emi_months', '>', 0)
+            ->get();
+
         for ($i = 0; $i < 10; $i++) {
-            $month = $startMonth->copy()->addMonths($i);
+
+            $month = $startMonth->copy()->addMonths($i)->startOfMonth();
+            $monthEnd = $month->copy()->endOfMonth();
 
             $labels[] = $month->format('M');
 
-            $baseQuery = CustomerPayment::whereMonth('created_at', $month->month)
-                ->whereYear('created_at', $month->year);
+            $paidAmount = 0;
+            $pendingAmount = 0;
 
-            $monthlyPaidAmount[] = (float) (clone $baseQuery)
-                ->where('booking_status', 'booked')
-                ->sum('paid_amount');
+            foreach ($emiPlans as $emiPlan) {
 
-            $monthlyDueAmount[] = (float) CustomerPayment::whereIn('id', function ($query) use ($month) {
-                $query->selectRaw('MAX(id)')
-                    ->from('customer_payments')
-                    ->whereMonth('created_at', $month->month)
-                    ->whereYear('created_at', $month->year)
-                    ->whereNotNull('plot_sale_detail_id')
-                    ->groupBy('customer_booking_id', 'plot_sale_detail_id');
-            })->sum('due_amount');
+                $emiStartDate = Carbon::parse($emiPlan->emi_date ?? $emiPlan->created_at)
+                    ->startOfMonth();
+
+                $monthDifference = $emiStartDate->diffInMonths($month, false);
+
+                if ($monthDifference < 0 || $monthDifference >= $emiPlan->emi_months) {
+                    continue;
+                }
+
+                $monthlyEmiAmount = (float) ($emiPlan->after_booking_payable_amount ?? 0);
+
+                if ($monthlyEmiAmount <= 0) {
+                    $monthlyEmiAmount = (float) ($emiPlan->due_amount / $emiPlan->emi_months);
+                }
+
+                $paidThisMonth = CustomerPayment::where('customer_booking_id', $emiPlan->customer_booking_id)
+                    ->where('plot_sale_detail_id', $emiPlan->plot_sale_detail_id)
+                    ->where('transaction_category', 'emi_payment')
+                    ->whereIn('payment_status', ['paid', 'cleared'])
+                    ->whereBetween('created_at', [
+                        $month->copy()->startOfMonth(),
+                        $monthEnd,
+                    ])
+                    ->sum('paid_amount');
+
+                $totalPaidTillThisMonth = CustomerPayment::where('customer_booking_id', $emiPlan->customer_booking_id)
+                    ->where('plot_sale_detail_id', $emiPlan->plot_sale_detail_id)
+                    ->where('transaction_category', 'emi_payment')
+                    ->whereIn('payment_status', ['paid', 'cleared'])
+                    ->whereDate('created_at', '<=', $monthEnd)
+                    ->sum('paid_amount');
+
+                $totalDueBeforeThisMonth = $monthlyEmiAmount * $monthDifference;
+
+                $paidAdjustedForThisMonth = $totalPaidTillThisMonth - $totalDueBeforeThisMonth;
+
+                if ($paidAdjustedForThisMonth < 0) {
+                    $paidAdjustedForThisMonth = 0;
+                }
+
+                if ($paidAdjustedForThisMonth > $monthlyEmiAmount) {
+                    $paidAdjustedForThisMonth = $monthlyEmiAmount;
+                }
+
+                $currentMonthPending = $monthlyEmiAmount - $paidAdjustedForThisMonth;
+
+                if ($currentMonthPending < 0) {
+                    $currentMonthPending = 0;
+                }
+
+                $paidAmount += (float) $paidThisMonth;
+                $pendingAmount += (float) $currentMonthPending;
+            }
+
+            $monthlyPaidAmount[] = round($paidAmount, 2);
+            $monthlyDueAmount[] = round($pendingAmount, 2);
         }
 
         return [

@@ -98,40 +98,45 @@
 @endsection
 
 @push('scripts')
-    <script>
-        $(document).ready(function() {
-            // Check karein ki table exist karti hai ya nahi
-            if ($('#usersTable').length > 0) {
-                $('#usersTable').DataTable({
-                    "pageLength": 10,
-                    "ordering": true,
-                    "columnDefs": [{
-                        "orderable": false,
-                        "targets": [1, 8]
-                    }],
-                    "language": {
-                        "searchPlaceholder": "Search users...",
-                        "emptyTable": "No data available in table" // Empty hone par ye dikhega
-                    },
-                    "retrieve": true // Ye important hai error se bachne ke liye
-                });
-            }
+<script>
+    $(document).ready(function() {
 
-            // Delete button logic
-            $(document).on('click', '.delete-btn', function() { // Use $(document).on for dynamic rows
-                let form = $(this).closest('form');
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#198754',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, delete!'
-                }).then((result) => {
-                    if (result.isConfirmed) form.submit();
-                });
+        if ($('#usersTable tbody tr td[colspan]').length === 0) {
+            $('#usersTable').DataTable({
+                pageLength: 10,
+                ordering: true,
+                columnDefs: [
+                    {
+                        orderable: false,
+                        targets: [1, 8]
+                    }
+                ],
+                language: {
+                    searchPlaceholder: "Search users...",
+                    emptyTable: "No users found"
+                },
+                retrieve: true
+            });
+        }
+
+        $(document).on('click', '.delete-btn', function() {
+            let form = $(this).closest('form');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
             });
         });
-    </script>
+
+    });
+</script>
 @endpush

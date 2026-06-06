@@ -77,7 +77,7 @@
                                 </button>
 
                                 <a href="{{ route('direct-associate') }}" class="btn btn-light border px-4">
-                                    Reset
+                                   <i class="fa-solid fa-arrow-rotate-left"></i> Reset
                                 </a>
 
                                 <a href="{{ route('direct-associate.export', request()->query()) }}"

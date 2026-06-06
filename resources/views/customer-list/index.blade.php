@@ -32,19 +32,6 @@
 
         {{-- Customer Table --}}
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="card-header bg-white border-0 px-4 pt-4 pb-0">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <div>
-                        <h5 class="fw-bold mb-1">
-                            Customer Booking Summary
-                        </h5>
-                        <small class="text-muted">
-                            Customer-wise booked plot details and contact information.
-                        </small>
-                    </div>
-                </div>
-            </div>
-
             <div class="card-body p-4">
 
                 <div class="table-responsive">
@@ -72,9 +59,7 @@
 
                                     $address =
                                         $primary?->permanent_address ??
-                                        ($primary?->city
-                                            ? $primary->city . ', ' . $primary->state
-                                            : 'N/A');
+                                        ($primary?->city ? $primary->city . ', ' . $primary->state : 'N/A');
 
                                     $parentCustomer = $customer->parentCustomer;
                                     $plots = $customer->booked_plots ?? ($customer->plotSaleDetails ?? collect());
@@ -83,7 +68,7 @@
                                 <tr>
                                     <td>
                                         <span class="text-muted small">
-                                            #{{ $key + 1 }}
+
                                         </span>
                                     </td>
 
@@ -99,7 +84,8 @@
                                                 {{ $parentCustomer->customer_code }}
                                             </span>
                                         @else
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                            <span
+                                                class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
                                                 Self
                                             </span>
                                         @endif
@@ -141,10 +127,8 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <button type="button"
-                                            class="btn btn-sm btn-outline-success rounded-pill px-3"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#plotModal{{ $customer->id }}">
+                                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3"
+                                            data-bs-toggle="modal" data-bs-target="#plotModal{{ $customer->id }}">
                                             <i class="bi bi-eye me-1"></i>
                                             View
                                         </button>
@@ -159,10 +143,8 @@
                                 </tr>
                             @endforelse
                         </tbody>
-
                     </table>
                 </div>
-
             </div>
         </div>
 
@@ -176,7 +158,6 @@
             <div class="modal fade" id="plotModal{{ $customer->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content border-0 rounded-4 shadow overflow-hidden">
-
                         <div class="modal-header bg-light border-0 px-4 py-3">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="bg-success bg-opacity-10 text-success rounded-4 d-flex align-items-center justify-content-center"
@@ -196,10 +177,7 @@
                                 </div>
                             </div>
 
-                            <button type="button"
-                                class="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
 
                         <div class="modal-body p-4">
@@ -248,14 +226,10 @@
                                         <tbody>
                                             @foreach ($plots as $plotKey => $plot)
                                                 <tr>
+                                                    <td></td>
                                                     <td>
-                                                        <span class="text-muted small">
-                                                            #{{ $plotKey + 1 }}
-                                                        </span>
-                                                    </td>
-
-                                                    <td>
-                                                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+                                                        <span
+                                                            class="badge bg-light text-dark border rounded-pill px-3 py-2">
                                                             {{ $plot->booking_code ?? 'N/A' }}
                                                         </span>
                                                     </td>
@@ -284,9 +258,7 @@
 
                                                     <td>
                                                         <span class="text-muted">
-                                                            {{ $plot->booking_date
-                                                                ? \Carbon\Carbon::parse($plot->booking_date)->format('d-m-Y')
-                                                                : 'N/A' }}
+                                                            {{ $plot->booking_date ? \Carbon\Carbon::parse($plot->booking_date)->format('d-m-Y') : 'N/A' }}
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -301,7 +273,6 @@
                                     No booked plot found.
                                 </div>
                             @endif
-
                         </div>
 
                         <div class="modal-footer bg-light border-0 px-4 py-3">
@@ -315,7 +286,6 @@
                 </div>
             </div>
         @endforeach
-
     </div>
 @endsection
 
@@ -358,11 +328,24 @@
     <script>
         $(document).ready(function() {
             if ($('#customerListTable tbody tr td').attr('colspan') == undefined) {
-                $('#customerListTable').DataTable({
+                let table = $('#customerListTable').DataTable({
                     pageLength: 10,
                     responsive: true,
-                    ordering: true
+                    lengthMenu: [5, 10, 25, 50],
+                    columnDefs: [{
+                        targets: 0,
+                        orderable: false,
+                        searchable: false
+                    }]
                 });
+                table.on('order.dt search.dt draw.dt', function() {
+                    table.column(0, {
+                        search: 'applied',
+                        order: 'applied'
+                    }).nodes().each(function(cell, i) {
+                        cell.innerHTML = '#' + (i + 1);
+                    });
+                }).draw();
             }
         });
     </script>

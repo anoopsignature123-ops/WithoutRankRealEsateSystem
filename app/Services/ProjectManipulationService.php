@@ -34,6 +34,8 @@ class ProjectManipulationService
         return $plot;
     }
 
+    
+
     public function getPlotsByProject(int $projectId)
     {
         return PlotDetail::where('project_id', $projectId)->get();

@@ -47,9 +47,7 @@
                                 Joining Date
                             </label>
 
-                            <input type="date"
-                                name="joining_date"
-                                value="{{ request('joining_date') }}"
+                            <input type="date" name="joining_date" value="{{ request('joining_date') }}"
                                 class="form-control">
                         </div>
 
@@ -58,11 +56,8 @@
                                 Associate Name
                             </label>
 
-                            <input type="text"
-                                name="associate_name"
-                                value="{{ request('associate_name') }}"
-                                class="form-control"
-                                placeholder="Enter associate name">
+                            <input type="text" name="associate_name" value="{{ request('associate_name') }}"
+                                class="form-control" placeholder="Enter associate name">
                         </div>
 
                         <div class="col-lg-3 col-md-6">
@@ -90,9 +85,8 @@
                                     Search
                                 </button>
 
-                                <a href="{{ route('associate.index') }}"
-                                    class="btn btn-light border px-4">
-                                    Reset
+                                <a href="{{ route('associate.index') }}" class="btn btn-light border px-4">
+                                    <i class="fa-solid fa-arrow-rotate-left"></i> Reset
                                 </a>
 
                                 <a href="{{ route('associate.export', request()->query()) }}"
@@ -136,9 +130,7 @@
                             @forelse($associates as $key => $associate)
                                 <tr>
                                     <td>
-                                        <span class="text-muted small">
-                                            #{{ $key + 1 }}
-                                        </span>
+
                                     </td>
 
                                     <td>
@@ -148,7 +140,8 @@
                                     </td>
 
                                     <td>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                        <span
+                                            class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
                                             {{ $associate->associate_id }}
                                         </span>
                                     </td>
@@ -196,19 +189,16 @@
                                         <div class="d-inline-flex gap-2">
 
                                             <a href="{{ route('associate.show', $associate->id) }}"
-                                                class="btn btn-sm btn-light border"
-                                                title="View">
+                                                class="btn btn-sm btn-light border" title="View">
                                                 <i class="bi bi-eye"></i>
                                             </a>
 
                                             <a href="{{ route('associate.edit', $associate->id) }}"
-                                                class="btn btn-sm btn-light border"
-                                                title="Edit">
+                                                class="btn btn-sm btn-light border" title="Edit">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
 
-                                            <form action="{{ route('associate.destroy', $associate->id) }}"
-                                                method="POST"
+                                            <form action="{{ route('associate.destroy', $associate->id) }}" method="POST"
                                                 class="d-inline delete-form">
                                                 @csrf
                                                 @method('DELETE')
@@ -248,13 +238,25 @@
         $(document).ready(function() {
 
             if ($('#associateTable tbody tr td').attr('colspan') == undefined) {
-                $('#associateTable').DataTable({
+                let table = $('#associateTable').DataTable({
                     pageLength: 10,
-                    ordering: true,
-                    searching: false,
                     responsive: true,
-                    lengthMenu: [5, 10, 25, 50]
+                    lengthMenu: [5, 10, 25, 50],
+                    columnDefs: [{
+                        targets: 0,
+                        orderable: false,
+                        searchable: false
+                    }]
                 });
+
+                table.on('order.dt search.dt draw.dt', function() {
+                    table.column(0, {
+                        search: 'applied',
+                        order: 'applied'
+                    }).nodes().each(function(cell, i) {
+                        cell.innerHTML = '#' + (i + 1);
+                    });
+                }).draw();
             }
 
             $('.delete-btn').click(function() {
