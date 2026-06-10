@@ -1,125 +1,152 @@
 :root {
     --theme-color: #2e9967;
-    --theme-dark: #30b878;
+    --theme-dark: #157347;
     --theme-light: #f5fdf7;
     --theme-border: #d8e7df;
-    --theme-shadow: rgba(25, 135, 84, .15);
+    --theme-shadow: rgba(25, 135, 84, 0.15);
 }
-
 
 /* Global */
 body {
     margin: 0;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
-/* ===========================
+/* =========================
    INPUT UI
-=========================== */
-
+=========================*/
 .form-control,
 .form-select {
     border-radius: 10px;
-        border: 1px solid var(--theme-border, #dee2e6);
+    border: 1px solid var(--theme-border);
         min-height: 42px;
         font-size: 14px;
         transition: all 0.25s ease;
+    background: rgba(255, 255, 255, 0.72);
 }
 
 .form-control:focus,
 .form-select:focus {
-    border-color: var(--theme-color, #198754);
+    border-color: var(--theme-color);
         box-shadow: 0 0 0 0.18rem rgba(25, 135, 84, 0.16);
 }
 
-
-/* ===========================
-   BUTTON UI
-=========================== */
+/* =========================
+   BUTTON UI - GLASS
+========================= */
+/* =========================
+   ALL BUTTONS OUTLINE STYLE
+========================= */
 
 .btn {
     border-radius: 10px !important;
-    font-weight: 600;
+    font-weight: 700;
     padding: 8px 18px;
     transition: all 0.25s ease;
+
+    background: transparent !important;
+        border: 2px solid #2e9967 !important;
+        color: #2e9967 !important;
+    
+        box-shadow: none !important;
 }
 
-.btn-success,
-.btn-primary {
+/* Hover */
+.btn:hover {
+    background: #2e9967 !important;
     color: #ffffff !important;
-    border: 1px solid #198754 !important;
-    background: linear-gradient(135deg, #198754 0%, #157347 100%) !important;
-    box-shadow: 0 6px 14px rgba(25, 135, 84, 0.18);
-}
-
-.btn-success:hover,
-.btn-primary:hover {
-    color: #ffffff !important;
-    background: linear-gradient(135deg, #157347 0%, #0f5132 100%) !important;
-    border-color: #157347 !important;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(25, 135, 84, 0.25);
-}
-
-.btn-success:focus,
-.btn-primary:focus {
-    box-shadow: 0 0 0 0.18rem rgba(25, 135, 84, 0.22) !important;
-}
-
-.btn-secondary {
-    color: #334155 !important;
-    border: 1px solid #dbe3ea !important;
-    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%) !important;
-    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
-}
-
-.btn-secondary:hover {
-    color: #111827 !important;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
-    border-color: #cbd5e1 !important;
+    border-color: #2e9967 !important;
     transform: translateY(-1px);
 }
 
-.btn-outline-secondary {
-    border-color: #cbd5e1 !important;
-    color: #475569 !important;
-}
-
-.btn-outline-secondary:hover {
-    background: #f8fafc !important;
-    color: #111827 !important;
-}
-
-.btn-outline-success {
-    border-color: #198754 !important;
+/* Success */
+.btn-success {
+    background: transparent !important;
+    border: 2px solid #198754 !important;
     color: #198754 !important;
 }
 
-.btn-outline-success:hover {
+.btn-success:hover {
     background: #198754 !important;
-    color: #ffffff !important;
+    color: #fff !important;
 }
 
+/* Primary */
+.btn-primary {
+    background: transparent !important;
+    border: 2px solid #0d6efd !important;
+    color: #0d6efd !important;
+}
 
-/* ===========================
+.btn-primary:hover {
+    background: #0d6efd !important;
+    color: #fff !important;
+}
+
+/* Secondary */
+.btn-secondary {
+    background: transparent !important;
+        border: 2px solid #6c757d !important;
+        color: #6c757d !important;
+}
+
+.btn-secondary:hover {
+    background: #6c757d !important;
+        color: #fff !important;
+}
+
+/* Danger */
+.btn-danger {
+    background: transparent !important;
+    border: 2px solid #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+.btn-danger:hover {
+    background: #dc3545 !important;
+    color: #fff !important;
+}
+
+/* Warning */
+.btn-warning {
+    background: transparent !important;
+    border: 2px solid #ffc107 !important;
+    color: #d97706 !important;
+}
+
+.btn-warning:hover {
+    background: #ffc107 !important;
+    color: #000 !important;
+}
+
+/* Info */
+.btn-info {
+    background: transparent !important;
+    border: 2px solid #0dcaf0 !important;
+    color: #0891b2 !important;
+}
+
+.btn-info:hover {
+    background: #0dcaf0 !important;
+    color: #fff !important;
+}
+
+/* =========================
    DATATABLE
-=========================== */
-
+=========================*/
 .dataTables_wrapper .dataTables_filter {
     float: right;
     margin-bottom: 12px;
 }
 
-.dataTables_wrapper .dataTables_filter input {
-    border-radius: 8px;
-    border: 1px solid var(--theme-color);
-    padding: 6px 12px;
-}
-
+.dataTables_wrapper .dataTables_filter input,
 .dataTables_wrapper .dataTables_length select {
     border-radius: 8px;
-    border: 1px solid var(--theme-color);
-    
+    border: 1px solid rgba(46, 153, 103, 0.45);
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.62);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
 }
 
 .dataTables_length {
@@ -128,44 +155,109 @@ body {
 
 /* Pagination */
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: var(--theme-color) !important;
+    background: rgba(46, 153, 103, 0.82) !important;
     color: #fff !important;
     border-radius: 8px;
     border: none !important;
 }
 
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: rgba(46, 153, 103, 0.72) !important;
+    color: #ffffff !important;
+    border-radius: 8px;
+}
 
-/* Table */
+/* =========================
+   TABLE GLASS
+========================= */
+.table-responsive {
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.38);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.table {
+    margin-bottom: 0;
+    background: transparent !important;
+}
+
+.table thead,
+.table thead tr {
+    background: rgba(46, 153, 103, 0.22) !important;
+}
 .table thead th {
-    background: var(--theme-color) !important;
-    color: white !important;
-    border: none;
+    background: rgba(15, 136, 56, 0.753) !important;
+        color: white !important;
+        border: none !important;
+            font-size: 15px !important;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-weight: 800;
+            vertical-align: middle;
+            padding: 14px 12px;
 }
 
-.table-hover tbody tr:hover {
-    background: var(--theme-light) !important;
+.table tbody td {
+    vertical-align: middle;
+    background: rgba(255, 255, 255, 0.34) !important;
+    border-color: rgba(226, 232, 240, 0.55);
+    padding: 13px 12px;
 }
 
+.table-hover tbody tr:hover td {
+    background: rgba(245, 253, 247, 0.72) !important;
+}
 
-/* Cards */
+/* =========================
+   CARDS
+========================= */
 .card {
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 0 15px rgba(25, 135, 84, .08);
+    border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.55) !important;
+        background: rgba(255, 255, 255, 0.68) !important;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: 0 12px 32px rgba(25, 135, 84, 0.08);
+    }
+    
+    .card-header {
+        background: rgba(255, 255, 255, 0.38) !important;
+        border-bottom: 1px solid rgba(216, 231, 223, 0.65) !important;
+    }
+    
+    /* =========================
+                                                           BADGES / ADDRESS / SWITCH
+                                                        ========================= */
+    .badge.bg-light,
+    .badge.text-dark {
+        background: rgba(255, 255, 255, 0.55) !important;
+        color: #145f3b !important;
+        border: 1px solid rgba(46, 153, 103, 0.18) !important;
 }
- 
+
 .address-column {
     max-width: 250px;
     overflow: auto;
     white-space: nowrap;
 }
 
+.form-check-input:checked,
+.form-switch .form-check-input:checked {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+}
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+    .dataTables_wrapper .dataTables_filter {
+        float: none;
+        text-align: left;
+    }
 
-.form-check-input:checked {
-        background-color: #198754 !important; /* Bootstrap success green */
-        border-color: #198754 !important;
+    .btn {
+        padding: 7px 14px;
     }
-    /* Switch toggle ke liye */
-    .form-switch .form-check-input:checked {
-        background-color: #198754 !important;
-    }
+}

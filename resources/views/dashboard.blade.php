@@ -5,36 +5,30 @@
 @endpush
 
 @section('content')
-    <div class="container-fluid py-4">
+    <div class="container-fluid dashboard-bg">
 
         {{-- Header Section --}}
-        <div class="card border-0 rounded-4 mb-4 overflow-hidden position-relative shadow-sm"
-            style="background-image: url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'); background-size: cover; background-position: center;">
+        <div class="dashboard-welcome-card card border-0 rounded-4 mb-4 overflow-hidden position-relative shadow-sm">
 
-            <div class="position-absolute w-100 h-100"
-                style="background: linear-gradient(135deg, rgba(48, 80, 58, 0.95) 0%, rgba(45, 146, 121, 0.85) 100%);">
-            </div>
+            <div class="dashboard-welcome-overlay"></div>
 
             <div class="position-absolute end-0 top-0 opacity-10 p-3">
                 <i class="bi bi-shield-check" style="font-size: 8rem; color: #ffffff;"></i>
             </div>
 
-            <div class="card-body p-4 position-relative z-index-1">
+            <div class="card-body p-4 position-relative z-1">
                 <div class="d-flex align-items-center gap-4 flex-wrap">
 
-                    <div class="rounded-4 d-flex align-items-center justify-content-center shadow-lg flex-shrink-0"
-                        style="width: 70px; height: 70px; backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3);">
-
+                    <div class="welcome-avatar-wrap">
                         <div class="welcome-profile overflow-hidden p-0">
                             {!! Auth::user()->profile_image
                                 ? '<img src="' . getFileUrl(Auth::user()->profile_image) . '" alt="Profile" class="w-100 h-100 object-fit-cover">'
                                 : '<span class="fs-2 fw-bold text-white">' . substr(Auth::user()->name ?? 'A', 0, 1) . '</span>' !!}
                         </div>
-
                     </div>
 
                     <div class="text-white">
-                        <h3 class="fw-bold mb-1" style="letter-spacing: 0.5px;">
+                        <h3 class="fw-bold mb-1">
                             Welcome, {{ Auth::user()->name ?? 'Admin' }}
                         </h3>
 
@@ -90,7 +84,7 @@
                     style="animation-delay: {{ 0.1 + $index * 0.05 }}s">
 
                     <a href="{{ $card['route'] }}"
-                        class="card border-0 rounded-4 overflow-hidden h-100 shadow-sm hover-lift position-relative text-decoration-none">
+                        class="card dashboard-stat-card border-0 rounded-4 overflow-hidden h-100 shadow-sm hover-lift position-relative text-decoration-none">
 
                         <div class="card-fill-overlay bg-{{ $card['color'] }}"></div>
                         <div class="premium-shine-layer"></div>
@@ -107,8 +101,7 @@
                                     </h1>
                                 </div>
 
-                                <div class="rounded-4 bg-{{ $card['color'] }} bg-opacity-10 text-{{ $card['color'] }} d-flex align-items-center justify-content-center"
-                                    style="width: 60px; height: 60px;">
+                                <div class="rounded-4 bg-{{ $card['color'] }} bg-opacity-10 text-{{ $card['color'] }} d-flex align-items-center justify-content-center stat-icon-box">
                                     <i class="bi {{ $card['icon'] }} fs-3"></i>
                                 </div>
                             </div>
@@ -123,9 +116,9 @@
         <div class="row g-4 mb-4 align-items-stretch">
 
             <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                <div class="card dashboard-glass-card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
 
-                    <div class="card-header bg-white border-0 p-4 pb-0">
+                    <div class="card-header border-0 p-4 pb-0">
                         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
                             <div>
                                 <h5 class="fw-bold mb-1">
@@ -133,22 +126,20 @@
                                     Monthly Collections & Dues
                                 </h5>
                                 <p class="text-muted small mb-0">
-                                   View month-wise confirmed payment collections and outstanding due amounts.
+                                    View month-wise confirmed payment collections and outstanding due amounts.
                                 </p>
                             </div>
 
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-light btn-sm rounded-circle" onclick="refreshChart()">
+                                <button type="button" class="btn btn-light btn-sm rounded-circle dashboard-icon-btn" onclick="refreshChart()">
                                     <i class="bi bi-arrow-clockwise"></i>
                                 </button>
 
-                                <button type="button" class="btn btn-light btn-sm rounded-circle"
-                                    onclick="toggleChartType()">
+                                <button type="button" class="btn btn-light btn-sm rounded-circle dashboard-icon-btn" onclick="toggleChartType()">
                                     <i class="bi bi-bar-chart"></i>
                                 </button>
 
-                                <button type="button" class="btn btn-light btn-sm rounded-circle"
-                                    onclick="downloadChart()">
+                                <button type="button" class="btn btn-light btn-sm rounded-circle dashboard-icon-btn" onclick="downloadChart()">
                                     <i class="bi bi-download"></i>
                                 </button>
                             </div>
@@ -158,7 +149,7 @@
                     <div class="card-body p-4">
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <div class="p-3 rounded-4 border bg-success bg-opacity-10">
+                                <div class="dashboard-inner-box success-box p-3 rounded-4 border">
                                     <small class="text-muted fw-semibold">Confirmed Amount</small>
                                     <h5 class="fw-bold text-success mb-0">
                                         ₹ {{ number_format($businessConfirmedPayment ?? 0, 2) }}
@@ -167,7 +158,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <div class="p-3 rounded-4 border bg-light">
+                                <div class="dashboard-inner-box p-3 rounded-4 border">
                                     <small class="text-muted fw-semibold">Due Amount</small>
                                     <h5 class="fw-bold text-dark mb-0">
                                         ₹ {{ number_format($businesspendingPayment ?? 0, 2) }}
@@ -185,10 +176,9 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                <div class="card dashboard-glass-card border-0 shadow-sm rounded-4 overflow-hidden h-100">
 
-                    {{-- Header --}}
-                    <div class="card-header bg-white border-0 p-4 pb-0">
+                    <div class="card-header border-0 p-4 pb-0">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h5 class="fw-bold mb-1">
@@ -201,43 +191,31 @@
                                 </p>
                             </div>
 
-                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center"
-                                style="width:50px;height:50px;">
+                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center stat-icon-box">
                                 <i class="bi bi-grid-3x3-gap-fill fs-5"></i>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Chart --}}
                     <div class="card-body px-4 pt-3 pb-2">
                         <div style="height:260px; position:relative;">
                             <canvas id="pieChart"></canvas>
                         </div>
                     </div>
 
-                    {{-- Status Cards --}}
                     <div class="px-4 pb-4">
-
                         <div class="row g-3">
 
                             <div class="col-6">
-                                <div class="border rounded-4 p-3 text-center bg-light">
-                                    <small class="text-muted d-block mb-1">
-                                        Available
-                                    </small>
-
-                                    <h5 class="fw-bold text-success mb-0">
-                                        {{ $available ?? 0 }}
-                                    </h5>
+                                <div class="dashboard-inner-box border rounded-4 p-3 text-center">
+                                    <small class="text-muted d-block mb-1">Available</small>
+                                    <h5 class="fw-bold text-success mb-0">{{ $available ?? 0 }}</h5>
                                 </div>
                             </div>
 
                             <div class="col-6">
-                                <div class="border rounded-4 p-3 text-center bg-light">
-                                    <small class="text-muted d-block mb-1">
-                                        Occupied
-                                    </small>
-
+                                <div class="dashboard-inner-box border rounded-4 p-3 text-center">
+                                    <small class="text-muted d-block mb-1">Occupied</small>
                                     <h5 class="fw-bold text-danger mb-0">
                                         {{ ($booked ?? 0) + ($hold ?? 0) + ($registry ?? 0) }}
                                     </h5>
@@ -246,42 +224,26 @@
 
                             <div class="col-4">
                                 <div class="text-center">
-                                    <div class="small text-muted">
-                                        Booked
-                                    </div>
-
-                                    <div class="fw-bold text-danger">
-                                        {{ $booked ?? 0 }}
-                                    </div>
+                                    <div class="small text-muted">Booked</div>
+                                    <div class="fw-bold text-danger">{{ $booked ?? 0 }}</div>
                                 </div>
                             </div>
 
                             <div class="col-4">
                                 <div class="text-center">
-                                    <div class="small text-muted">
-                                        Hold
-                                    </div>
-
-                                    <div class="fw-bold text-warning">
-                                        {{ $hold ?? 0 }}
-                                    </div>
+                                    <div class="small text-muted">Hold</div>
+                                    <div class="fw-bold text-warning">{{ $hold ?? 0 }}</div>
                                 </div>
                             </div>
 
                             <div class="col-4">
                                 <div class="text-center">
-                                    <div class="small text-muted">
-                                        Registry
-                                    </div>
-
-                                    <div class="fw-bold text-primary">
-                                        {{ $registry ?? 0 }}
-                                    </div>
+                                    <div class="small text-muted">Registry</div>
+                                    <div class="fw-bold text-primary">{{ $registry ?? 0 }}</div>
                                 </div>
                             </div>
 
                         </div>
-
                     </div>
 
                 </div>
@@ -293,27 +255,26 @@
         <div class="row g-4 mb-4">
 
             <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                <div class="card dashboard-glass-card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
 
-                    <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex align-items-center flex-wrap gap-2">
+                    <div class="card-header border-0 pt-4 px-4 pb-0 d-flex align-items-center flex-wrap gap-2">
                         <h5 class="fw-bold mb-0 text-dark me-auto">
                             <i class="bi bi-calendar-check me-2 text-success"></i>
                             Current Month's Dues
                         </h5>
 
-                        <div class="px-3 py-1 rounded-pill d-flex align-items-center shadow-sm"
-                            style="background-color: #d1e7dd; color: #0f5132; font-weight: 600; font-size: 0.85rem; border: 1px solid #badbcc;">
+                        <div class="dashboard-pending-badge px-3 py-1 rounded-pill d-flex align-items-center shadow-sm">
                             <span class="spinner-grow spinner-grow-sm me-2" style="width: 0.5rem; height: 0.5rem;"></span>
                             {{ $monthlyDues->count() }} Pending Due
                         </div>
                     </div>
 
                     <div class="card-body p-4">
-                        <div class="table-responsive">
+                        <div class="table-responsive dashboard-table-wrap">
 
                             <table class="table table-hover align-middle mb-0">
 
-                                <thead style="background:#2f9b6b;color:#fff;">
+                                <thead>
                                     <tr>
                                         <th>Sr.</th>
                                         <th>Booking ID</th>
@@ -354,24 +315,22 @@
                                             </td>
 
                                             <td>
-                                                <span class="badge bg-light text-dark border rounded-pill px-3">
+                                                <span class="badge dashboard-light-badge rounded-pill px-3">
                                                     {{ $due->plotSaleDetail?->plotDetail?->plot_number ?? 'N/A' }}
                                                 </span>
                                             </td>
 
                                             <td>
                                                 @if ($due->plan_type == 'emi_plan')
-                                                    <span
-                                                        class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2">
+                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2">
                                                         EMI Plan
                                                     </span>
                                                 @elseif ($due->plan_type == 'full_payment')
-                                                    <span
-                                                        class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
                                                         Full Payment
                                                     </span>
                                                 @else
-                                                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+                                                    <span class="badge dashboard-light-badge rounded-pill px-3 py-2">
                                                         {{ $due->plan_type ? ucwords(str_replace('_', ' ', $due->plan_type)) : 'N/A' }}
                                                     </span>
                                                 @endif
@@ -384,7 +343,7 @@
                                                         : 'N/A';
                                                 @endphp
 
-                                                <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+                                                <span class="badge dashboard-light-badge rounded-pill px-3 py-2">
                                                     {{ $modeLabel }}
                                                 </span>
                                             </td>
@@ -421,8 +380,8 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-                    {{-- Header --}}
+                <div class="card dashboard-glass-card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+
                     <div class="p-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -431,7 +390,7 @@
                                     Total Earnings
                                 </h5>
 
-                                <small class="opacity-75">
+                                <small class="text-muted">
                                     Business payment overview
                                 </small>
                             </div>
@@ -440,14 +399,11 @@
                                 <i class="bi bi-cash-stack fs-3"></i>
                             </div>
                         </div>
-
                     </div>
 
-                    {{-- Body --}}
-                    <div class="card-body p-4">
+                    <div class="card-body p-4 pt-0">
 
-                        {{-- Total Business --}}
-                        <div class="bg-light rounded-4 p-3 mb-4 text-center">
+                        <div class="dashboard-inner-box rounded-4 p-3 mb-4 text-center">
 
                             <small class="text-muted d-block mb-1">
                                 Total Business Volume
@@ -461,54 +417,38 @@
 
                         <div class="d-flex flex-column gap-3">
 
-                            {{-- Confirmed --}}
                             <div class="earning-box success">
-
                                 <div class="icon">
                                     <i class="bi bi-check-circle-fill"></i>
                                 </div>
 
                                 <div class="flex-grow-1">
-
-                                    <small class="text-muted">
-                                        Confirmed Payment
-                                    </small>
-
+                                    <small class="text-muted">Confirmed Payment</small>
                                     <h5 class="fw-bold mb-0 text-success">
                                         ₹ {{ number_format($confirmedPayment, 2) }}
                                     </h5>
-
                                 </div>
 
                                 <div class="badge bg-success-subtle text-success px-3 py-2">
                                     Received
                                 </div>
-
                             </div>
 
-                            {{-- Pending --}}
                             <div class="earning-box warning">
-
                                 <div class="icon">
                                     <i class="bi bi-hourglass-split"></i>
                                 </div>
 
                                 <div class="flex-grow-1">
-
-                                    <small class="text-muted">
-                                        Pending Payment
-                                    </small>
-
+                                    <small class="text-muted">Pending Payment</small>
                                     <h5 class="fw-bold mb-0 text-warning">
                                         ₹ {{ number_format($pendingPayment, 2) }}
                                     </h5>
-
                                 </div>
 
                                 <div class="badge bg-warning-subtle text-warning px-3 py-2">
                                     Pending
                                 </div>
-
                             </div>
 
                         </div>
@@ -530,6 +470,7 @@
             'monthlyDueAmount' => [],
         ];
     @endphp
+
     <script>
         const chartData = @json($safeVisitorsData);
 
@@ -550,11 +491,11 @@
                     type: type,
                     data: {
                         labels: chartData.labels || [],
-                        datasets: [{
+                        datasets: [
+                            {
                                 label: 'Confirmed Amount',
                                 data: chartData.monthlyPaidAmount || [],
-                                backgroundColor: type === 'bar' ?
-                                    '#20c997' : 'rgba(32, 201, 151, 0.18)',
+                                backgroundColor: type === 'bar' ? '#20c997' : 'rgba(32, 201, 151, 0.18)',
                                 borderColor: '#20c997',
                                 borderWidth: 3,
                                 borderRadius: 8,
@@ -570,8 +511,7 @@
                             {
                                 label: 'Due Amount',
                                 data: chartData.monthlyDueAmount || [],
-                                backgroundColor: type === 'bar' ?
-                                    '#e9ecef' : 'rgba(108, 117, 125, 0.15)',
+                                backgroundColor: type === 'bar' ? '#e9ecef' : 'rgba(108, 117, 125, 0.15)',
                                 borderColor: '#adb5bd',
                                 borderWidth: 3,
                                 borderRadius: 8,
