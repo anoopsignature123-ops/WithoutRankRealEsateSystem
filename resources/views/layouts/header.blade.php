@@ -14,7 +14,9 @@
             ? getFileUrl($currentUser->photo)
             : asset('assets/images/user2-160x160.jpg');
     } elseif ($isCustomer) {
-        $profilePhoto = asset('assets/images/user2-160x160.jpg');
+        $profilePhoto = $currentUser->primaryDocument?->profile_picture
+            ? getFileUrl($currentUser->primaryDocument->profile_picture)
+            : asset('assets/images/user2-160x160.jpg');
     } else {
         $profilePhoto = $currentUser?->profile_image
             ? getFileUrl($currentUser->profile_image)
@@ -36,7 +38,7 @@
             ?? 'Customer';
 
         $userRole = 'Customer';
-        $profileRoute = route('customer-panel.profile');
+        $profileRoute = route('customer-panel.manage-profile');
         $passwordRoute = '#';
         $logoutRoute = route('customer-panel.logout');
         $headerTitle = 'Real Estate Management Software';
@@ -97,7 +99,8 @@
 
                     <img src="{{ $profilePhoto }}"
                         class="header-user-img"
-                        alt="User Image">
+                        alt="User Image"
+                        onerror="this.onerror=null;this.src='{{ asset('assets/images/user2-160x160.jpg') }}';">
 
                     <div class="ms-2 d-none d-md-block text-start">
                         <div class="fw-bold text-dark lh-sm">
@@ -119,7 +122,8 @@
                             class="rounded-circle border border-3 border-white shadow mb-2"
                             width="76"
                             height="76"
-                            alt="User Image">
+                            alt="User Image"
+                            onerror="this.onerror=null;this.src='{{ asset('assets/images/user2-160x160.jpg') }}';">
 
                         <h6 class="fw-bold mb-1 text-white">
                             {{ $userName }}
