@@ -15,6 +15,7 @@ class PlotPaymentService
             'plotSaleDetail.block',
             'plotSaleDetail.plotDetail',
         ])
+            ->whereNotIn('payment_status', ['cleared', 'paid'])
             ->latest()
             ->get();
     }
@@ -27,6 +28,7 @@ class PlotPaymentService
             'plotSaleDetail.block',
             'plotSaleDetail.plotDetail',
         ])
+            ->whereNotIn('payment_status', ['cleared', 'paid'])
             ->findOrFail($paymentId);
     }
 
@@ -40,13 +42,13 @@ class PlotPaymentService
             abort(404, 'Plot sale detail not found.');
         }
 
-        $paidAmount = (float) ($data['paid_amount'] ?? 0);
-        $totalPlotCost = (float) ($plotSale->total_plot_cost ?? 0);
-        $dueAmount = max(0, $totalPlotCost - $paidAmount);
+        $paidAmount = round((float) ($data['paid_amount'] ?? 0), 2);
+        $totalPlotCost = round((float) ($plotSale->total_plot_cost ?? 0), 2);
+        $dueAmount = round(max(0, $totalPlotCost - $paidAmount), 2);
 
-        $bookingStatus = in_array($data['payment_mode'], ['cash', 'card'])
-            ? 'booked'
-            : 'hold';
+        $bookingStatus = in_array($data['payment_mode'], ['cheque', 'dd'])
+            ? 'hold'
+            : 'booked';
 
         $paymentStatus = $dueAmount <= 0 ? 'cleared' : 'pending';
 

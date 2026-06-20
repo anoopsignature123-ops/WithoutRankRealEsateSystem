@@ -11,6 +11,17 @@ class PlotPaymentRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        foreach (['paid_amount', 'due_amount', 'net_payable_amount', 'after_booking_payable_amount'] as $field) {
+            if ($this->has($field)) {
+                $this->merge([
+                    $field => preg_replace('/[^\d.]/', '', (string) $this->input($field)),
+                ]);
+            }
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -19,7 +30,7 @@ class PlotPaymentRequest extends FormRequest
             'payment_mode' => 'required|in:cash,cheque,dd,neft_rtgs,card',
             'paid_amount' => 'required|numeric|min:0',
             'due_amount' => 'required|numeric|min:0',
-            'net_payable_amount' => 'nullable|required_if:plan_type,full_payment|numeric|min:0',
+            'net_payable_amount' => 'nullable|numeric|min:0',
             'emi_months' => 'nullable|required_if:plan_type,emi_plan|integer|min:1',
             'after_booking_payable_amount' => 'nullable|required_if:plan_type,emi_plan|numeric|min:0',
             'account_number' => 'nullable|required_if:payment_mode,cheque,dd,neft_rtgs,card',

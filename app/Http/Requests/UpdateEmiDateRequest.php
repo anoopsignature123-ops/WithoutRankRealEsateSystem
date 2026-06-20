@@ -14,9 +14,8 @@ class UpdateEmiDateRequest extends FormRequest
     public function rules(): array
     {
         return [
-
-            'payment_ids' => ['required',],
-            'emi_date' => ['required','date',],
+            'payment_ids' => ['required', 'string'],
+            'emi_date' => ['required', 'date'],
         ];
     }
 }

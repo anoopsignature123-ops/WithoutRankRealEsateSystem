@@ -35,9 +35,7 @@ class PlotPaymentController extends Controller
         );
 
         return redirect()
-            ->route('edit-payment-details.index', [
-                'selected_payment' => $id,
-            ])
+            ->route('edit-payment-details.index')
             ->with('success', 'Payment updated successfully.');
     }
 }

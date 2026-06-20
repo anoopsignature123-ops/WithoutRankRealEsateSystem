@@ -20,4 +20,13 @@ class AssociateAdvanceRequest extends FormRequest
             'remarks' => ['nullable', 'string'],
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('advance_amount')) {
+            $this->merge([
+                'advance_amount' => preg_replace('/[^\d.]/', '', (string) $this->input('advance_amount')),
+            ]);
+        }
+    }
 }

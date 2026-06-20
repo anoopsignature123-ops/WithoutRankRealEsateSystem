@@ -20,7 +20,11 @@ class UpdateEmiDateController extends Controller
 
     public function store(UpdateEmiDateRequest $request)
     {
-        $this->service->store($request->validated());
+        $updated = $this->service->store($request->validated());
+
+        if (! $updated) {
+            return back()->with('error', 'Please select at least one EMI record.');
+        }
 
         return back()->with('success', 'EMI date updated successfully.');
     }

@@ -1,55 +1,101 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            let selectedIds = new Set();
+            let dataTable = null;
 
-            function toggleBulkButton() {
-                let selectedIds = [];
+            function visibleCheckboxes() {
+                return $('.payment_checkbox:visible');
+            }
 
-                $('.payment_checkbox:checked').each(function() {
-                    selectedIds.push($(this).val());
+            function setLoading(isLoading) {
+                const button = $('#updateEmiDateBtn');
+                button.prop('disabled', isLoading);
+                button.find('.btn-label').toggleClass('d-none', isLoading);
+                button.find('.btn-loader').toggleClass('d-none', !isLoading);
+            }
+
+            function syncSelectionUi() {
+                const ids = Array.from(selectedIds);
+                const selectedCount = ids.length;
+
+                $('#payment_ids').val(ids.join(','));
+                $('#selected_count, #modal_selected_count').text(selectedCount);
+                $('.selected-count').text(`(${selectedCount})`);
+                $('#bulk_update_btn').toggleClass('d-none', selectedCount === 0);
+
+                $('.payment_checkbox').each(function() {
+                    $(this).prop('checked', selectedIds.has($(this).val()));
                 });
 
-                if (selectedIds.length > 0) {
-                    $('#bulk_update_btn').removeClass('d-none');
-                    $('#payment_ids').val(selectedIds.join(','));
-                } else {
-                    $('#bulk_update_btn').addClass('d-none');
-                    $('#payment_ids').val('');
-                }
+                const visible = visibleCheckboxes();
+                const visibleChecked = visible.filter(':checked');
+                $('#select_all').prop(
+                    'checked',
+                    visible.length > 0 && visible.length === visibleChecked.length
+                );
             }
 
             $('#select_all').on('change', function() {
-                $('.payment_checkbox').prop(
-                    'checked',
-                    $(this).is(':checked')
-                );
+                const checked = $(this).is(':checked');
 
-                toggleBulkButton();
+                visibleCheckboxes().each(function() {
+                    if (checked) {
+                        selectedIds.add($(this).val());
+                    } else {
+                        selectedIds.delete($(this).val());
+                    }
+                });
+
+                syncSelectionUi();
             });
 
             $(document).on('change', '.payment_checkbox', function() {
-                toggleBulkButton();
+                if ($(this).is(':checked')) {
+                    selectedIds.add($(this).val());
+                } else {
+                    selectedIds.delete($(this).val());
+                }
 
-                let totalCheckbox = $('.payment_checkbox').length;
-                let checkedCheckbox = $('.payment_checkbox:checked').length;
-
-                $('#select_all').prop(
-                    'checked',
-                    totalCheckbox > 0 && totalCheckbox === checkedCheckbox
-                );
+                syncSelectionUi();
             });
 
-            $('#bulkDateModal').on('show.bs.modal', function() {
-                toggleBulkButton();
+            $('#bulkDateModal').on('show.bs.modal', function(event) {
+                syncSelectionUi();
+
+                if (selectedIds.size === 0) {
+                    event.preventDefault();
+                    toastr.warning('Please select at least one EMI record.');
+                }
+            });
+
+            $('#updateEmiDateForm').on('submit', function(event) {
+                syncSelectionUi();
+
+                if (selectedIds.size === 0) {
+                    event.preventDefault();
+                    toastr.warning('Please select at least one EMI record.');
+                    return;
+                }
+
+                setLoading(true);
             });
 
             if ($('#emiDateTable tbody tr td').attr('colspan') === undefined) {
-                $('#emiDateTable').DataTable({
+                dataTable = $('#emiDateTable').DataTable({
                     pageLength: 10,
                     responsive: true,
+                    order: [],
+                    columnDefs: [
+                        { orderable: false, targets: 0 }
+                    ],
+                    drawCallback: function() {
+                        syncSelectionUi();
+                    }
                 });
             }
 
+            syncSelectionUi();
         });
     </script>
 @endpush

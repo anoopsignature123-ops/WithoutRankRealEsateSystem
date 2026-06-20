@@ -29,9 +29,19 @@ class UpdateEmiDateService
 
     public function store(array $data)
     {
-        $paymentIds = explode(',', $data['payment_ids']);
+        $paymentIds = collect(explode(',', $data['payment_ids']))
+            ->map(fn ($id) => (int) trim($id))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($paymentIds)) {
+            return false;
+        }
 
         CustomerPayment::whereIn('id', $paymentIds)
+            ->where('plan_type', 'emi_plan')
             ->update([
                 'emi_date' => $data['emi_date'],
             ]);
