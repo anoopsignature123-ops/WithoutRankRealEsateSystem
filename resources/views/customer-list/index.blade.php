@@ -1,50 +1,71 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-4">
+    @php
+        $totalBookings = $customers->sum(fn ($customer) => ($customer->booked_plots ?? collect())->count());
+        $referenceCount = $customers->filter(fn ($customer) => filled($customer->customer_id))->count();
+    @endphp
 
-        {{-- Page Header --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-success bg-opacity-10 text-success rounded-4 d-flex align-items-center justify-content-center"
-                            style="width:56px;height:56px;">
-                            <i class="bi bi-people fs-3"></i>
-                        </div>
-
-                        <div>
-                            <h3 class="fw-bold mb-1 text-dark">Customer List</h3>
-                            <p class="text-muted mb-0 small">
-                                View customers and their booked plot summary.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="badge bg-light text-dark border rounded-pill px-3 py-2">
-                        Total Customers: {{ $customers->count() }}
+    <div class="container-fluid mt-4 customer-list-page">
+        <div class="customer-list-hero mb-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="customer-list-hero-icon">
+                        <i class="bi bi-people"></i>
+                    </span>
+                    <div>
+                        <span class="text-success fw-bold text-uppercase small">Customer Directory</span>
+                        <h3 class="fw-bold mb-1 text-dark">Customer List</h3>
+                        <p class="text-muted mb-0 small">View customer contact details and booked plot summary.</p>
                     </div>
                 </div>
+
+                <span class="customer-list-count">{{ $customers->count() }} Customers</span>
             </div>
         </div>
 
-        {{-- Customer Table --}}
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="card-body p-4">
+        <div class="customer-list-stats mb-4">
+            <div class="customer-list-stat">
+                <small>Total Customers</small>
+                <strong>{{ $customers->count() }}</strong>
+            </div>
+            <div class="customer-list-stat success">
+                <small>Total Bookings</small>
+                <strong>{{ $totalBookings }}</strong>
+            </div>
+            <div class="customer-list-stat info">
+                <small>Reference Customers</small>
+                <strong>{{ $referenceCount }}</strong>
+            </div>
+        </div>
+
+        <div class="customer-list-table-card">
+            <div class="customer-list-table-head">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="customer-list-table-icon">
+                        <i class="bi bi-person-lines-fill"></i>
+                    </span>
+                    <div>
+                        <h5 class="fw-bold mb-1">Customer Records</h5>
+                        <small class="text-muted">Customers with booked plots are listed below.</small>
+                    </div>
+                </div>
+                <span class="customer-list-count">{{ $customers->count() }} Records</span>
+            </div>
+
+            <div class="customer-list-table-wrap">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" id="customerListTable">
-                        <thead class="table-light">
+                    <table class="table table-hover align-middle mb-0 customer-list-table" id="customerListTable">
+                        <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Customer ID</th>
+                                <th>Customer</th>
                                 <th>Reference</th>
-                                <th>Customer Name</th>
+                                <th>Contact</th>
                                 <th>Address</th>
-                                <th>Contact No</th>
-                                <th>Email</th>
                                 <th>Password</th>
-                                <th class="text-center">Bookings</th>
-                                <th class="text-center">Plots</th>
+                                <th>Bookings</th>
+                                <th width="110">Plots</th>
                             </tr>
                         </thead>
 
@@ -53,87 +74,74 @@
                                 @php
                                     $primary = $customer->primaryDetail;
                                     $contact = $primary?->correspondenceDetail;
-
-                                    $address = $primary?->permanent_address ??
-                                        ($primary?->city ? $primary->city . ', ' . $primary->state : 'N/A');
-
+                                    $address = $primary?->permanent_address
+                                        ?? ($primary?->city ? $primary->city . ', ' . $primary->state : 'N/A');
                                     $parentCustomer = $customer->parentCustomer;
                                     $plots = $customer->booked_plots ?? collect();
+                                    $customerName = ucfirst($primary?->name ?? 'N/A');
                                 @endphp
 
                                 <tr>
-                                    <td></td>
-
+                                    <td>{{ $key + 1 }}</td>
                                     <td>
-                                        <span class="fw-bold text-dark">
-                                            {{ $customer->customer_code ?? 'N/A' }}
-                                        </span>
+                                        <strong>{{ $customer->customer_code ?? 'N/A' }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ $customerName }}
+                                            @if ($customer->customer_type)
+                                                | {{ ucwords(str_replace('_', ' ', $customer->customer_type)) }}
+                                            @endif
+                                        </small>
                                     </td>
 
                                     <td>
                                         @if ($parentCustomer)
-                                            <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+                                            <span class="badge bg-light text-dark border">
                                                 {{ $parentCustomer->customer_code }}
                                             </span>
                                         @else
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle">
                                                 Self
                                             </span>
                                         @endif
                                     </td>
 
                                     <td>
-                                        <div class="fw-semibold text-dark">
-                                            {{ ucfirst($primary?->name ?? 'N/A') }}
-                                        </div>
-                                        <small class="text-muted">
-                                            {{ $customer->customer_type ? ucwords(str_replace('_', ' ', $customer->customer_type)) : '' }}
-                                        </small>
+                                        <strong>+91 {{ $contact?->mobile_number ?? 'N/A' }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ $contact?->email ?? 'N/A' }}</small>
                                     </td>
 
-                                    <td style="max-width: 280px;">
-                                        <span class="text-muted d-inline-block text-truncate"
-                                            style="max-width: 270px;"
-                                            title="{{ $address }}">
+                                    <td>
+                                        <span class="customer-list-address" title="{{ $address }}">
                                             {{ $address }}
                                         </span>
                                     </td>
 
-                                    <td>+91 {{ $contact?->mobile_number ?? 'N/A' }}</td>
-
                                     <td>
-                                        <span class="text-muted">
-                                            {{ $contact?->email ?? 'N/A' }}
-                                        </span>
-                                    </td> 
-                                    <td>
-                                        <span class="text-warning fw-bold">
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
                                             {{ $customer?->plain_password ?? 'N/A' }}
                                         </span>
                                     </td>
 
-                                    <td class="text-center">
-                                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
-                                            {{ $plots->count() }}
-                                            {{ $plots->count() > 1 ? 'Plots' : 'Plot' }}
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            {{ $plots->count() }} {{ $plots->count() === 1 ? 'Plot' : 'Plots' }}
                                         </span>
                                     </td>
 
-                                    <td class="text-center">
-                                        <button type="button"
-                                            class="btn btn-sm btn-outline-success rounded-pill px-3"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#plotModal{{ $customer->id }}">
-                                            <i class="bi bi-eye me-1"></i>
-                                            View
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-success"
+                                            data-bs-toggle="modal" data-bs-target="#plotModal{{ $customer->id }}">
+                                            <i class="bi bi-eye me-1"></i> View
                                         </button>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center text-muted py-5">
-                                        <i class="bi bi-people fs-1 d-block mb-2 text-muted"></i>
-                                        No customers found
+                                    <td colspan="8" class="text-center text-muted py-5">
+                                        <i class="bi bi-people fs-2 d-block mb-2"></i>
+                                        No customers found.
                                     </td>
                                 </tr>
                             @endforelse
@@ -143,65 +151,50 @@
             </div>
         </div>
 
-        {{-- Modals --}}
         @foreach ($customers as $customer)
             @php
                 $primary = $customer->primaryDetail;
                 $plots = $customer->booked_plots ?? collect();
             @endphp
 
-            <div class="modal fade" id="plotModal{{ $customer->id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable plot-modal-dialog">
-                    <div class="modal-content border-0 rounded-4 shadow overflow-hidden">
-
-                        <div class="modal-header border-0 px-4 py-3 plot-modal-header">
+            <div class="modal fade customer-list-modal" id="plotModal{{ $customer->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center"
-                                    style="width:42px;height:42px;">
-                                    <i class="bi bi-grid-3x3-gap fs-5"></i>
-                                </div>
-
+                                <span class="customer-list-modal-icon">
+                                    <i class="bi bi-grid-3x3-gap"></i>
+                                </span>
                                 <div>
-                                    <h6 class="modal-title fw-bold mb-1">
-                                        Booked Plot Details
-                                    </h6>
-                                    <small class="text-muted">
+                                    <span class="text-success fw-bold text-uppercase small">Booked Plot Details</span>
+                                    <h5 class="modal-title fw-bold mb-0">
                                         {{ $customer->customer_code ?? 'N/A' }} - {{ $primary?->name ?? 'N/A' }}
-                                    </small>
+                                    </h5>
                                 </div>
                             </div>
 
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
 
-                        <div class="modal-body p-4">
-
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-4">
-                                    <div class="plot-info-box">
-                                        <small>Customer ID</small>
-                                        <span>{{ $customer->customer_code ?? 'N/A' }}</span>
-                                    </div>
+                        <div class="modal-body">
+                            <div class="customer-list-modal-summary mb-3">
+                                <div>
+                                    <small>Customer ID</small>
+                                    <strong>{{ $customer->customer_code ?? 'N/A' }}</strong>
                                 </div>
-
-                                <div class="col-md-4">
-                                    <div class="plot-info-box">
-                                        <small>Customer Name</small>
-                                        <span>{{ $primary?->name ?? 'N/A' }}</span>
-                                    </div>
+                                <div>
+                                    <small>Customer Name</small>
+                                    <strong>{{ $primary?->name ?? 'N/A' }}</strong>
                                 </div>
-
-                                <div class="col-md-4">
-                                    <div class="plot-info-box">
-                                        <small>Total Bookings</small>
-                                        <span>{{ $plots->count() }}</span>
-                                    </div>
+                                <div>
+                                    <small>Total Bookings</small>
+                                    <strong>{{ $plots->count() }}</strong>
                                 </div>
                             </div>
 
                             @if ($plots->count() > 0)
-                                <div class="table-responsive modal-table-scroll">
-                                    <table class="table table-hover align-middle mb-0 plot-modal-table">
+                                <div class="table-responsive customer-list-modal-table-wrap">
+                                    <table class="table table-hover align-middle mb-0 customer-list-modal-table">
                                         <thead>
                                             <tr>
                                                 <th>#</th>
@@ -220,39 +213,23 @@
                                             @foreach ($plots as $plotKey => $plot)
                                                 <tr>
                                                     <td>{{ $plotKey + 1 }}</td>
-
                                                     <td>
-                                                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+                                                        <span class="badge bg-light text-dark border">
                                                             {{ $plot->booking_code ?? 'N/A' }}
                                                         </span>
                                                     </td>
-
                                                     <td>{{ $plot->project?->name ?? 'N/A' }}</td>
-
                                                     <td>{{ $plot->block?->block ?? $plot->block?->name ?? 'N/A' }}</td>
-
-                                                    <td>
-                                                        <span class="fw-bold text-success">
-                                                            {{ $plot->plotDetail?->plot_number ?? $plot->plotDetail?->plot_no ?? 'N/A' }}
-                                                        </span>
+                                                    <td class="fw-bold text-success">
+                                                        {{ $plot->plotDetail?->plot_number ?? $plot->plotDetail?->plot_no ?? 'N/A' }}
                                                     </td>
-
-                                                    <td>
-                                                        {{ $plot->plot_area ?? $plot->plotDetail?->plot_area ?? 'N/A' }}
+                                                    <td>{{ $plot->plot_area ?? $plot->plotDetail?->plot_area ?? 'N/A' }}</td>
+                                                    <td>&#8377;{{ number_format((float) ($plot->plot_rate ?? $plot->rate ?? 0), 2) }}</td>
+                                                    <td class="fw-bold">
+                                                        &#8377;{{ number_format((float) ($plot->total_plot_cost ?? $plot->total_amount ?? 0), 2) }}
                                                     </td>
-
                                                     <td>
-                                                        ₹{{ number_format((float) ($plot->plot_rate ?? $plot->rate ?? 0), 2) }}
-                                                    </td>
-
-                                                    <td>
-                                                        <span class="fw-bold">
-                                                            ₹{{ number_format((float) ($plot->total_plot_cost ?? $plot->total_amount ?? 0), 2) }}
-                                                        </span>
-                                                    </td>
-
-                                                    <td>
-                                                        {{ $plot->booking_date ? \Carbon\Carbon::parse($plot->booking_date)->format('d-m-Y') : 'N/A' }}
+                                                        {{ $plot->booking_date ? \Carbon\Carbon::parse($plot->booking_date)->format('d-M-Y') : 'N/A' }}
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -261,114 +238,27 @@
                                 </div>
                             @else
                                 <div class="text-center text-muted py-5">
-                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                                     No booked plot found.
                                 </div>
                             @endif
                         </div>
 
-                        <div class="modal-footer border-0 px-4 py-3">
-                            <button type="button"
-                                class="btn btn-outline-secondary rounded-pill px-4"
-                                data-bs-dismiss="modal">
-                                Close
-                            </button>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">Close</button>
                         </div>
-
                     </div>
                 </div>
             </div>
         @endforeach
-
     </div>
 @endsection
-
-@push('styles')
-    <style>
-        .plot-modal-dialog {
-            max-width: 980px;
-        }
-
-        .plot-modal-header {
-            background: #f8fafc;
-        }
-
-        .plot-info-box {
-            border: 1px solid #e5e7eb;
-            border-radius: 14px;
-            padding: 12px 14px;
-            background: #f8fafc;
-        }
-
-        .plot-info-box small {
-            display: block;
-            color: #6b7280;
-            font-size: 11px;
-            margin-bottom: 4px;
-        }
-
-        .plot-info-box span {
-            font-weight: 700;
-            font-size: 13px;
-            color: #111827;
-        }
-
-        .modal-table-scroll {
-            max-height: 340px;
-            overflow: auto;
-            border: 1px solid #e5e7eb;
-            border-radius: 14px;
-        }
-
-        .plot-modal-table {
-            white-space: nowrap;
-            font-size: 13px;
-        }
-
-        .plot-modal-table thead th {
-            background: #198754;
-            color: #fff;
-            font-size: 12px;
-            padding: 12px;
-            text-transform: uppercase;
-        }
-
-        .plot-modal-table tbody td {
-            padding: 11px 12px;
-        }
-
-        #customerListTable th,
-        #customerListTable td {
-            vertical-align: middle;
-        }
-
-        #customerListTable thead th {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: .4px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        #customerListTable tbody td {
-            padding-top: 14px;
-            padding-bottom: 14px;
-        }
-
-        @media (max-width: 991px) {
-            .plot-modal-dialog {
-                max-width: 95%;
-                margin: 12px auto;
-            }
-        }
-    </style>
-@endpush
 
 @push('scripts')
     <script>
         $(document).ready(function() {
-            if ($('#customerListTable tbody tr td').attr('colspan') == undefined) {
-                let table = $('#customerListTable').DataTable({
+            if ($('#customerListTable tbody tr td').attr('colspan') === undefined) {
+                const table = $('#customerListTable').DataTable({
                     pageLength: 10,
                     responsive: true,
                     lengthMenu: [5, 10, 25, 50],
@@ -384,7 +274,7 @@
                         search: 'applied',
                         order: 'applied'
                     }).nodes().each(function(cell, i) {
-                        cell.innerHTML = '#' + (i + 1);
+                        cell.innerHTML = i + 1;
                     });
                 }).draw();
             }

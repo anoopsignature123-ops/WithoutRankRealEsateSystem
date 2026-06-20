@@ -22,6 +22,10 @@ class CustomerBookingService
     {
         return CustomerBooking::with([
             'primaryDetail.customerDocument',
+            'primaryDetail.correspondenceDetail',
+            'plotSaleDetail.project',
+            'plotSaleDetail.block',
+            'plotSaleDetail.plotDetail',
         ])->latest()->get();
     }
 

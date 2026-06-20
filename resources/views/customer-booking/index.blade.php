@@ -1,57 +1,96 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-4">
+    @php
+        $completedCount = $customers->where('status', 'completed')->count();
+        $pendingCount = $customers->where('status', 'pending')->count();
+        $draftCount = $customers->where('status', 'draft')->count();
+    @endphp
 
-        {{-- Page Header --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-success bg-opacity-10 text-success rounded-4 d-flex align-items-center justify-content-center"
-                            style="width:58px;height:58px;">
-                            <i class="bi bi-journal-check fs-3"></i>
-                        </div>
-
-                        <div>
-                            <h3 class="fw-bold mb-1 text-dark">
-                                Customer Booking Management
-                            </h3>
-                            <p class="text-muted mb-0 small">
-                                Manage customer bookings and booking status.
-                            </p>
-                        </div>
+    <div class="container-fluid mt-4 customer-booking-admin-page">
+        <div class="customer-booking-admin-hero mb-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="customer-booking-admin-hero-icon">
+                        <i class="bi bi-journal-check"></i>
+                    </span>
+                    <div>
+                        <span class="text-success fw-bold text-uppercase small">Booking Desk</span>
+                        <h3 class="fw-bold mb-1 text-dark">Customer Booking</h3>
+                        <p class="text-muted mb-0 small">Manage customer profiles, plot bookings and booking progress.</p>
                     </div>
-
-                    @can('customer-booking-modify')
-                        <a href="{{ route('customer-booking.create') }}"
-                            class="btn btn-success rounded-pill px-4">
-                            <i class="bi bi-plus-circle me-1"></i>
-                            Add New Customer
-                        </a>
-                    @endcan
-
                 </div>
+
+                @can('customer-booking-modify')
+                    <a href="{{ route('customer-booking.create') }}" class="btn btn-success customer-booking-admin-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Add New Customer
+                    </a>
+                @endcan
             </div>
         </div>
 
-        {{-- Customer Booking Table --}}
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="card-body p-4">
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <div class="customer-booking-admin-stats mb-4">
+            <div class="customer-booking-admin-stat">
+                <small>Total Customers</small>
+                <strong>{{ $customers->count() }}</strong>
+            </div>
+            <div class="customer-booking-admin-stat success">
+                <small>Completed</small>
+                <strong>{{ $completedCount }}</strong>
+            </div>
+            <div class="customer-booking-admin-stat warning">
+                <small>Pending</small>
+                <strong>{{ $pendingCount }}</strong>
+            </div>
+            <div class="customer-booking-admin-stat info">
+                <small>Draft</small>
+                <strong>{{ $draftCount }}</strong>
+            </div>
+        </div>
+
+        <div class="customer-booking-admin-table-card">
+            <div class="customer-booking-admin-table-head">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="customer-booking-admin-table-icon">
+                        <i class="bi bi-people"></i>
+                    </span>
+                    <div>
+                        <h5 class="fw-bold mb-1">Booking Records</h5>
+                        <small class="text-muted">All customer booking records are listed below.</small>
+                    </div>
+                </div>
+
+                <span class="customer-booking-admin-count">{{ $customers->count() }} Records</span>
+            </div>
+
+            <div class="customer-booking-admin-table-wrap">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" id="customerBookingTable">
-
-                        <thead class="table-light">
+                    <table class="table table-hover align-middle mb-0 customer-booking-admin-table" id="customerBookingTable">
+                        <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Customer</th>
-                                <th>Customer ID</th>
+                                <th>Booking / Plot</th>
                                 <th>Customer Type</th>
                                 <th>Associate</th>
                                 <th>Status</th>
-                                <th class="text-center">Action</th>
+                                @can('customer-booking-modify')
+                                    <th width="170">Action</th>
+                                @endcan
                             </tr>
                         </thead>
 
@@ -59,162 +98,111 @@
                             @forelse ($customers as $key => $customer)
                                 @php
                                     $primary = $customer->primaryDetail;
+                                    $plotSale = $customer->plotSaleDetail;
                                     $profileImage = $primary?->customerDocument?->profile_picture;
                                     $customerName = ucfirst($primary?->name ?? ($customer->customer_name ?? 'N/A'));
+                                    $mobileNumber = $primary?->correspondenceDetail?->mobile_number ?? 'No contact';
+                                    $status = $customer->status ?? 'draft';
+                                    $statusMeta = match ($status) {
+                                        'completed' => ['Completed', 'success', 'bi-check-circle'],
+                                        'pending' => ['Pending', 'warning', 'bi-clock-history'],
+                                        default => ['Incomplete', 'danger', 'bi-exclamation-circle'],
+                                    };
+                                    $editStep = $customer->status === 'completed' ? 1 : $customer->current_step;
                                 @endphp
 
                                 <tr>
-                                    <td>
-                                        <span class="text-muted small">
-                                            #{{ $key + 1 }}
-                                        </span>
-                                    </td>
+                                    <td>{{ $key + 1 }}</td>
 
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
                                             @if ($profileImage)
                                                 <img src="{{ asset('storage/' . $profileImage) }}"
-                                                    width="46"
-                                                    height="46"
-                                                    class="rounded-circle border object-fit-cover"
-                                                    alt="Customer">
+                                                    width="46" height="46"
+                                                    class="rounded-circle border object-fit-cover" alt="Customer">
                                             @else
                                                 <img src="https://ui-avatars.com/api/?name={{ urlencode($customerName) }}&background=198754&color=ffffff"
-                                                    width="46"
-                                                    height="46"
-                                                    class="rounded-circle border"
-                                                    alt="Customer">
+                                                    width="46" height="46" class="rounded-circle border" alt="Customer">
                                             @endif
 
                                             <div>
-                                                <div class="fw-bold text-dark">
-                                                    {{ $customerName }}
-                                                </div>
-
-                                                <small class="text-muted">
-                                                    {{ $primary?->correspondenceDetail?->mobile_number ?? 'No contact' }}
-                                                </small>
+                                                <strong class="d-block">{{ $customerName }}</strong>
+                                                <small class="text-muted">{{ $customer->customer_code ?? 'N/A' }} | {{ $mobileNumber }}</small>
                                             </div>
                                         </div>
                                     </td>
 
                                     <td>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
-                                            {{ $customer->customer_code ?? 'N/A' }}
-                                        </span>
+                                        <strong>{{ $plotSale?->booking_code ?? $customer->booking_code ?? 'Not booked' }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ $plotSale?->project?->name ?? '-' }} /
+                                            {{ $plotSale?->block?->block ?? '-' }} /
+                                            Plot {{ $plotSale?->plotDetail?->plot_number ?? '-' }}
+                                        </small>
                                     </td>
 
                                     <td>
-                                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+                                        <span class="badge bg-light text-dark border">
                                             {{ ucwords(str_replace('_', ' ', $customer->customer_type ?? 'N/A')) }}
                                         </span>
                                     </td>
 
                                     <td>
-                                        <div class="fw-semibold text-dark">
-                                            {{ $customer->associate_name ?? 'N/A' }}
-                                        </div>
-
-                                        @if (!empty($customer->associate_code))
-                                            <small class="text-muted">
-                                                {{ $customer->associate_code }}
-                                            </small>
-                                        @endif
+                                        <strong>{{ $customer->associate_code ?? 'N/A' }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ $customer->associate_name ?? 'N/A' }}</small>
                                     </td>
 
                                     <td>
-                                        @if ($customer->status == 'draft')
-                                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-2">
-                                                <i class="bi bi-exclamation-circle me-1"></i>
-                                                Incomplete
-                                            </span>
-                                        @else
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
-                                                <i class="bi bi-check-circle me-1"></i>
-                                                Completed
-                                            </span>
-                                        @endif
+                                        <span class="badge bg-{{ $statusMeta[1] }} {{ $statusMeta[1] === 'warning' ? 'text-dark' : '' }}">
+                                            <i class="bi {{ $statusMeta[2] }} me-1"></i>{{ $statusMeta[0] }}
+                                        </span>
+                                        <br>
+                                        <small class="text-muted">Step {{ $customer->current_step ?? 1 }}</small>
                                     </td>
 
-                                    <td class="text-center">
-                                        @can('customer-booking-modify')
-                                            <div class="d-inline-flex gap-2">
-
-                                                <a href="{{ route('customer-booking.edit', [
-                                                    $customer->id,
-                                                    'step' => $customer->status == 'completed' ? 1 : $customer->current_step,
-                                                ]) }}"
-                                                    class="btn btn-sm btn-outline-success rounded-pill px-3">
-                                                    <i class="bi bi-pencil-square me-1"></i>
-                                                    Edit
+                                    @can('customer-booking-modify')
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="{{ route('customer-booking.edit', [$customer->id, 'step' => $editStep]) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-pencil-square me-1"></i> Edit
                                                 </a>
 
-                                                <form action="{{ route('customer-booking.destroy', $customer->id) }}"
-                                                    method="POST">
+                                                <form action="{{ route('customer-booking.destroy', $customer->id) }}" method="POST"
+                                                    class="customer-booking-delete-form">
                                                     @csrf
                                                     @method('DELETE')
-
-                                                    <button type="button"
-                                                        class="btn btn-sm btn-outline-danger rounded-pill px-3 delete-btn">
-                                                        <i class="bi bi-trash me-1"></i>
-                                                        Delete
+                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-btn">
+                                                        <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
-
                                             </div>
-                                        @endcan
-                                    </td>
+                                        </td>
+                                    @endcan
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted py-5">
-                                        <i class="bi bi-journal-x fs-1 d-block mb-2 text-muted"></i>
-                                        No customer booking found
+                                    <td colspan="{{ auth()->user()->can('customer-booking-modify') ? 7 : 6 }}"
+                                        class="text-center text-muted py-5">
+                                        <i class="bi bi-journal-x fs-2 d-block mb-2"></i>
+                                        No customer booking found.
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
-
                     </table>
                 </div>
-
             </div>
         </div>
-
     </div>
 @endsection
-
-@push('styles')
-    <style>
-        #customerBookingTable th,
-        #customerBookingTable td {
-            vertical-align: middle;
-        }
-
-        #customerBookingTable thead th {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: .4px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        #customerBookingTable tbody td {
-            padding-top: 14px;
-            padding-bottom: 14px;
-        }
-
-        #customerBookingTable tbody tr:hover {
-            background: #fafafa;
-        }
-    </style>
-@endpush
 
 @push('scripts')
     <script>
         $(document).ready(function() {
-
-            if ($('#customerBookingTable tbody tr td').attr('colspan') == undefined) {
+            if ($('#customerBookingTable tbody tr td').attr('colspan') === undefined) {
                 $('#customerBookingTable').DataTable({
                     pageLength: 10,
                     responsive: true,
@@ -222,12 +210,13 @@
                 });
             }
 
-            $('.delete-btn').click(function() {
-                let form = $(this).closest('form');
+            $(document).on('click', '.delete-btn', function() {
+                const button = $(this);
+                const form = button.closest('form');
 
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'This customer booking will be deleted.',
+                    title: 'Delete customer booking?',
+                    text: 'This customer booking and related details will be deleted.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#198754',
@@ -236,11 +225,13 @@
                     cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        button.prop('disabled', true).html(
+                            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'
+                        );
                         form.submit();
                     }
                 });
             });
-
         });
     </script>
 @endpush
