@@ -34,6 +34,9 @@ class CustomerHistoryController extends Controller
         });
 
         $dueAmount = max($totalPlotCost - $totalPaid, 0);
+        $paidPercent = $totalPlotCost > 0 ? min(round(($totalPaid / $totalPlotCost) * 100), 100) : 0;
+        $latestPlot = $plots->sortByDesc('created_at')->first();
+        $latestPayment = $payments->sortByDesc('created_at')->first();
 
         return view('customer-panel.profile.index', compact(
             'customer',
@@ -42,7 +45,10 @@ class CustomerHistoryController extends Controller
             'totalBooking',
             'totalPlotCost',
             'totalPaid',
-            'dueAmount'
+            'dueAmount',
+            'paidPercent',
+            'latestPlot',
+            'latestPayment'
         ));
     }
 
