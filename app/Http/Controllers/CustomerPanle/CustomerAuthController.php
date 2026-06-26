@@ -8,14 +8,18 @@ class CustomerAuthController extends Controller
 {
     public function loginForm()
     {
+        if (Auth::guard('customer')->check()) {
+            return redirect()->route('customer-panel.dashboard');
+        }
+
         return view('auth.customer_login');
     }
 
     public function login(Request $request)
     {
         $request->validate([
-            'customer_code' => ['required', 'string'],
-            'password' => ['required'],
+            'customer_code' => ['required', 'string', 'max:80'],
+            'password' => ['required', 'string', 'max:255'],
         ]);
 
         $remember = $request->boolean('remember');

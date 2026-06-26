@@ -6,7 +6,8 @@ use App\Models\Associate;
 use App\Models\BankDetail;
 use App\Models\DesignationRank;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Crypt;
+
+use Illuminate\Support\Facades\Hash;
 
 class AssociateSeeder extends Seeder
 {
@@ -31,7 +32,8 @@ class AssociateSeeder extends Seeder
             'state' => 'UP',
             'mobile_number' => '9876543210',
             'email' => 'demo@example.com',
-            'password' => Crypt::encryptString('Lucknow@123'),
+            'password' => Hash::make('Lucknow@123'),
+            'plain_password' => 'Lucknow@123',
             'pancard_number' => 'ABCDE1234F',
             'aadhar_number' => '123456789012',
             'photo' => null,

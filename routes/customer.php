@@ -8,7 +8,9 @@ use App\Http\Controllers\CustomerPanle\CustomerHistoryController;
 Route::prefix('customer-panel')->name('customer-panel.')->group(function () {
     Route::middleware('guest:customer')->group(function () {
         Route::get('/login', [CustomerAuthController::class, 'loginForm'])->name('login');
-        Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.submit');
+        Route::post('/login', [CustomerAuthController::class, 'login'])
+            ->middleware('throttle:5,1')
+            ->name('login.submit');
     });
     Route::middleware('auth:customer')->group(function () {
         Route::get('/dashboard', [CustomerDashboardController::class, 'dashboard'])->name('dashboard');

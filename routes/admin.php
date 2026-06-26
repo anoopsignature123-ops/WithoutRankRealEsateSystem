@@ -74,7 +74,9 @@ Route::middleware(['admin.key', 'guest'])->group(function () {
     Route::get('/rs-login-panel', [AuthController::class, 'showLoginForm'])->name('login');
 });
 
-Route::post('/rs-login-panel', [AuthController::class, 'login'])->name('login.submit');
+Route::post('/rs-login-panel', [AuthController::class, 'login'])
+    ->middleware('throttle:5,1')
+    ->name('login.submit');
 
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])
     ->name('password.request');

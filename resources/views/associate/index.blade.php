@@ -1,117 +1,109 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-4">
+    <div class="container-fluid py-4 associate-management-page">
 
-        {{-- Page Header --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
+        <div class="associate-management-hero mb-4">
+            <div class="associate-management-title">
+                <div class="associate-management-icon">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <div>
+                    <span class="associate-management-kicker">Associate Management</span>
+                    <h3 class="fw-bold mb-1">Associate Records</h3>
+                    <p class="mb-0">Manage associate records, ranks, sponsor details and login information.</p>
+                </div>
+            </div>
 
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="associate-management-hero-actions">
+                <div class="associate-management-count">
+                    <span>Total Records</span>
+                    <strong>{{ $associates->count() }}</strong>
+                </div>
+                <a href="{{ route('associate.create') }}" class="btn btn-success">
+                    <i class="bi bi-person-plus"></i>
+                    Add Associate
+                </a>
+            </div>
+        </div>
 
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-4 bg-light d-flex align-items-center justify-content-center me-3"
-                            style="width:60px;height:60px;">
-                            <i class="bi bi-person-badge fs-2 text-secondary"></i>
-                        </div>
+        <div class="associate-management-filter mb-4">
+            <div class="associate-management-section-head">
+                <div class="associate-management-section-icon">
+                    <i class="bi bi-funnel"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-1">Find Associate</h5>
+                    <p class="text-muted mb-0">Filter by joining date, name or level.</p>
+                </div>
+            </div>
 
-                        <div>
-                            <h3 class="fw-bold mb-1 text-dark">
-                                Associate Management
-                            </h3>
-
-                            <p class="text-muted mb-0">
-                                Manage associate records, ranks, sponsor details and login information.
-                            </p>
-                        </div>
+            <form method="GET" class="mt-3">
+                <div class="row g-3 align-items-end">
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <label class="form-label">Joining Date</label>
+                        <input type="date" name="joining_date" value="{{ request('joining_date') }}"
+                            class="form-control">
                     </div>
 
-                    <div class="badge bg-light text-dark border rounded-pill px-3 py-2">
-                        Total Records: {{ $associates->count() }}
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <label class="form-label">Associate Name</label>
+                        <input type="text" name="associate_name" value="{{ request('associate_name') }}"
+                            class="form-control" placeholder="Enter associate name">
                     </div>
 
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <label class="form-label">Level</label>
+                        <select name="rank_id" class="form-select">
+                            <option value="">Select Level</option>
+
+                            @foreach ($ranks as $rank)
+                                <option value="{{ $rank->id }}" {{ request('rank_id') == $rank->id ? 'selected' : '' }}>
+                                    {{ $rank?->designation . ' (' . number_format($rank->commission, 2) . ')' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-12">
+                        <div class="associate-management-filter-actions">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-search"></i>
+                                Search
+                            </button>
+                            <a href="{{ route('associate.index') }}" class="btn btn-light">
+                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                                Reset
+                            </a>
+                            <a href="{{ route('associate.export', request()->query()) }}" class="btn btn-outline-success">
+                                <i class="bi bi-download"></i>
+                                Export
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="associate-management-table-card">
+            <div class="associate-management-table-head">
+                <div class="associate-management-section-head">
+                    <div class="associate-management-section-icon">
+                        <i class="bi bi-table"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Associate List</h5>
+                        <p class="text-muted mb-0">All associate records are listed below.</p>
+                    </div>
                 </div>
 
+                <span class="associate-management-record-pill">{{ $associates->count() }} Records</span>
             </div>
-        </div>
 
-        {{-- Filter --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-
-                <form method="GET">
-                    <div class="row g-3 align-items-end">
-
-                        <div class="col-lg-3 col-md-6">
-                            <label class="form-label fw-semibold">
-                                Joining Date
-                            </label>
-
-                            <input type="date" name="joining_date" value="{{ request('joining_date') }}"
-                                class="form-control">
-                        </div>
-
-                        <div class="col-lg-3 col-md-6">
-                            <label class="form-label fw-semibold">
-                                Associate Name
-                            </label>
-
-                            <input type="text" name="associate_name" value="{{ request('associate_name') }}"
-                                class="form-control" placeholder="Enter associate name">
-                        </div>
-
-                        <div class="col-lg-3 col-md-6">
-                            <label class="form-label fw-semibold">
-                                Level
-                            </label>
-
-                            <select name="rank_id" class="form-select">
-                                <option value="">Select Level</option>
-
-                                @foreach ($ranks as $rank)
-                                    <option value="{{ $rank->id }}"
-                                        {{ request('rank_id') == $rank->id ? 'selected' : '' }}>
-                                        {{ $rank?->designation . ' (' . number_format($rank->commission, 2) . ')' }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="col-lg-3 col-md-6">
-                            <div class="d-flex gap-2 flex-wrap">
-
-                                <button type="submit" class="btn btn-success px-4">
-                                    <i class="bi bi-search me-1"></i>
-                                    Search
-                                </button>
-
-                                <a href="{{ route('associate.index') }}" class="btn btn-light border px-4">
-                                    <i class="fa-solid fa-arrow-rotate-left"></i> Reset
-                                </a>
-
-                                <a href="{{ route('associate.export', request()->query()) }}"
-                                    class="btn btn-outline-success px-4">
-                                    <i class="bi bi-download me-1"></i>
-                                    Export
-                                </a>
-
-                            </div>
-                        </div>
-
-                    </div>
-                </form>
-
-            </div>
-        </div>
-        {{-- Table --}}
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="card-body p-4">
-
+            <div class="associate-management-table-wrap">
                 <div class="table-responsive">
-
                     <table class="table table-hover align-middle mb-0" id="associateTable">
-
-                        <thead class="table-light">
+                        <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Sponsor ID</th>
@@ -129,19 +121,16 @@
                         <tbody>
                             @forelse($associates as $key => $associate)
                                 <tr>
-                                    <td>
-
-                                    </td>
+                                    <td></td>
 
                                     <td>
-                                        <span class="text-dark">
+                                        <span class="associate-management-muted">
                                             {{ $associate->sponsor_id ?? '-' }}
                                         </span>
                                     </td>
 
                                     <td>
-                                        <span
-                                            class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                        <span class="associate-management-id">
                                             {{ $associate->associate_id }}
                                         </span>
                                     </td>
@@ -151,13 +140,17 @@
                                     </td>
 
                                     <td>
-                                        <div class="fw-bold text-dark">
-                                            {{ $associate->associate_name }}
+                                        <div class="associate-management-name">
+                                            <span>{{ strtoupper(substr($associate->associate_name ?? 'A', 0, 1)) }}</span>
+                                            <div>
+                                                <strong>{{ $associate->associate_name }}</strong>
+                                                <small>{{ $associate->email ?? 'No email' }}</small>
+                                            </div>
                                         </div>
                                     </td>
 
                                     <td>
-                                        <span class="text-muted">
+                                        <span class="associate-management-muted">
                                             {{ $associate->mobile_number ?? '-' }}
                                         </span>
                                     </td>
@@ -173,7 +166,7 @@
                                     </td>
 
                                     <td>
-                                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+                                        <span class="associate-management-password">
                                             {{ $associate->plain_password ?? '-' }}
                                         </span>
                                     </td>
@@ -186,15 +179,15 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <div class="d-inline-flex gap-2">
+                                        <div class="associate-management-actions">
 
                                             <a href="{{ route('associate.show', $associate->id) }}"
-                                                class="btn btn-sm btn-light border" title="View">
+                                                class="btn btn-sm btn-light" title="View">
                                                 <i class="bi bi-eye"></i>
                                             </a>
 
                                             <a href="{{ route('associate.edit', $associate->id) }}"
-                                                class="btn btn-sm btn-light border" title="Edit">
+                                                class="btn btn-sm btn-light" title="Edit">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
 
@@ -204,7 +197,7 @@
                                                 @method('DELETE')
 
                                                 <button type="button"
-                                                    class="btn btn-sm btn-light border text-danger delete-btn"
+                                                    class="btn btn-sm btn-light text-danger delete-btn"
                                                     title="Delete">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
@@ -216,28 +209,27 @@
                             @empty
                                 <tr>
                                     <td colspan="10" class="text-center text-muted py-5">
-                                        <i class="bi bi-inbox fs-1 d-block mb-2 text-muted"></i>
-                                        No associates found
+                                        <div class="associate-management-empty">
+                                            <div><i class="bi bi-inbox"></i></div>
+                                            <h5>No Associates Found</h5>
+                                            <p class="mb-0">Try changing filters or add a new associate.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
 
                     </table>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
 @endsection
 @push('scripts')
     <script>
         $(document).ready(function() {
 
-            if ($('#associateTable tbody tr td').attr('colspan') == undefined) {
+            if (!$('#associateTable tbody tr td[colspan]').length) {
                 let table = $('#associateTable').DataTable({
                     pageLength: 10,
                     responsive: true,

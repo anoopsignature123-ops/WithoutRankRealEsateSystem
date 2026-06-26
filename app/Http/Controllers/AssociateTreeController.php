@@ -12,11 +12,19 @@ class AssociateTreeController extends Controller
         $associateId = trim($request->associate_id ?? '');
 
         if ($associateId) {
-            $rootAssociate = Associate::with('children.children')
+            $rootAssociate = Associate::with([
+                'rank',
+                'children.rank',
+                'children.children.rank',
+            ])
                 ->where('associate_id', $associateId)
                 ->first();
         } else {
-            $rootAssociate = Associate::with('children.children')
+            $rootAssociate = Associate::with([
+                'rank',
+                'children.rank',
+                'children.children.rank',
+            ])
                 ->whereNull('under_place_id')
                 ->first();
         }

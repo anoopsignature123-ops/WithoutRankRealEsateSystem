@@ -10,14 +10,18 @@ class AssociateAuthController extends Controller
 {
     public function loginForm()
     {
+        if (Auth::guard('associate')->check()) {
+            return redirect()->route('associate-panel.dashboard');
+        }
+
         return view('auth.associate_login');
     }
 
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'associate_id' => ['required', 'string'],
-            'password' => ['required'],
+            'associate_id' => ['required', 'string', 'max:80'],
+            'password' => ['required', 'string', 'max:255'],
         ]);
         $remember = $request->boolean('remember');
         if (Auth::guard('associate')->attempt($credentials, $remember)) {

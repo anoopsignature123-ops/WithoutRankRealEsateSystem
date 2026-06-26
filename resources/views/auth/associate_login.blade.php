@@ -1,159 +1,147 @@
 @extends('auth.app')
 
 @section('content')
-    <div class="container-fluid p-0">
-        <div class="row g-0 min-vh-100">
-            <div class="col-lg-7 d-none d-lg-block position-relative overflow-hidden">
-                {{-- Background --}}
-                <div class="position-absolute top-0 start-0 w-100 h-100"
-                    style="background:
-                        linear-gradient(rgba(10, 15, 25, 0.72), rgba(22, 101, 52, 0.78)),
-                        url('{{ asset('assets/images/login_b.jpg') }}') center center/cover no-repeat;">
-                </div>
-                {{-- Overlay Content --}}
-                <div class="position-relative h-100 d-flex flex-column justify-content-between p-5 text-white">
-                    <div>
-                        <div
-                            class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill bg-white bg-opacity-10 backdrop-blur mb-5 border border-white border-opacity-10">
-                            <i class="bi bi-buildings-fill"></i>
-                            <span class="fw-semibold">Real Estate CRM</span>
+    <div class="secure-login-wrapper" style="--secure-login-image: url('{{ asset('assets/images/customer.jpg') }}');">
+        <div class="secure-login-bg"></div>
+        <div class="secure-login-overlay"></div>
+        <div class="secure-login-glow secure-login-glow-1"></div>
+        <div class="secure-login-glow secure-login-glow-2"></div>
+
+        <div class="container-fluid secure-login-container">
+            <div class="row min-vh-100 align-items-center">
+                <div class="col-lg-7 d-none d-lg-block">
+                    <div class="secure-left-content">
+                        <div class="secure-brand-pill">
+                            <i class="bi bi-person-badge-fill"></i>
+                            <span>Associate Secure Access</span>
                         </div>
-                        <h1 class="fw-bold display-4 lh-sm mb-4" style="max-width: 620px;">
-                            Real Estate <br>Management Software
+
+                        <h1>
+                            Track Business <br>
+                            And Team Growth
                         </h1>
-                        <p class="fs-5 text-white text-opacity-75 mb-5" style="max-width: 580px;">
-                            One Click to Book Plot and Collect Payment
+
+                        <p>
+                            Access your dashboard, customer ledger, booking details, commissions and team performance
+                            securely from one associate panel.
                         </p>
-                        <div class="row g-4 mt-2">
-                            <div class="col-4">
-                                <div class="glass-card p-4 rounded-4">
-                                    <div class="mb-3">
-                                        <i class="bi bi-house-check fs-2"></i>
-                                    </div>
-                                    <h5 class="fw-bold mb-1">Smart Booking</h5>
-                                    <small class="text-white text-opacity-75">
-                                        Fast & Secure Plot Booking
-                                    </small>
-                                </div>
+
+                        <div class="secure-feature-row">
+                            <div class="secure-feature-card">
+                                <i class="bi bi-diagram-3-fill"></i>
+                                <strong>Team Network</strong>
+                                <small>View direct and downline</small>
                             </div>
-                            <div class="col-4">
-                                <div class="glass-card p-4 rounded-4">
-                                    <div class="mb-3">
-                                        <i class="bi bi-cash-stack fs-2"></i>
-                                    </div>
-                                    <h5 class="fw-bold mb-1">EMI Collection</h5>
-                                    <small class="text-white text-opacity-75">
-                                        Manage Payments Easily
-                                    </small>
-                                </div>
+                            <div class="secure-feature-card">
+                                <i class="bi bi-journal-check"></i>
+                                <strong>Bookings</strong>
+                                <small>Track customer plots</small>
                             </div>
-                            <div class="col-4">
-                                <div class="glass-card p-4 rounded-4">
-                                    <div class="mb-3">
-                                        <i class="bi bi-bar-chart-line fs-2"></i>
-                                    </div>
-                                    <h5 class="fw-bold mb-1">
-                                        Reports
-                                    </h5>
-                                    <small class="text-white text-opacity-75">
-                                        Live Business Analytics
-                                    </small>
-                                </div>
+                            <div class="secure-feature-card">
+                                <i class="bi bi-wallet2"></i>
+                                <strong>Payouts</strong>
+                                <small>Monitor commissions</small>
                             </div>
                         </div>
-                    </div>
-                    {{-- Bottom --}}
-                    <div class="d-flex align-items-center justify-content-between">
-                        <small class="text-white text-opacity-75">
-                            Trusted Real Estate Management Solution
-                        </small>
-                        <small class="text-white text-opacity-75">
-                            © {{ date('Y') }} Signature IT Software Designers.
-                        </small>
                     </div>
                 </div>
-            </div>
-            {{-- RIGHT SIDE --}}
-            <div class="col-12 col-lg-5 d-flex align-items-center justify-content-center bg-light position-relative">
-                <div class="login-shape"></div>
-                <div class="w-100 px-4 position-relative" style="max-width: 450px; z-index: 2;">
-                    {{-- Logo --}}
-                    <div class="text-center mb-4">
-                        <div class="mb-3">
-                            <img src="{{ asset('assets/images/admin.png') }}" alt="Logo" class="login-logo">
+
+                <div class="col-12 col-lg-5">
+                    <div class="secure-login-box">
+                        <div class="text-center mb-4 position-relative">
+                            <img src="{{ asset('assets/images/admin.png') }}" alt="Logo" class="secure-login-logo">
+
+                            <h2 class="fw-bold text-white mt-3 mb-1">Associate Login</h2>
+                            <p class="text-white-50 small mb-0">Sign in using your associate ID</p>
                         </div>
-                        <h2 class="fw-bold text-dark mb-1">
-                            Associate Login
-                        </h2>
-                        <p class="text-muted small mb-0">
-                            Login to access your dashboard
-                        </p>
-                    </div>
-                    <div class="card border-0 shadow-lg rounded-5 overflow-hidden login-card">
-                        <div class="top-gradient"></div>
-                        <div class="card-body p-4 p-lg-5">
-                            <form method="POST" action="{{ route('associate-panel.login.submit') }}">
-                                @csrf
-                                <div class="mb-4">
-                                    <label class="form-label fw-semibold text-dark small mb-2">Associate ID</label>
-                                    <div class="input-group custom-input-group">
-                                        <span class="input-group-text border-0 bg-transparent text-success">
-                                            <i class="bi bi-person-badge-fill"></i>
-                                        </span>
-                                        <input type="text" name="associate_id" value="{{ old('associate_id') }}"
-                                            class="form-control border-0 shadow-none @error('associate_id') is-invalid @enderror"
-                                            placeholder="Enter Associate ID">
-                                    </div>
-                                    @error('associate_id')
-                                        <div class="text-danger small mt-1">{{ $message }}</div>
-                                    @enderror
+
+                        <form method="POST" action="{{ route('associate-panel.login.submit') }}"
+                            class="position-relative login-secure-form" autocomplete="on" novalidate>
+                            @csrf
+
+                            <div class="mb-3">
+                                <label class="form-label text-white-50 small">Associate ID</label>
+                                <div class="secure-input-group">
+                                    <i class="bi bi-person-badge-fill"></i>
+                                    <input type="text" name="associate_id" value="{{ old('associate_id') }}"
+                                        class="form-control @error('associate_id') is-invalid @enderror"
+                                        placeholder="Enter associate ID" autocomplete="username" maxlength="80" required
+                                        autofocus>
                                 </div>
-                                <div class="mb-4">
-                                    <label class="form-label fw-semibold text-dark small mb-2">Password</label>
-                                    <div class="input-group custom-input-group">
-                                        <span class="input-group-text border-0 bg-transparent text-success">
-                                            <i class="bi bi-lock-fill"></i>
-                                        </span>
-                                        <input type="password" name="password" id="password"
-                                            class="form-control border-0 shadow-none @error('password') is-invalid @enderror"
-                                            placeholder="Enter Password">
-                                        <button type="button" class="btn border-0 bg-transparent text-muted px-3"
-                                            onclick="togglePassword()">
-                                            <i class="bi bi-eye-fill" id="toggleIcon"></i>
-                                        </button>
-                                    </div>
-                                    @error('password')
-                                        <div class="text-danger small mt-1">{{ $message }} </div>
-                                    @enderror
-                                </div>
-                                {{-- Login Button --}}
-                                <div class="d-grid mt-4">
-                                    <button type="submit"
-                                        class="btn btn-success py-3 rounded-4 fw-semibold shadow-sm login-btn">
-                                        <i class="bi bi-box-arrow-in-right me-2"></i>Secure Login
+                                @error('associate_id')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label text-white-50 small">Password</label>
+                                <div class="secure-input-group">
+                                    <i class="bi bi-lock-fill"></i>
+                                    <input type="password" name="password" id="password"
+                                        class="form-control @error('password') is-invalid @enderror"
+                                        placeholder="Enter password" autocomplete="current-password" minlength="6" required>
+                                    <button type="button" class="secure-password-toggle" data-toggle-password="password">
+                                        <i class="bi bi-eye" id="password-icon"></i>
                                     </button>
                                 </div>
-                            </form>
+                                @error('password')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center my-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                                    <label class="form-check-label small text-white-50" for="remember">
+                                        Remember me
+                                    </label>
+                                </div>
+
+                                <small class="text-white-50">Secure session</small>
+                            </div>
+
+                            <button type="submit" class="btn secure-login-btn w-100 login-submit-btn">
+                                <span class="btn-label">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                                    Secure Login
+                                </span>
+                                <span class="btn-loader d-none">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Verifying...
+                                </span>
+                            </button>
+                        </form>
+
+                        <div class="text-center mt-4 position-relative">
+                            <small class="text-white-50">
+                                &copy; {{ date('Y') }} Signature IT Software Designers
+                            </small>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        function togglePassword() {
-            let passwordInput = document.getElementById('password');
-            let toggleIcon = document.getElementById('toggleIcon');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('bi-eye-fill');
-                toggleIcon.classList.add('bi-eye-slash-fill');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('bi-eye-slash-fill');
-                toggleIcon.classList.add('bi-eye-fill');
-            }
-        }
-    </script>
 @endsection
+
+@push('scripts')
+    <script>
+        document.querySelectorAll('[data-toggle-password]').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = document.getElementById(this.dataset.togglePassword);
+                const icon = document.getElementById(this.dataset.togglePassword + '-icon');
+
+                input.type = input.type === 'password' ? 'text' : 'password';
+                icon.classList.toggle('bi-eye');
+                icon.classList.toggle('bi-eye-slash');
+            });
+        });
+
+        document.querySelector('.login-secure-form')?.addEventListener('submit', function() {
+            const button = this.querySelector('.login-submit-btn');
+            button.disabled = true;
+            button.querySelector('.btn-label')?.classList.add('d-none');
+            button.querySelector('.btn-loader')?.classList.remove('d-none');
+        });
+    </script>
+@endpush

@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row associate-form-grid">
     <div class="col-12 mb-4">
         <div class="border rounded p-4 bg-light">
             <h4 class="fw-bold mb-4">Basic Information</h4>
@@ -520,76 +520,70 @@
         </div>
     </div>
     <div class="col-12">
-        <button class="btn btn-success px-5">
-
-            {{ isset($associateData) ? 'Update Associate' : 'Save Associate' }}
-        </button>
+        <div class="associate-form-actions">
+            <a href="{{ route('associate.index') }}" class="btn btn-light">
+                <i class="bi bi-x-circle"></i>
+                Cancel
+            </a>
+            <button class="btn btn-success px-5" type="submit">
+                <i class="bi bi-check-circle"></i>
+                {{ isset($associate) ? 'Update Associate' : 'Save Associate' }}
+            </button>
+        </div>
     </div>
 </div>
 @push('scripts')
     <script>
-        $('#sponsor_id').change(function() {
-            let associateId = $(this).val();
-            $('#rank_id').html(
-                '<option value="">Loading...</option>'
-            );
-            $.get(
-                '/get-sponsor-ranks/' + associateId,
-                function(response) {
+        $(function() {
+            const $sponsor = $('#sponsor_id');
+            const $rank = $('#rank_id');
+            const $underPlace = $('#under_place_id');
 
-                    let options =
-                        '<option value="">Select Rank</option>';
+            $sponsor.on('change', function() {
+                const associateId = $(this).val();
+
+                if (associateId) {
+                    $underPlace.val(associateId);
+                }
+
+                $rank.html('<option value="">Loading...</option>');
+
+                if (!associateId) {
+                    $rank.html('<option value="">Select Rank</option>');
+                    return;
+                }
+
+                $.get('/get-sponsor-ranks/' + associateId, function(response) {
+                    let options = '<option value="">Select Rank</option>';
 
                     response.forEach(function(rank) {
-
                         options += `
-                       <option value="${rank.id}">
-                            ${rank.designation} / ${rank.rank_number}
-                        </option>
-                    `;
-
+                            <option value="${rank.id}">
+                                ${rank.designation} / ${rank.rank_number ?? rank.commission ?? ''}
+                            </option>
+                        `;
                     });
 
-                    $('#rank_id').html(options);
-
-                }
-            );
-            $('#sponsor_id').change(function() {
-                let sponsorId = $(this).val();
-                if (sponsorId) {
-                    $('#under_place_id').val(sponsorId);
-                }
+                    $rank.html(options);
+                }).fail(function() {
+                    $rank.html('<option value="">Unable to load ranks</option>');
+                });
             });
 
             $('.preview-file').on('change', function() {
-
-                let input = this;
-
-                let preview = $(this)
-                    .closest('.col-md-3')
-                    .find('.img-preview');
+                const input = this;
+                const preview = $(this).closest('[class*="col-md-"]').find('.img-preview');
 
                 if (input.files && input.files[0]) {
-
-                    let reader = new FileReader();
+                    const reader = new FileReader();
 
                     reader.onload = function(e) {
+                        preview.attr('src', e.target.result).show();
+                    };
 
-                        preview
-                            .attr('src', e.target.result)
-                            .show();
-
-                    }
-
-                    reader.readAsDataURL(
-                        input.files[0]
-                    );
-
+                    reader.readAsDataURL(input.files[0]);
                 }
-
             });
-
-
         });
     </script>
 @endpush
