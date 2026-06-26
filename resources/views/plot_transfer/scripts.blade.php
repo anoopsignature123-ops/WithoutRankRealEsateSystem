@@ -132,6 +132,7 @@ $(document).ready(function () {
         }).then((result) => {
 
             if (result.isConfirmed) {
+                setTransferLoading(true);
 
                 $.ajax({
                     url: "{{ route('plot-transfer.store') }}",
@@ -158,6 +159,7 @@ $(document).ready(function () {
                     },
 
                     error: function (xhr) {
+                        setTransferLoading(false);
                         Swal.fire(
                             'Error',
                             xhr.responseJSON?.message || 'Transfer failed.',
@@ -167,6 +169,10 @@ $(document).ready(function () {
                 });
             }
         });
+    });
+
+    $('#transferCharge').on('input change blur', function () {
+        $(this).val(sanitizeAmount($(this).val()));
     });
 
 });
@@ -208,7 +214,7 @@ function renderBookingDetails(r)
                 <td>${r.project_name}</td>
 
                 <th>Plot Rate</th>
-                <td>₹ ${r.plot_rate}</td>
+                <td>Rs. ${r.plot_rate}</td>
             </tr>
 
             <tr>
@@ -260,23 +266,23 @@ function renderBookingDetails(r)
                 <td>${r.payment_mode}</td>
 
                 <th>Booking Amount</th>
-                <td>₹ ${r.booking_amount}</td>
+                <td>Rs. ${r.booking_amount}</td>
             </tr>
 
             <tr>
                 <th>Total Cost</th>
-                <td>₹ ${r.total_plot_cost}</td>
+                <td>Rs. ${r.total_plot_cost}</td>
 
                 <th>Total Paid</th>
                 <td class="text-success fw-bold">
-                    ₹ ${r.total_paid}
+                    Rs. ${r.total_paid}
                 </td>
             </tr>
 
             <tr>
                 <th>Balance Due</th>
                 <td colspan="3" class="text-danger fw-bold">
-                    ₹ ${r.remaining_amount}
+                    Rs. ${r.remaining_amount}
                 </td>
             </tr>
 
@@ -339,6 +345,26 @@ function clearSelection(clearPlot = true)
     if (clearPlot) {
         $('#plotSaleId').html('<option value="">Select Plot</option>');
     }
+}
+
+function setTransferLoading(isLoading)
+{
+    const button = $('#transferBtn');
+    button.prop('disabled', isLoading);
+    button.find('.btn-label').toggleClass('d-none', isLoading);
+    button.find('.btn-loader').toggleClass('d-none', !isLoading);
+}
+
+function sanitizeAmount(value)
+{
+    value = String(value || '').replace(/[^\d.]/g, '');
+    const firstDot = value.indexOf('.');
+
+    if (firstDot !== -1) {
+        value = value.substring(0, firstDot + 1) + value.substring(firstDot + 1).replace(/\./g, '');
+    }
+
+    return value;
 }
 </script>
 @endpush

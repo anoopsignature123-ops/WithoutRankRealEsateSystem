@@ -1,17 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid mt-4">
+    <div class="container-fluid mt-4 transaction-page">
 
         {{-- Header --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <h3 class="fw-bold mb-1 text-dark">
-                    Cancel Booking
-                </h3>
-                <p class="text-muted mb-0 small">
-                    Cancel selected plot booking and manage refund details.
-                </p>
+        <div class="transaction-hero mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <span class="transaction-icon">
+                    <i class="bi bi-x-octagon"></i>
+                </span>
+                <div>
+                    <span class="text-success fw-bold text-uppercase small">Cancellation Desk</span>
+                    <h3 class="fw-bold mb-1 text-dark">Cancel Booking</h3>
+                    <p class="text-muted mb-0 small">Cancel selected plot booking and manage refund details.</p>
+                </div>
             </div>
         </div>
 
@@ -34,22 +36,23 @@
         @endif
 
         {{-- Form --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
+        <div class="transaction-card mb-4">
+            <div class="transaction-card-body">
 
-                <form method="POST" action="{{ route('cancel-booking.store') }}">
+                <form method="POST" action="{{ route('cancel-booking.store') }}" id="cancelBookingForm">
                     @csrf
 
                     <input type="hidden" name="customer_booking_id" id="customerBookingId">
                     <input type="hidden" name="plot_sale_detail_id" id="plotSaleDetailId">
 
-                    <div class="border-bottom pb-3 mb-4">
-                        <h5 class="fw-bold mb-1">
-                            Booking Selection
-                        </h5>
-                        <small class="text-muted">
-                            Select project, block and booked plot.
-                        </small>
+                    <div class="transaction-section-title">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="transaction-section-title-icon"><i class="bi bi-pin-map"></i></span>
+                            <div>
+                                <h5 class="fw-bold mb-1">Booking Selection</h5>
+                                <small class="text-muted">Select project, block and booked plot.</small>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row g-3 mb-4">
@@ -80,7 +83,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-light border rounded-4 p-3 mb-4">
+                    <div class="transaction-summary-box transaction-readonly-grid mb-4">
                         <h6 class="fw-bold mb-3">
                             Customer & Payment Summary
                         </h6>
@@ -119,13 +122,14 @@
                         </div>
                     </div>
 
-                    <div class="border-bottom pb-3 mb-4">
-                        <h5 class="fw-bold mb-1">
-                            Refund Details
-                        </h5>
-                        <small class="text-muted">
-                            Enter deduction and refund payment details.
-                        </small>
+                    <div class="transaction-section-title">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="transaction-section-title-icon"><i class="bi bi-cash-coin"></i></span>
+                            <div>
+                                <h5 class="fw-bold mb-1">Refund Details</h5>
+                                <small class="text-muted">Enter deduction and refund payment details.</small>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row g-3">
@@ -192,9 +196,13 @@
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end mt-4">
-                        <button type="submit" class="btn btn-danger px-4">
-                            Cancel Booking
+                    <div class="transaction-action-bar">
+                        <button type="submit" class="btn btn-danger px-4" id="cancelBookingBtn">
+                            <span class="btn-label"><i class="bi bi-x-circle me-1"></i> Cancel Booking</span>
+                            <span class="btn-loader d-none">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Processing...
+                            </span>
                         </button>
                     </div>
                 </form>
@@ -202,15 +210,21 @@
         </div>
 
         {{-- Payment History --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <h5 class="fw-bold mb-3">
-                    Selected Plot Payment History
-                </h5>
+        <div class="transaction-card mb-4">
+            <div class="transaction-card-body">
+                <div class="transaction-section-title">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="transaction-section-title-icon"><i class="bi bi-receipt"></i></span>
+                        <div>
+                            <h5 class="fw-bold mb-1">Selected Plot Payment History</h5>
+                            <small class="text-muted">Payment details will appear after plot selection.</small>
+                        </div>
+                    </div>
+                </div>
 
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle mb-0">
-                        <thead class="table-light">
+                <div class="table-responsive transaction-mini-table">
+                    <table class="table table-hover align-middle mb-0 transaction-table">
+                        <thead>
                             <tr>
                                 <th>Receipt</th>
                                 <th>Pay Mode</th>
@@ -233,23 +247,22 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="transaction-card transaction-history-card mb-4">
+            <div class="transaction-history-head">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="transaction-section-title-icon"><i class="bi bi-clock-history"></i></span>
                     <div>
-                        <h5 class="fw-bold mb-1">
-                            Cancel Booking History
-                        </h5>
-                        <small class="text-muted">
-                            All cancelled plot booking records.
-                        </small>
+                        <h5 class="fw-bold mb-1">Cancel Booking History</h5>
+                        <small class="text-muted">All cancelled plot booking records.</small>
                     </div>
                 </div>
+                <span class="transaction-count">{{ $cancelHistories->count() }} Records</span>
+            </div>
 
+            <div class="transaction-table-wrap">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle mb-0" id="cancelHistoryTable">
-                        <thead class="table-light">
+                    <table class="table table-hover align-middle mb-0 transaction-table" id="cancelHistoryTable">
+                        <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Booking ID</th>
@@ -304,7 +317,7 @@
 
                                     <td>
                                         <div>
-                                            ₹{{ number_format((float) ($history->deduction_amount ?? 0), 2) }}
+                                            &#8377;{{ number_format((float) ($history->deduction_amount ?? 0), 2) }}
                                         </div>
                                         <small class="text-muted">
                                             {{ $history->deduction_percentage ?? 0 }}%
@@ -312,7 +325,7 @@
                                     </td>
 
                                     <td class="fw-bold text-success">
-                                        ₹{{ number_format((float) ($history->refund_amount ?? 0), 2) }}
+                                        &#8377;{{ number_format((float) ($history->refund_amount ?? 0), 2) }}
                                     </td>
 
                                     <td>
@@ -346,7 +359,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="10" class="text-center text-muted py-4">
+                                    <td colspan="10" class="text-center text-muted py-5">
+                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                                         No cancel history found.
                                     </td>
                                 </tr>
@@ -355,7 +369,6 @@
 
                     </table>
                 </div>
-
             </div>
         </div>
 
@@ -527,7 +540,7 @@
                 <td>${payment.receipt_number || 'N/A'}</td>
                 <td>${(payment.payment_mode || 'N/A').toUpperCase()}</td>
                 <td class="fw-semibold text-success">
-                    ₹${parseFloat(payment.paid_amount || payment.booking_amount || 0).toFixed(2)}
+                    Rs. ${parseFloat(payment.paid_amount || payment.booking_amount || 0).toFixed(2)}
                 </td>
                 <td>${payment.payment_status || 'N/A'}</td>
                 <td>${payment.transaction_number || 'N/A'}</td>
@@ -614,6 +627,13 @@
 
             $('#payMode').on('change', function() {
                 togglePayFields();
+            });
+
+            $('#cancelBookingForm').on('submit', function() {
+                const button = $('#cancelBookingBtn');
+                button.prop('disabled', true);
+                button.find('.btn-label').addClass('d-none');
+                button.find('.btn-loader').removeClass('d-none');
             });
 
             togglePayFields();

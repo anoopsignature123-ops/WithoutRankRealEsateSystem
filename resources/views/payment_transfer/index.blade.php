@@ -1,20 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-4">
+    <div class="container-fluid mt-4 transaction-page">
 
         {{-- Page Header --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
+        <div class="transaction-hero mb-4">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div>
-                        <h3 class="fw-bold mb-1 text-dark">
-                            <i class="bi bi-arrow-left-right me-2 text-success"></i>
-                            Payment Transfer Management
-                        </h3>
-                        <p class="text-muted mb-0 small">
-                            Select plot payments and transfer selected payment entries to another plot booking.
-                        </p>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="transaction-icon"><i class="bi bi-cash-stack"></i></span>
+                        <div>
+                            <span class="text-success fw-bold text-uppercase small">Transfer Desk</span>
+                            <h3 class="fw-bold mb-1 text-dark">Payment Transfer Management</h3>
+                            <p class="text-muted mb-0 small">Select plot payments and transfer selected payment entries to another plot booking.</p>
+                        </div>
                     </div>
 
                      <a href="{{ route('plot-transfer.index') }}" class="btn btn-outline-secondary">
@@ -22,21 +20,24 @@
                         Back
                     </a>
                 </div>
-            </div>
         </div>
 
         {{-- Main Form Card --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
+        <div class="transaction-card mb-4">
+            <div class="transaction-card-body">
 
                 <form id="paymentTransferForm">
                     @csrf
 
                     {{-- Source Selection --}}
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-3 text-dark">
-                            Source Plot Selection
-                        </h6>
+                    <div class="transaction-section-title">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="transaction-section-title-icon"><i class="bi bi-pin-map"></i></span>
+                            <div>
+                                <h5 class="fw-bold mb-1">Source Plot Selection</h5>
+                                <small class="text-muted">Choose source plot to load payment entries.</small>
+                            </div>
+                        </div>
 
                         <div class="row g-3">
                             <div class="col-md-4">
@@ -74,7 +75,7 @@
                     </div>
 
                     {{-- Source Details --}}
-                    <div id="sourceDetailsCard" class="border rounded-4 p-3 mb-4 bg-light d-none">
+                    <div id="sourceDetailsCard" class="transaction-summary-box transaction-readonly-grid mb-4 d-none">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <h6 class="fw-bold mb-0 text-dark">
                                 Current Plot & Customer Details
@@ -130,8 +131,8 @@
                     </div>
 
                     {{-- Payment List --}}
-                    <div id="paymentListCard" class="card border shadow-sm rounded-4 mb-4 d-none">
-                        <div class="card-header bg-white border-bottom">
+                    <div id="paymentListCard" class="transaction-card mb-4 d-none">
+                        <div class="transaction-section-title p-3 mb-0">
                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                                 <div>
                                     <h6 class="fw-bold mb-1 text-dark">
@@ -147,10 +148,10 @@
                             </div>
                         </div>
 
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover table-bordered align-middle mb-0">
-                                    <thead class="table-light">
+                        <div class="p-0">
+                            <div class="table-responsive transaction-mini-table">
+                                <table class="table table-hover align-middle mb-0 transaction-table">
+                                    <thead>
                                         <tr>
                                             <th width="50" class="text-center">
                                                 <input type="checkbox" id="selectAllPayments" class="form-check-input">
@@ -178,8 +179,8 @@
                     </div>
 
                     {{-- Transfer Details --}}
-                    <div id="transferCard" class="card border shadow-sm rounded-4 d-none">
-                        <div class="card-header bg-white border-bottom">
+                    <div id="transferCard" class="transaction-card d-none">
+                        <div class="transaction-section-title p-3 mb-0">
                             <h6 class="fw-bold mb-1 text-dark">
                                 Transfer Payment To
                             </h6>
@@ -188,7 +189,7 @@
                             </small>
                         </div>
 
-                        <div class="card-body">
+                        <div class="transaction-card-body">
                             <div class="row g-3">
 
                                 <div class="col-md-6">
@@ -234,8 +235,11 @@
 
                                 <div class="col-md-12">
                                     <button type="button" id="transferPaymentBtn" class="btn btn-success px-4">
-                                        <i class="bi bi-arrow-left-right me-1"></i>
-                                        Transfer Selected Payments
+                                        <span class="btn-label"><i class="bi bi-arrow-left-right me-1"></i> Transfer Selected Payments</span>
+                                        <span class="btn-loader d-none">
+                                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                            Transferring...
+                                        </span>
                                     </button>
                                 </div>
 
@@ -249,24 +253,24 @@
         </div>
 
         {{-- Transfer History --}}
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-white border-bottom">
+        <div class="transaction-card transaction-history-card">
+            <div class="transaction-history-head">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <div>
-                        <h6 class="fw-bold mb-1 text-dark">
-                            Payment Transfer History
-                        </h6>
-                        <small class="text-muted">
-                            Track all transferred payment entries with old and new booking details.
-                        </small>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="transaction-section-title-icon"><i class="bi bi-clock-history"></i></span>
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark">Payment Transfer History</h5>
+                            <small class="text-muted">Track all transferred payment entries with old and new booking details.</small>
+                        </div>
                     </div>
                 </div>
+                <span class="transaction-count">{{ $histories->count() }} Records</span>
             </div>
 
-            <div class="card-body">
+            <div class="transaction-table-wrap">
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered align-middle mb-0" id="paymentTransferHistoryTable">
-                        <thead class="table-light">
+                    <table class="table table-hover align-middle mb-0 transaction-table" id="paymentTransferHistoryTable">
+                        <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Receipt</th>
@@ -320,7 +324,7 @@
                                     </td>
 
                                     <td class="fw-bold text-success text-end">
-                                        ₹{{ number_format((float) $history->transfer_amount, 2) }}
+                                        &#8377;{{ number_format((float) $history->transfer_amount, 2) }}
                                     </td>
 
                                     <td>
@@ -333,7 +337,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center text-muted py-4">
+                                    <td colspan="9" class="text-center text-muted py-5">
+                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                                         No transfer history found.
                                     </td>
                                 </tr>

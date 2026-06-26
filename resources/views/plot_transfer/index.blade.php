@@ -1,20 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-4">
+    <div class="container-fluid mt-4 transaction-page">
 
         {{-- PAGE HEADER --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
+        <div class="transaction-hero mb-4">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div>
-                        <h3 class="fw-bold text-dark mb-1">
-                            <i class="bi bi-arrow-left-right me-2 text-success"></i>
-                            Plot Transfer Management
-                        </h3>
-                        <p class="text-muted small mb-0">
-                            Transfer plot ownership from one customer to another.
-                        </p>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="transaction-icon"><i class="bi bi-arrow-left-right"></i></span>
+                        <div>
+                            <span class="text-success fw-bold text-uppercase small">Transfer Desk</span>
+                            <h3 class="fw-bold text-dark mb-1">Plot Transfer Management</h3>
+                            <p class="text-muted small mb-0">Transfer plot ownership from one customer to another.</p>
+                        </div>
                     </div>
                     <div class="d-flex gap-2">
                         <a href="{{ route('payment-transfer.index') }}" class="btn btn-outline-primary">
@@ -27,12 +25,11 @@
                         </a>
                     </div>
                 </div>
-            </div>
         </div>
 
         {{-- TRANSFER FORM --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
+        <div class="transaction-card mb-4">
+            <div class="transaction-card-body">
 
                 <form id="plotTransferForm">
                     @csrf
@@ -40,9 +37,14 @@
                     <input type="hidden" id="customerBookingId">
                     <input type="hidden" id="plotSaleDetailId">
 
-                    <div class="border-bottom pb-3 mb-4">
-                        <h5 class="fw-bold mb-1">Plot Selection</h5>
-                        <small class="text-muted">Choose the current booked plot for transfer.</small>
+                    <div class="transaction-section-title">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="transaction-section-title-icon"><i class="bi bi-pin-map"></i></span>
+                            <div>
+                                <h5 class="fw-bold mb-1">Plot Selection</h5>
+                                <small class="text-muted">Choose the current booked plot for transfer.</small>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- FILTERS --}}
@@ -75,7 +77,7 @@
                     </div>
 
                     {{-- CURRENT CUSTOMER INFO --}}
-                    <div class="bg-light border rounded-4 p-3 mb-4">
+                    <div class="transaction-summary-box transaction-readonly-grid mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="fw-bold mb-0">Current Owner Details</h6>
                             <span class="badge bg-secondary">Auto Filled</span>
@@ -100,17 +102,17 @@
                     </div>
 
                     {{-- BOOKING DETAILS --}}
-                    <div id="bookingDetailsCard" class="card border shadow-sm rounded-4 mb-4 d-none">
-                        <div class="card-header bg-white border-bottom">
+                    <div id="bookingDetailsCard" class="transaction-card mb-4 d-none">
+                        <div class="transaction-section-title p-3 mb-0">
                             <h6 class="fw-bold mb-0">Booking & Payment Details</h6>
                         </div>
 
-                        <div class="card-body p-0" id="bookingDetailsContent"></div>
+                        <div class="p-0" id="bookingDetailsContent"></div>
                     </div>
 
                     {{-- TRANSFER SECTION --}}
-                    <div id="transferSection" class="card border shadow-sm rounded-4 d-none">
-                        <div class="card-header bg-white border-bottom">
+                    <div id="transferSection" class="transaction-card d-none">
+                        <div class="transaction-section-title p-3 mb-0">
                             <h6 class="fw-bold mb-1">
                                 <i class="bi bi-arrow-left-right me-2 text-success"></i>
                                 Transfer Ownership
@@ -120,7 +122,7 @@
                             </small>
                         </div>
 
-                        <div class="card-body">
+                        <div class="transaction-card-body">
                             <div class="row g-3">
 
                                 <div class="col-md-6">
@@ -138,14 +140,30 @@
                                 </div>
 
                                 <div class="col-md-12">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Transfer Charge</label>
+                                            <input type="text" inputmode="decimal" id="transferCharge" class="form-control" value="0.00">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Transfer Date</label>
+                                            <input type="date" id="transferDate" class="form-control" value="{{ date('Y-m-d') }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
                                     <label class="form-label fw-semibold">Transfer Reason</label>
                                     <textarea id="transferReason" rows="3" class="form-control" placeholder="Enter transfer reason"></textarea>
                                 </div>
 
                                 <div class="col-md-12">
                                     <button type="button" id="transferBtn" class="btn btn-success px-4">
-                                        <i class="bi bi-arrow-left-right me-1"></i>
-                                        Transfer Plot
+                                        <span class="btn-label"><i class="bi bi-arrow-left-right me-1"></i> Transfer Plot</span>
+                                        <span class="btn-loader d-none">
+                                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                            Transferring...
+                                        </span>
                                     </button>
                                 </div>
 
@@ -159,21 +177,25 @@
         </div>
 
         {{-- TRANSFER HISTORY --}}
-        <div class="card border-0 shadow-sm rounded-4">
+        <div class="transaction-card transaction-history-card">
 
-            <div class="card-header bg-white border-bottom">
-                <div>
-                    <h4 class="fw-bold mb-1">Transfer History</h4>
-                    <small class="text-muted">All plot ownership transfer records.</small>
+            <div class="transaction-history-head">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="transaction-section-title-icon"><i class="bi bi-clock-history"></i></span>
+                    <div>
+                        <h5 class="fw-bold mb-1">Transfer History</h5>
+                        <small class="text-muted">All plot ownership transfer records.</small>
+                    </div>
                 </div>
+                <span class="transaction-count">{{ $histories->count() }} Records</span>
             </div>
 
-            <div class="card-body">
+            <div class="transaction-table-wrap">
 
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle mb-0" id="transferHistoryTable">
+                    <table class="table table-hover align-middle mb-0 transaction-table" id="transferHistoryTable">
 
-                        <thead class="table-light">
+                        <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Booking ID</th>
@@ -240,7 +262,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
+                                    <td colspan="8" class="text-center text-muted py-5">
+                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                                         No transfer history found.
                                     </td>
                                 </tr>

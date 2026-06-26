@@ -73,9 +73,9 @@
                     $('#oldPlotInfo').val(
                         `${res.old_project_name} / ${res.old_block_name} / ${res.old_plot_number}`
                         );
-                    $('#oldTotalCost').val('₹' + res.old_total_plot_cost);
-                    $('#totalPaidAmount').val('₹' + res.total_paid_amount);
-                    $('#oldDueAmount').val('₹' + res.old_due_amount);
+                    $('#oldTotalCost').val('Rs. ' + res.old_total_plot_cost);
+                    $('#totalPaidAmount').val('Rs. ' + res.total_paid_amount);
+                    $('#oldDueAmount').val('Rs. ' + res.old_due_amount);
 
                     oldTotalCostValue = parseAmount(res.old_total_plot_cost);
                     totalPaidValue = parseAmount(res.total_paid_amount);
@@ -152,17 +152,17 @@
                         `${res.new_project_name} / ${res.new_block_name} / ${res.new_plot_number}`
                         );
                     $('#newPlotArea').val(res.new_plot_area);
-                    $('#newPlotRate').val('₹' + res.new_plot_rate);
-                    $('#newPlotCost').val('₹' + res.new_plot_cost);
-                    $('#newPlcAmount').val('₹' + res.new_plc_amount);
-                    $('#newTotalCost').val('₹' + res.new_total_plot_cost);
+                    $('#newPlotRate').val('Rs. ' + res.new_plot_rate);
+                    $('#newPlotCost').val('Rs. ' + res.new_plot_cost);
+                    $('#newPlcAmount').val('Rs. ' + res.new_plc_amount);
+                    $('#newTotalCost').val('Rs. ' + res.new_total_plot_cost);
 
                     let newTotalCost = parseAmount(res.new_total_plot_cost);
                     let newDueAmount = Math.max(0, newTotalCost - totalPaidValue);
                     let differenceAmount = newTotalCost - oldTotalCostValue;
 
-                    $('#newDueAmount').val('₹' + formatAmount(newDueAmount));
-                    $('#differenceAmount').val('₹' + formatAmount(differenceAmount));
+                    $('#newDueAmount').val('Rs. ' + formatAmount(newDueAmount));
+                    $('#differenceAmount').val('Rs. ' + formatAmount(differenceAmount));
 
                     $('#newPlotDetailsCard').removeClass('d-none');
                 });
@@ -193,6 +193,7 @@
                     confirmButtonColor: '#198754'
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        setPlotChangeLoading(true);
                         $.ajax({
                             url: "{{ route('plot-change.store') }}",
                             type: "POST",
@@ -211,6 +212,7 @@
                                     .then(() => location.reload());
                             },
                             error: function(xhr) {
+                                setPlotChangeLoading(false);
                                 Swal.fire(
                                     'Error',
                                     xhr.responseJSON?.message ||
@@ -289,7 +291,7 @@
 
         function parseAmount(value) {
             if (!value) return 0;
-            return parseFloat(String(value).replace(/₹/g, '').replace(/,/g, '')) || 0;
+            return parseFloat(String(value).replace(/Rs\./g, '').replace(/,/g, '')) || 0;
         }
 
         function formatAmount(value) {
@@ -297,6 +299,13 @@
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
+        }
+
+        function setPlotChangeLoading(isLoading) {
+            const button = $('#plotChangeBtn');
+            button.prop('disabled', isLoading);
+            button.find('.btn-label').toggleClass('d-none', isLoading);
+            button.find('.btn-loader').toggleClass('d-none', !isLoading);
         }
     </script>
 @endpush

@@ -1,23 +1,20 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-4">
+    <div class="container-fluid mt-4 transaction-page">
 
         {{-- PAGE HEADER --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
+        <div class="transaction-hero mb-4">
 
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-                    <div>
-                        <h3 class="fw-bold mb-1 text-dark">
-                            <i class="bi bi-arrow-repeat me-2 text-success"></i>
-                            Plot Change Management
-                        </h3>
-
-                        <p class="text-muted mb-0 small">
-                            Change customer plot and recalculate payment adjustment.
-                        </p>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="transaction-icon"><i class="bi bi-arrow-repeat"></i></span>
+                        <div>
+                            <span class="text-success fw-bold text-uppercase small">Plot Desk</span>
+                            <h3 class="fw-bold mb-1 text-dark">Plot Change Management</h3>
+                            <p class="text-muted mb-0 small">Change customer plot and recalculate payment adjustment.</p>
+                        </div>
                     </div>
 
                     <a href="{{ route('plot-transfer.index') }}" class="btn btn-outline-secondary">
@@ -27,12 +24,11 @@
 
                 </div>
 
-            </div>
         </div>
 
         {{-- MAIN FORM --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
+        <div class="transaction-card mb-4">
+            <div class="transaction-card-body">
 
                 <form id="plotChangeForm">
                     @csrf
@@ -41,9 +37,14 @@
                     <input type="hidden" id="newBlockId">
                     <input type="hidden" id="newPlotDetailId">
                     {{-- OLD PLOT SELECTION --}}
-                    <div class="border-bottom pb-3 mb-4">
-                        <h5 class="fw-bold mb-1">Current Plot Selection</h5>
-                        <small class="text-muted">Select the customer's existing booked plot.</small>
+                    <div class="transaction-section-title">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="transaction-section-title-icon"><i class="bi bi-pin-map"></i></span>
+                            <div>
+                                <h5 class="fw-bold mb-1">Current Plot Selection</h5>
+                                <small class="text-muted">Select the customer's existing booked plot.</small>
+                            </div>
+                        </div>
                     </div>
                     <div class="row g-3 mb-4">
                         <div class="col-md-4">
@@ -72,12 +73,12 @@
                     </div>
 
                     {{-- OLD DETAILS --}}
-                    <div id="oldPlotDetailsCard" class="card border shadow-sm rounded-4 mb-4 d-none">
-                        <div class="card-header bg-white border-bottom">
+                    <div id="oldPlotDetailsCard" class="transaction-card mb-4 d-none">
+                        <div class="transaction-section-title p-3 mb-0">
                             <h6 class="fw-bold mb-0">Current Booking & Payment Details</h6>
                         </div>
 
-                        <div class="card-body">
+                        <div class="transaction-card-body transaction-readonly-grid">
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="small text-muted fw-bold text-uppercase">Booking ID</label>
@@ -121,9 +122,14 @@
 
                     {{-- NEW PLOT SELECTION --}}
                     <div id="newPlotSection" class="d-none">
-                        <div class="border-bottom pb-3 mb-4">
-                            <h5 class="fw-bold mb-1">New Plot Selection</h5>
-                            <small class="text-muted">Select available plot for replacement.</small>
+                        <div class="transaction-section-title">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="transaction-section-title-icon"><i class="bi bi-map"></i></span>
+                                <div>
+                                    <h5 class="fw-bold mb-1">New Plot Selection</h5>
+                                    <small class="text-muted">Select available plot for replacement.</small>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row g-3 mb-4">
@@ -154,12 +160,12 @@
                     </div>
 
                     {{-- NEW PLOT DETAILS --}}
-                    <div id="newPlotDetailsCard" class="card border shadow-sm rounded-4 mb-4 d-none">
-                        <div class="card-header bg-white border-bottom">
+                    <div id="newPlotDetailsCard" class="transaction-card mb-4 d-none">
+                        <div class="transaction-section-title p-3 mb-0">
                             <h6 class="fw-bold mb-0">New Plot Calculation</h6>
                         </div>
 
-                        <div class="card-body">
+                        <div class="transaction-card-body transaction-readonly-grid">
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="small text-muted fw-bold text-uppercase">New Plot</label>
@@ -222,8 +228,11 @@
 
                                 <div class="col-md-12">
                                     <button type="button" id="plotChangeBtn" class="btn btn-success px-4">
-                                        <i class="bi bi-arrow-repeat me-1"></i>
-                                        Change Plot
+                                        <span class="btn-label"><i class="bi bi-arrow-repeat me-1"></i> Change Plot</span>
+                                        <span class="btn-loader d-none">
+                                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                            Changing...
+                                        </span>
                                     </button>
                                 </div>
                             </div>
@@ -236,16 +245,22 @@
         </div>
 
         {{-- HISTORY --}}
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-white border-bottom">
-                <h4 class="fw-bold mb-1">Plot Change History</h4>
-                <small class="text-muted">All plot change records.</small>
+        <div class="transaction-card transaction-history-card">
+            <div class="transaction-history-head">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="transaction-section-title-icon"><i class="bi bi-clock-history"></i></span>
+                    <div>
+                        <h5 class="fw-bold mb-1">Plot Change History</h5>
+                        <small class="text-muted">All plot change records.</small>
+                    </div>
+                </div>
+                <span class="transaction-count">{{ $histories->count() }} Records</span>
             </div>
 
-            <div class="card-body">
+            <div class="transaction-table-wrap">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle mb-0" id="plotChangeHistoryTable">
-                        <thead class="table-light">
+                    <table class="table table-hover align-middle mb-0 transaction-table" id="plotChangeHistoryTable">
+                        <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Booking ID</th>
@@ -281,17 +296,18 @@
                                         {{ $history->newPlot?->plot_number ?? '-' }}
                                     </td>
                                     <td class="text-success fw-bold">
-                                        ₹{{ number_format((float) $history->total_paid_amount, 2) }}</td>
+                                        &#8377;{{ number_format((float) $history->total_paid_amount, 2) }}</td>
                                     <td class="text-danger fw-bold">
-                                        ₹{{ number_format((float) $history->old_due_amount, 2) }}</td>
+                                        &#8377;{{ number_format((float) $history->old_due_amount, 2) }}</td>
                                     <td class="text-danger fw-bold">
-                                        ₹{{ number_format((float) $history->new_due_amount, 2) }}</td>
+                                        &#8377;{{ number_format((float) $history->new_due_amount, 2) }}</td>
                                     <td>{{ $history->change_date ? $history->change_date->format('d-m-Y') : '-' }}</td>
                                     <td>{{ $history->change_reason ?? '-' }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="10" class="text-center text-muted py-4">
+                                    <td colspan="10" class="text-center text-muted py-5">
+                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                                         No plot change history found.
                                     </td>
                                 </tr>

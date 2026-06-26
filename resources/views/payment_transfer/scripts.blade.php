@@ -159,6 +159,7 @@ $(document).ready(function () {
         }).then((result) => {
 
             if (result.isConfirmed) {
+                setPaymentTransferLoading(true);
                 $.ajax({
                     url: "{{ route('payment-transfer.store') }}",
                     type: "POST",
@@ -176,6 +177,7 @@ $(document).ready(function () {
                             .then(() => location.reload());
                     },
                     error: function (xhr) {
+                        setPaymentTransferLoading(false);
                         Swal.fire(
                             'Error',
                             xhr.responseJSON?.message || 'Payment transfer failed.',
@@ -232,7 +234,7 @@ function renderPayments(payments)
                             ${payment.payment_status}
                         </span>
                     </td>
-                    <td class="fw-bold text-success">₹${payment.paid_amount}</td>
+                    <td class="fw-bold text-success">Rs. ${payment.paid_amount}</td>
                 </tr>
             `;
         });
@@ -290,6 +292,14 @@ function clearPaymentSection()
     $('#sourceDetailsCard').addClass('d-none');
     $('#paymentListCard').addClass('d-none');
     $('#transferCard').addClass('d-none');
+}
+
+function setPaymentTransferLoading(isLoading)
+{
+    const button = $('#transferPaymentBtn');
+    button.prop('disabled', isLoading);
+    button.find('.btn-label').toggleClass('d-none', isLoading);
+    button.find('.btn-loader').toggleClass('d-none', !isLoading);
 }
 </script>
 @endpush

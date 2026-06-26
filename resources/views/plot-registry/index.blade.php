@@ -1,23 +1,32 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid mt-4">
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <h3 class="fw-bold mb-1 text-dark">Plot Registry</h3>
-                <p class="text-muted mb-0 small">
-                    Select booked plot and create registry details.
-                </p>
+    <div class="container-fluid mt-4 transaction-page">
+        <div class="transaction-hero mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <span class="transaction-icon">
+                    <i class="bi bi-file-earmark-check"></i>
+                </span>
+                <div>
+                    <span class="text-success fw-bold text-uppercase small">Registry Desk</span>
+                    <h3 class="fw-bold mb-1 text-dark">Plot Registry</h3>
+                    <p class="text-muted mb-0 small">Select booked plot and create registry details.</p>
+                </div>
             </div>
         </div>
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
+        <div class="transaction-card mb-4">
+            <div class="transaction-card-body">
                 <form method="POST" action="{{ route('plot-registry.store') }}" id="registryForm">
                     @csrf
                     <input type="hidden" name="customer_booking_id" id="customer_booking_db_id">
-                    <div class="border-bottom pb-3 mb-4">
-                        <h5 class="fw-bold mb-1">Plot Selection</h5>
-                        <small class="text-muted">Select booked plot for registry.</small>
+                    <div class="transaction-section-title">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="transaction-section-title-icon"><i class="bi bi-pin-map"></i></span>
+                            <div>
+                                <h5 class="fw-bold mb-1">Plot Selection</h5>
+                                <small class="text-muted">Select booked plot for registry.</small>
+                            </div>
+                        </div>
                     </div>
                     <div class="row g-3">
                         <div class="col-md-4">
@@ -65,7 +74,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-light border rounded-4 p-3 mt-4">
+                    <div class="transaction-summary-box transaction-readonly-grid mt-4">
                         <h6 class="fw-bold mb-3">Customer Details</h6>
 
                         <div class="row g-3">
@@ -103,9 +112,14 @@
                         </div>
                     </div>
 
-                    <div class="border-bottom pb-3 mt-4 mb-4">
-                        <h5 class="fw-bold mb-1">Registry Details</h5>
-                        <small class="text-muted">Enter registry document details.</small>
+                    <div class="transaction-section-title mt-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="transaction-section-title-icon"><i class="bi bi-file-text"></i></span>
+                            <div>
+                                <h5 class="fw-bold mb-1">Registry Details</h5>
+                                <small class="text-muted">Enter registry document details.</small>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row g-3">
@@ -153,9 +167,9 @@
                     <div id="paymentSection" class="mt-4 d-none">
                         <h5 class="fw-bold mb-3">Payment History</h5>
 
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover align-middle mb-0">
-                                <thead class="table-light">
+                        <div class="table-responsive transaction-mini-table">
+                            <table class="table table-hover align-middle mb-0 transaction-table">
+                                <thead>
                                     <tr>
                                         <th>Receipt</th>
                                         <th>Amount</th>
@@ -171,10 +185,13 @@
                         </div>
                     </div>
 
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-success px-4">
-                            <i class="fa fa-save me-1"></i>
-                            Save Registry
+                    <div class="transaction-action-bar">
+                        <button type="submit" class="btn btn-success px-4" id="saveRegistryBtn">
+                            <span class="btn-label"><i class="bi bi-save me-1"></i> Save Registry</span>
+                            <span class="btn-loader d-none">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Saving...
+                            </span>
                         </button>
                     </div>
                 </form>
@@ -182,13 +199,22 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <h5 class="fw-bold mb-3">Registry History</h5>
+        <div class="transaction-card transaction-history-card mb-4">
+            <div class="transaction-history-head">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="transaction-section-title-icon"><i class="bi bi-clock-history"></i></span>
+                    <div>
+                        <h5 class="fw-bold mb-1">Registry History</h5>
+                        <small class="text-muted">All registered plot records.</small>
+                    </div>
+                </div>
+                <span class="transaction-count">{{ $registries->count() }} Records</span>
+            </div>
 
+            <div class="transaction-table-wrap">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle mb-0" id="registryHistoryTable">
-                        <thead class="table-light">
+                    <table class="table table-hover align-middle mb-0 transaction-table" id="registryHistoryTable">
+                        <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Booking ID</th>
@@ -241,7 +267,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
+                                    <td colspan="8" class="text-center text-muted py-5">
+                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                                         No registry history found.
                                     </td>
                                 </tr>
@@ -332,9 +359,9 @@
                     $('#customer_id').val(res.customer_id);
                     $('#customer_name').val(res.customer_name);
 
-                    $('#total_cost').val('₹' + res.total_cost);
-                    $('#total_paid').val('₹' + res.total_paid);
-                    $('#due_amount').val('₹' + res.due_amount);
+                    $('#total_cost').val('Rs. ' + res.total_cost);
+                    $('#total_paid').val('Rs. ' + res.total_paid);
+                    $('#due_amount').val('Rs. ' + res.due_amount);
 
                     let html = '';
 
@@ -343,7 +370,7 @@
                             html += `
                         <tr>
                             <td>${payment.receipt_no}</td>
-                            <td class="text-success fw-semibold">₹${payment.amount}</td>
+                            <td class="text-success fw-semibold">Rs. ${payment.amount}</td>
                             <td>${payment.date}</td>
                             <td>${payment.mode}</td>
                             <td>${payment.status}</td>
@@ -373,6 +400,13 @@
                     responsive: true,
                 });
             }
+
+            $('#registryForm').on('submit', function() {
+                const button = $('#saveRegistryBtn');
+                button.prop('disabled', true);
+                button.find('.btn-label').addClass('d-none');
+                button.find('.btn-loader').removeClass('d-none');
+            });
 
             function resetBlocks() {
                 $('#block_id').html('<option value="">Select Block</option>');
