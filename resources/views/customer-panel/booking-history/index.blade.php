@@ -83,7 +83,7 @@
                                     <th>Paid</th>
                                     <th>Due</th>
                                     <th>Booking Date</th>
-                                    <th>Status</th>
+                                    {{-- <th>Status</th> --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -141,11 +141,11 @@
                                             ? \Carbon\Carbon::parse($booking->booking_date)->format('d M Y')
                                             : ($booking->created_at ? $booking->created_at->format('d M Y') : 'N/A') }}
                                     </td>
-                                    <td>
+                                    {{-- <td>
                                         <span class="badge rounded-pill px-3 py-2 {{ $statusClass }}">
                                             {{ $statusLabel }}
                                         </span>
-                                    </td>
+                                    </td> --}}
                                 </tr>
                                 @endforeach
                             </tbody>

@@ -4330,6 +4330,15 @@
     text-align: center;
 }
 
+.generate-emi-page .transaction-table {
+    min-width: 1180px;
+}
+
+.generate-emi-page .emi-month,
+.generate-emi-page .emi-amount {
+    min-width: 112px;
+}
+
 
 /* =========================
    RESPONSIVE

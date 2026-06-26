@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\CustomerBooking;
 use App\Models\CustomerPayment;
 use App\Models\PlotSaleDetail;
+use Illuminate\Validation\ValidationException;
 
 class GenerateEmiService
 {
@@ -12,7 +13,10 @@ class GenerateEmiService
     {
         return CustomerBooking::with('primaryDetail')
             ->whereHas('plotSaleDetails', function ($query) {
-                $query->whereNotNull('booking_code');
+                $query->whereNotNull('booking_code')
+                    ->whereHas('payments', function ($paymentQuery) {
+                        $paymentQuery->where('plan_type', 'emi_plan');
+                    });
             })
             ->orderBy('customer_code')
             ->get();
@@ -28,7 +32,10 @@ class GenerateEmiService
             'plotDetail',
             'payments',
         ])
-            ->whereNotNull('booking_code');
+            ->whereNotNull('booking_code')
+            ->whereHas('payments', function ($paymentQuery) {
+                $paymentQuery->where('plan_type', 'emi_plan');
+            });
 
         if ($customerId) {
             $query->where('customer_booking_id', $customerId);
@@ -42,12 +49,20 @@ class GenerateEmiService
         $plotSale = PlotSaleDetail::with([
             'customerBooking',
             'payments',
-        ])->findOrFail($plotSaleDetailId);
+        ])->find($plotSaleDetailId);
+
+        if (! $plotSale) {
+            throw ValidationException::withMessages([
+                'emi_months' => 'Selected plot booking was not found. Please refresh and try again.',
+            ]);
+        }
 
         $booking = $plotSale->customerBooking;
 
         if (! $booking) {
-            abort(404, 'Customer booking not found.');
+            throw ValidationException::withMessages([
+                'emi_months' => 'Customer booking not found for this plot.',
+            ]);
         }
 
         $totalPlotCost = (float) ($plotSale->total_plot_cost ?? 0);
@@ -59,13 +74,17 @@ class GenerateEmiService
         $dueAmount = max(0, $totalPlotCost - $totalPaid);
 
         if ($dueAmount <= 0) {
-            abort(422, 'No due amount available for EMI generation.');
+            throw ValidationException::withMessages([
+                'emi_months' => 'No due amount available for EMI generation.',
+            ]);
         }
 
         $emiMonths = (int) ($data['emi_months'] ?? 0);
 
         if ($emiMonths <= 0) {
-            abort(422, 'EMI months must be greater than zero.');
+            throw ValidationException::withMessages([
+                'emi_months' => 'EMI months must be greater than zero.',
+            ]);
         }
 
         $emiAmount = round($dueAmount / $emiMonths, 2);
@@ -76,7 +95,15 @@ class GenerateEmiService
             ->first();
 
         if (! $latestPayment) {
-            abort(404, 'Payment record not found.');
+            throw ValidationException::withMessages([
+                'emi_months' => 'Payment record not found for this booking. Please collect booking payment first.',
+            ]);
+        }
+
+        if ($latestPayment->plan_type !== 'emi_plan') {
+            throw ValidationException::withMessages([
+                'emi_months' => 'EMI can be generated only for EMI plan bookings.',
+            ]);
         }
 
         $latestPayment->update([
