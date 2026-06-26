@@ -12,10 +12,14 @@ class UserService
     {
         $authUser = Auth::user();
         if ($authUser->hasRole('super-admin')) {
-            return User::where('id', '!=', Auth::id())->latest()->get();
+            return User::with(['roles', 'creator'])->where('id', '!=', Auth::id())->latest()->get();
         }
 
-        return User::where('created_by', Auth::id())->where('id', '!=', Auth::id())->latest()->get();
+        return User::with(['roles', 'creator'])
+            ->where('created_by', Auth::id())
+            ->where('id', '!=', Auth::id())
+            ->latest()
+            ->get();
     }
 
     public function create(array $data)
@@ -40,7 +44,7 @@ class UserService
 
     public function find($id)
     {
-        return User::findOrFail($id);
+        return User::with('roles')->findOrFail($id);
     }
 
     public function update($id, array $data)

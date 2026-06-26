@@ -21,6 +21,9 @@ class PlotAvilabilityController extends Controller
         if ($request->filled('block_id')) {
             $query->where('block_id', $request->block_id);
         }
+        if ($request->filled('plot_number')) {
+            $query->where('plot_number', 'like', '%'.$request->plot_number.'%');
+        }
 
         $plots = $query->get()->each(function ($plot) {
             $plot->current_status = 'Available';
@@ -50,6 +53,9 @@ class PlotAvilabilityController extends Controller
         }
         if ($request->filled('block_id')) {
             $query->where('block_id', $request->block_id);
+        }
+        if ($request->filled('plot_number')) {
+            $query->where('plot_number', 'like', '%'.$request->plot_number.'%');
         }
 
         $plots = $query->get()->each(function ($plot) {

@@ -1,99 +1,161 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-4">
-
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div class="container-fluid mt-4 transaction-page staff-management-page">
+        <div class="transaction-hero mb-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="transaction-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </span>
                     <div>
-                        <h3 class="fw-bold mb-1 text-dark">
-                            <i class="bi bi-people-fill me-2 text-success"></i> User Management
-                        </h3>
-                        <p class="text-muted mb-0 small">Manage, view, and update system user accounts.</p>
+                        <span class="text-success fw-bold text-uppercase small">Access Control</span>
+                        <h3 class="fw-bold mb-1 text-dark">User / Staff Management</h3>
+                        <p class="text-muted mb-0 small">Manage staff accounts, roles, passwords and account status.</p>
                     </div>
-                    @can('users-modify')
-                        <a href="{{ route('users.create') }}" class="btn btn-success px-4 shadow-sm">
-                            <i class="bi bi-plus-circle me-1"></i> Add New User
-                        </a>
-                    @endcan
+                </div>
+
+                @can('users-modify')
+                    <a href="{{ route('users.create') }}" class="btn btn-success">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Add New User
+                    </a>
+                @endcan
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="role-stat-card">
+                    <span class="role-stat-icon"><i class="bi bi-person-lines-fill"></i></span>
+                    <div>
+                        <small>Total Staff</small>
+                        <strong>{{ $users->count() }}</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="role-stat-card">
+                    <span class="role-stat-icon"><i class="bi bi-check-circle"></i></span>
+                    <div>
+                        <small>Active Staff</small>
+                        <strong>{{ $users->where('status', 'active')->count() }}</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="role-stat-card">
+                    <span class="role-stat-icon"><i class="bi bi-slash-circle"></i></span>
+                    <div>
+                        <small>Inactive Staff</small>
+                        <strong>{{ $users->where('status', 'inactive')->count() }}</strong>
+                    </div>
                 </div>
             </div>
         </div>
-        {{-- TABLE SECTION --}}
-        <div class="card shadow-sm border-0 rounded-4">
-            <div class="card-body p-4">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle" id="usersTable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Profile</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Password</th>
-                                <th>Created By</th>
-                                <th>Status</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($users as $key => $user)
-                                <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                   
-                                    <td>
-                                        <img src="{{ !empty($user->profile_image) ? getFileUrl($user->profile_image) : asset('assets/images/avatar.png') }}"
-                                            class="rounded-circle border"
-                                            style="width: 40px; height: 40px; object-fit: cover;"
-                                            onerror="this.src='{{ asset('assets/images/avatar.png') }}'">
-                                    </td>
-                                    <td class="fw-bold text-dark">{{ ucfirst($user->name) }}</td>
-                                    <td class="text-muted">{{ $user->email }}</td>
-                                    <td>
-                                        <span class="badge bg-light text-dark border px-3">
-                                            {{ ucfirst($user->roles->first()?->name) ?? 'N/A' }}
-                                        </span>
-                                    </td>
-                                    <td class="text-muted fw-bold">{{ $user->plain_text }}</td>
-                                    <td>
-                                        <span class="text-muted">{{ $user->creator?->name ?? 'System' }}</span>
-                                    </td>
-                                    <td>
-                                        @if ($user->status == 'active')
-                                            <span class="badge bg-success-subtle text-success px-3">Active</span>
-                                        @else
-                                            <span class="badge bg-danger-subtle text-danger px-3">Inactive</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @can('users-modify')
-                                            <div class="btn-group">
-                                                <a href="{{ route('users.edit', $user->id) }}"
-                                                    class="btn btn-sm btn-light border-0 text-primary">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </a>
-                                                <form action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                                    class="delete-form">
-                                                    @csrf @method('DELETE')
-                                                    <button type="button"
-                                                        class="btn btn-sm btn-light border-0 text-danger delete-btn ms-2">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        @endcan
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="9" class="text-center py-5 text-muted">No users found.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+
+        <div class="transaction-card transaction-history-card staff-table-card mb-4">
+            <div class="transaction-history-head">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="transaction-section-title-icon">
+                        <i class="bi bi-table"></i>
+                    </span>
+                    <div>
+                        <h5 class="fw-bold mb-1">Staff Records</h5>
+                        <small class="text-muted">View and update staff access details.</small>
+                    </div>
                 </div>
+
+                <span class="transaction-count">{{ $users->count() }} Records</span>
+            </div>
+
+            <div class="transaction-table-wrap">
+                <table class="table transaction-table align-middle mb-0" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Staff</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Password</th>
+                            <th>Created By</th>
+                            <th>Status</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($users as $key => $user)
+                            @php
+                                $roleName = $user->roles->first()?->name;
+                            @endphp
+                            <tr>
+                                <td>{{ $key + 1 }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="{{ ! empty($user->profile_image) ? getFileUrl($user->profile_image) : asset('assets/images/avatar.png') }}"
+                                            class="staff-avatar" alt="{{ $user->name }}"
+                                            onerror="this.src='{{ asset('assets/images/avatar.png') }}'">
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ ucfirst($user->name) }}</div>
+                                            <small class="text-muted">Staff ID: {{ $user->id }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-muted">{{ $user->email }}</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        {{ $roleName ? ucfirst($roleName) : 'N/A' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <code class="staff-password-code">{{ $user->plain_text ?: '-' }}</code>
+                                </td>
+                                <td>
+                                    <span class="text-muted">{{ $user->creator?->name ?? 'System' }}</span>
+                                </td>
+                                <td>
+                                    @if ($user->status == 'active')
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                            Active
+                                        </span>
+                                    @else
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                            Inactive
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @can('users-modify')
+                                        <div class="d-inline-flex gap-2">
+                                            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-pencil-square me-1"></i>
+                                                Edit
+                                            </a>
+                                            <form action="{{ route('users.destroy', $user->id) }}" method="POST"
+                                                class="delete-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="btn btn-sm btn-outline-danger delete-btn">
+                                                    <i class="bi bi-trash me-1"></i>
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @else
+                                        <span class="text-muted small">No access</span>
+                                    @endcan
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    <i class="bi bi-person-x fs-1 d-block mb-2 text-muted"></i>
+                                    No users found.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -102,41 +164,43 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            const hasRecords = {{ $users->count() > 0 ? 'true' : 'false' }};
 
-            if ($('#usersTable tbody tr td[colspan]').length === 0) {
+            if (hasRecords) {
                 $('#usersTable').DataTable({
                     pageLength: 10,
                     ordering: true,
+                    responsive: true,
+                    lengthMenu: [5, 10, 25, 50],
                     columnDefs: [{
                         orderable: false,
-                        targets: [1, 8]
+                        targets: [7]
                     }],
                     language: {
-                        searchPlaceholder: "Search users...",
-                        emptyTable: "No users found"
-                    },
-                    retrieve: true
+                        search: "",
+                        searchPlaceholder: "Search staff..."
+                    }
                 });
             }
 
             $(document).on('click', '.delete-btn', function() {
-                let form = $(this).closest('form');
+                const form = $(this).closest('form');
 
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
+                    title: 'Delete User?',
+                    text: 'This staff account will be removed.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#198754',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, delete!'
+                    cancelButtonColor: '#dc3545',
+                    confirmButtonText: 'Yes, delete',
+                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         form.submit();
                     }
                 });
             });
-
         });
     </script>
 @endpush

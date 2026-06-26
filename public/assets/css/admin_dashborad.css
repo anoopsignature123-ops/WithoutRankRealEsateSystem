@@ -1,10 +1,7 @@
-/* =========================
-   PREMIUM ANIMATIONS
-========================= */
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(14px);
     }
 
     to {
@@ -15,223 +12,157 @@
 
 @keyframes cardShine {
     0% {
-        transform: translateX(-100%) rotate(45deg);
+        transform: skewX(-25deg) translateX(-150%);
     }
 
     100% {
-        transform: translateX(200%) rotate(45deg);
-    }
-}
-
-@keyframes fillProgress {
-    from {
-        width: 0%;
-    }
-
-    to {
-        width: 100%;
+        transform: skewX(-25deg) translateX(230%);
     }
 }
 
 .animate-fade-in-up {
-    animation: fadeInUp 0.6s ease-out forwards;
+    animation: fadeInUp 0.45s ease-out forwards;
     opacity: 0;
 }
 
-/* =========================
-   DASHBOARD BACKGROUND
-========================= */
 .dashboard-bg {
+    background: #f4f8f6;
     min-height: calc(100vh - 78px);
     padding: 24px;
-
-    background:
-        linear-gradient(rgba(240, 253, 244, 0.78),
-            rgba(248, 250, 252, 0.86)),
-        url('../images/sidebarbg.jpg') center center / cover fixed no-repeat;
 }
 
-/* =========================
-   COMMON GLASS CARD
-========================= */
 .dashboard-bg .card {
-    background: rgba(255, 255, 255, 0.62) !important;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.58) !important;
-    box-shadow: 0 14px 42px rgba(15, 23, 42, 0.10) !important;
-}
-
-.dashboard-bg .card:hover {
-    background: rgba(255, 255, 255, 0.78) !important;
+    background: #ffffff !important;
+    border: 1px solid #dfeae4 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06) !important;
 }
 
 .dashboard-bg .card-header {
-    background: rgba(255, 255, 255, 0.22) !important;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background: #ffffff !important;
+    border-bottom: 1px solid #edf2f0 !important;
 }
 
-.dashboard-bg .card-body {
-    background: transparent !important;
-}
-
-.dashboard-glass-card {
-    position: relative;
-    overflow: hidden;
-}
-
-.dashboard-glass-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(circle at top right, rgba(25, 135, 84, 0.08), transparent 30%),
-        radial-gradient(circle at bottom left, rgba(13, 110, 253, 0.07), transparent 32%);
-    pointer-events: none;
-    z-index: 0;
-}
-
-.dashboard-glass-card>* {
-    position: relative;
-    z-index: 1;
-}
-
-/* =========================
-   WELCOME HEADER
-========================= */
 .dashboard-welcome-card {
-    min-height: 124px;
-    background: url('../images/sidebarbg.jpg') center center / cover no-repeat !important;
+    background: url("../images/sidebarbg.jpg") center center / cover no-repeat !important;
+    min-height: 132px;
 }
 
 .dashboard-welcome-overlay {
-    position: absolute;
+    background: linear-gradient(135deg, rgba(5, 77, 45, 0.96), rgba(27, 148, 88, 0.82));
     inset: 0;
-    background:
-        linear-gradient(135deg,
-            rgba(6, 78, 45, 0.94),
-            rgba(21, 128, 61, 0.76));
+    position: absolute;
     z-index: 0;
 }
 
 .welcome-avatar-wrap {
-    width: 74px;
-    height: 74px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.13);
-    border: 1px solid rgba(255, 255, 255, 0.38);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    display: flex;
     align-items: center;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    border-radius: 8px;
+    display: flex;
+    height: 74px;
     justify-content: center;
+    width: 74px;
 }
 
 .welcome-profile {
-    width: 60px;
-    height: 60px;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.14);
-    display: flex;
     align-items: center;
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    display: flex;
+    height: 60px;
     justify-content: center;
+    width: 60px;
 }
 
 .text-white-75 {
     color: rgba(255, 255, 255, 0.82) !important;
 }
 
-/* =========================
-   TOP STATS CARDS
-========================= */
 .dashboard-stat-card {
-    min-height: 122px;
-}
-.hover-lift {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    text-decoration: none;
-    display: block;
+    color: inherit;
+    min-height: 126px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.hover-lift:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 1rem 3rem rgba(15, 23, 42, 0.16) !important;
+.dashboard-stat-card:hover {
+    border-color: #bfe4ce !important;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.1) !important;
+    transform: translateY(-3px);
 }
 
 .card-fill-overlay {
+    height: 100%;
+    left: 0;
+    opacity: 0.06;
+    pointer-events: none;
     position: absolute;
     top: 0;
-    left: 0;
-    height: 100%;
-    width: 0;
-    opacity: 0.08;
+    width: 38%;
     z-index: 0;
-    pointer-events: none;
-    animation: fillProgress 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 .premium-shine-layer {
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.55), transparent);
+    height: 100%;
+    left: 0;
+    pointer-events: none;
     position: absolute;
     top: 0;
-    left: 0;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(to right,
-                transparent,
-                rgba(255, 255, 255, 0.48),
-                transparent);
     transform: skewX(-25deg) translateX(-150%);
+    width: 42%;
     z-index: 1;
 }
 
-.hover-lift:hover .premium-shine-layer {
-    animation: cardShine 0.8s ease-in-out;
+.dashboard-stat-card:hover .premium-shine-layer {
+    animation: cardShine 0.75s ease-in-out;
 }
 
 .stat-icon-box {
-    width: 60px;
-    height: 60px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    }
-    
-    /* =========================
-                       INNER TRANSPARENT BOXES
-                    ========================= */
-    .dashboard-inner-box {
-        background: rgba(255, 255, 255, 0.48) !important;
-        border-color: rgba(255, 255, 255, 0.62) !important;
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-    }
-    
-    .dashboard-inner-box.success-box {
-        background: rgba(209, 250, 229, 0.52) !important;
-    }
-    
-    .dashboard-bg .bg-light {
-        background: rgba(255, 255, 255, 0.48) !important;
-    }
-    
-    .dashboard-bg .bg-success.bg-opacity-10 {
-        background: rgba(209, 250, 229, 0.52) !important;
+    border-radius: 8px !important;
+    height: 56px;
+    width: 56px;
+}
+
+.dashboard-glass-card {
+    overflow: hidden;
+    position: relative;
+}
+
+.dashboard-glass-card::before {
+    background: linear-gradient(90deg, rgba(25, 135, 84, 0.08), rgba(25, 135, 84, 0));
+    content: "";
+    height: 4px;
+    inset: 0 0 auto 0;
+    position: absolute;
+    z-index: 1;
+}
+
+.dashboard-inner-box {
+    background: #f8fbf9 !important;
+    border-color: #dfeae4 !important;
+    border-radius: 8px !important;
+}
+
+.dashboard-inner-box.success-box {
+    background: #ecfbf2 !important;
 }
 
 .dashboard-bg .border {
-    border-color: rgba(255, 255, 255, 0.62) !important;
+    border-color: #dfeae4 !important;
 }
 
-/* =========================
-   BUTTONS / ICONS
-========================= */
 .dashboard-icon-btn {
-    width: 44px;
-    height: 44px;
-    border: 1px solid rgba(255, 255, 255, 0.65) !important;
-    background: rgba(255, 255, 255, 0.48) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    align-items: center;
+    background: #f4f8f6 !important;
+    border: 1px solid #d7eadf !important;
+    border-radius: 8px !important;
+    color: #198754 !important;
+    display: inline-flex;
+    height: 38px;
+    justify-content: center;
+    width: 38px;
 }
 
 .dashboard-icon-btn:hover {
@@ -240,121 +171,99 @@
 }
 
 .card .bi {
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: color 0.2s;
-    padding: 5px;
+    font-size: 1.05rem;
+    line-height: 1;
 }
 
-.card .bi:hover {
-    color: #198754;
-}
-
-/* =========================
-   TABLE GLASS
-========================= */
 .dashboard-table-wrap {
-    border-radius: 16px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.42);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: auto;
 }
 
 .dashboard-bg table {
     background: transparent !important;
-}
-
-.dashboard-bg thead {
-    background: linear-gradient(135deg, #198754, #2f9b6b) !important;
+    min-width: 1020px;
 }
 
 .dashboard-bg .table thead th {
-    font-size: 0.82rem;
-    text-transform: uppercase;
+    background: #198754 !important;
+    border-bottom: 0;
     color: #ffffff !important;
+    font-size: 12px;
     font-weight: 800;
-    vertical-align: middle;
-    border-bottom: none;
+    letter-spacing: 0.02em;
     padding: 14px 12px;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .dashboard-bg .table tbody td {
+    background: #ffffff !important;
+    border-color: #eef2f7;
+    color: #0f172a;
+    font-size: 14px;
+    padding: 13px 12px;
     vertical-align: middle;
-    background: rgba(255, 255, 255, 0.34) !important;
-    border-color: rgba(226, 232, 240, 0.55);
-    padding: 14px 12px;
 }
 
 .dashboard-bg .table tbody tr:hover td {
-    background: rgba(255, 255, 255, 0.65) !important;
+    background: #f8fffb !important;
 }
 
-/* =========================
-   BADGES
-========================= */
 .dashboard-pending-badge {
-    background: rgba(209, 231, 221, 0.70);
+    background: #ecfbf2;
+    border: 1px solid #bfe4ce;
     color: #0f5132;
-    font-weight: 700;
-    font-size: 0.85rem;
-    border: 1px solid rgba(186, 219, 204, 0.80);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    font-size: 13px;
+    font-weight: 800;
 }
 
 .dashboard-light-badge {
-    background: rgba(255, 255, 255, 0.62) !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
     color: #111827 !important;
-    border: 1px solid rgba(226, 232, 240, 0.80) !important;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    font-weight: 800;
 }
 
-/* =========================
-   EARNING BOX
-========================= */
 .earning-box {
-    display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 18px;
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.62);
-        background: rgba(255, 255, 255, 0.44);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        transition: 0.3s;
+    background: #ffffff;
+    border: 1px solid #dfeae4;
+    border-radius: 8px;
+    display: flex;
+    gap: 14px;
+    padding: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .earning-box:hover {
-    transform: translateY(-3px);
-    background: rgba(255, 255, 255, 0.68);
-        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.10);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    transform: translateY(-2px);
 }
 
 .earning-box .icon {
-    width: 55px;
-    height: 55px;
-    border-radius: 14px;
-    display: flex;
     align-items: center;
+    border-radius: 8px;
+    display: flex;
+    flex: 0 0 48px;
+    font-size: 22px;
+    height: 48px;
     justify-content: center;
-    font-size: 24px;
+    width: 48px;
 }
 
 .earning-box.success .icon {
-    background: rgba(25, 135, 84, 0.14);
+    background: #ecfbf2;
     color: #198754;
 }
 
 .earning-box.warning .icon {
-    background: rgba(255, 193, 7, 0.16);
+    background: #fff8e1;
     color: #f59f00;
 }
-/* =========================
-   EXTRA
-========================= */
+
 .text-purple {
     color: #6f42c1;
 }
@@ -363,20 +272,48 @@
     background-color: #6f42c1;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+@media (max-width: 992px) {
+    .dashboard-bg {
+        padding: 18px;
+    }
+
+    .dashboard-stat-card h1 {
+        font-size: 30px;
+    }
+}
+
 @media (max-width: 768px) {
     .dashboard-bg {
-        padding: 16px;
-        background-attachment: scroll;
+        padding: 14px;
     }
 
     .dashboard-welcome-card {
         min-height: auto;
     }
 
-    .dashboard-bg .card {
-        background: rgba(255, 255, 255, 0.78) !important;
+    .dashboard-welcome-card .card-body,
+    .dashboard-glass-card .card-body,
+    .dashboard-glass-card .card-header {
+        padding: 18px !important;
+    }
+
+    .welcome-avatar-wrap {
+        height: 64px;
+        width: 64px;
+    }
+
+    .welcome-profile {
+        height: 52px;
+        width: 52px;
+    }
+
+    .dashboard-icon-btn {
+        height: 36px;
+        width: 36px;
+    }
+
+    .earning-box {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }

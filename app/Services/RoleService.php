@@ -50,7 +50,7 @@ class RoleService
     {
         $loggedInRole = auth()->user()->roles->first()?->name;
 
-        return Role::where('name', '!=', $loggedInRole)->latest()->get();
+        return Role::with('permissions')->where('name', '!=', $loggedInRole)->latest()->get();
     }
 
     // public function getModules()

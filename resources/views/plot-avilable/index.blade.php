@@ -1,211 +1,173 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid mt-4">
-        {{-- Header --}}
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-            <div>
-                <h3 class="fw-bold" style="color: #198754;">Plot Availability Status</h3>
-                <p class="text-muted">Real-time inventory tracking map</p>
-            </div>
-            {{-- Status Legend --}}
-            <div class="d-flex gap-2 bg-white p-2 rounded-pill shadow-sm border px-3">
-                <small class="d-flex align-items-center gap-1"><span class="dot-status bg-available"></span> Available</small>
-                <small class="d-flex align-items-center gap-1"><span class="dot-status bg-booked"></span> Booked</small>
-                <small class="d-flex align-items-center gap-1"><span class="dot-status bg-hold"></span> Hold</small>
-                <small class="d-flex align-items-center gap-1"><span class="dot-status bg-alloted"></span> Alloted</small>
-                <small class="d-flex align-items-center gap-1"><span class="dot-status bg-registry"></span> Registry</small>
+    @php
+        $statusCounts = $plots->countBy('current_status');
+        $legendItems = [
+            ['label' => 'Available', 'key' => 'Available', 'class' => 'available'],
+            ['label' => 'Booked', 'key' => 'Booked Plot', 'class' => 'booked'],
+            ['label' => 'Hold', 'key' => 'Hold Plot', 'class' => 'hold'],
+            ['label' => 'Alloted', 'key' => 'Alloted Plot', 'class' => 'alloted'],
+            ['label' => 'Registry', 'key' => 'Registry Plot', 'class' => 'registry'],
+        ];
+    @endphp
+
+    <div class="container-fluid mt-4 transaction-page plot-availability-page">
+        <div class="transaction-hero mb-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="transaction-icon">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                    </span>
+                    <div>
+                        <span class="text-success fw-bold text-uppercase small">Inventory Map</span>
+                        <h3 class="fw-bold mb-1 text-dark">Plot Availability Status</h3>
+                        <p class="text-muted mb-0 small">Track project, block and plot availability in real time.</p>
+                    </div>
+                </div>
+
+                <span class="transaction-count">{{ $plots->count() }} Plots</span>
             </div>
         </div>
 
-        {{-- Filter Section --}}
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-3">
-                <form method="GET" action="{{ route('plot-availability.index') }}" class="row g-3">
-                    <div class="col-md-4 col-lg-3">
-                        <label class="form-label fw-bold">Project</label>
-                        <select name="project_id" class="form-select">
-                            <option value="">Select Project</option>
-                            @foreach ($projects as $p)
-                                <option value="{{ $p->id }}" {{ request('project_id') == $p->id ? 'selected' : '' }}>
-                                    {{ $p->name }}</option>
-                            @endforeach
-                        </select>
+        <div class="plot-status-grid mb-4">
+            @foreach ($legendItems as $item)
+                <div class="plot-status-card plot-status-{{ $item['class'] }}">
+                    <span class="plot-status-dot"></span>
+                    <div>
+                        <small>{{ $item['label'] }}</small>
+                        <strong>{{ $statusCounts[$item['key']] ?? 0 }}</strong>
                     </div>
-                    <div class="col-md-4 col-lg-3">
-                        <label class="form-label fw-bold">Block</label>
-                        <select name="block_id" class="form-select">
-                            <option value="">Select Block</option>
-                            @foreach ($blocks as $b)
-                                <option value="{{ $b->id }}" {{ request('block_id') == $b->id ? 'selected' : '' }}>
-                                    {{ $b->block }}</option>
-                            @endforeach
-                        </select>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="transaction-card mb-4">
+            <div class="transaction-card-body">
+                <div class="transaction-section-title">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="transaction-section-title-icon">
+                            <i class="bi bi-funnel"></i>
+                        </span>
+                        <div>
+                            <h5 class="fw-bold mb-1">Filter Plots</h5>
+                            <small class="text-muted">Search plots by project, block or plot number.</small>
+                        </div>
                     </div>
-                    <div class="col-md-4 col-lg-3">
-                        <label class="form-label fw-bold">Plot Number</label>
-                        <input type="text" name="plot_number" value="{{ request('plot_number') }}"
-                            placeholder="e.g. B-12" class="form-control">
-                    </div>
-                    <div class="col-md-12 col-lg-3 d-flex align-items-end gap-2">
-                        <button type="submit" class="btn btn-success w-100">Search</button>
-                        <a href="{{ route('plot-availability.index') }}" class="btn btn-secondary w-100">Reset</a>
+                </div>
+
+                <form method="GET" action="{{ route('plot-availability.index') }}">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">Project</label>
+                            <select name="project_id" class="form-select">
+                                <option value="">All Projects</option>
+                                @foreach ($projects as $p)
+                                    <option value="{{ $p->id }}" {{ request('project_id') == $p->id ? 'selected' : '' }}>
+                                        {{ $p->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">Block</label>
+                            <select name="block_id" class="form-select">
+                                <option value="">All Blocks</option>
+                                @foreach ($blocks as $b)
+                                    <option value="{{ $b->id }}" {{ request('block_id') == $b->id ? 'selected' : '' }}>
+                                        {{ $b->block }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold">Plot Number</label>
+                            <input type="text" name="plot_number" value="{{ request('plot_number') }}"
+                                placeholder="Example: B-12" class="form-control">
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success flex-fill">
+                                    <i class="bi bi-search me-1"></i>
+                                    Search
+                                </button>
+                                <a href="{{ route('plot-availability.index') }}" class="btn btn-outline-secondary flex-fill">
+                                    Reset
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
 
-        {{-- Grid View --}}
-        <div class="row g-3">
-            @forelse ($plots as $plot)
-                @php
-                    // Mapping premium colors
-                    $map = [
-                        'Available' => 'status-available',
-                        'Booked Plot' => 'status-booked',
-                        'Hold Plot' => 'status-hold',
-                        'Alloted Plot' => 'status-alloted',
-                        'Registry Plot' => 'status-registry',
-                    ];
-                    $style = $map[$plot->current_status] ?? 'border-secondary text-secondary bg-light';
-                    $popContent = "Project: {$plot->project?->name} <br> Area: {$plot->plot_area} Sqft <br> Rate: ₹{$plot->plot_rate}";
-                @endphp
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-                    <div class="plot-box {{ $style }} d-flex flex-column align-items-center justify-content-center p-2 shadow-sm"
-                        data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true"
-                        title="Plot #{{ $plot->plot_number }}" data-bs-content="{{ $popContent }}">
-                        <span class="fw-bolder h5 mb-1">#{{ $plot->plot_number }}</span>
-                        <small class="small font-monospace">{{ $plot->plot_area }} Sqft</small>
+        <div class="transaction-card mb-4">
+            <div class="transaction-history-head">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="transaction-section-title-icon">
+                        <i class="bi bi-map"></i>
+                    </span>
+                    <div>
+                        <h5 class="fw-bold mb-1">Plot Inventory</h5>
+                        <small class="text-muted">Hover any plot to view quick details.</small>
                     </div>
                 </div>
-            @empty
-                <div class="col-12 text-center py-5">
-                    <div class="alert alert-light">No plots found.</div>
+
+                <div class="plot-legend">
+                    @foreach ($legendItems as $item)
+                        <span><i class="plot-status-dot plot-status-{{ $item['class'] }}"></i>{{ $item['label'] }}</span>
+                    @endforeach
                 </div>
-            @endforelse
+            </div>
+
+            <div class="transaction-card-body pt-0">
+                <div class="plot-grid">
+                    @forelse ($plots as $plot)
+                        @php
+                            $map = [
+                                'Available' => 'available',
+                                'Booked Plot' => 'booked',
+                                'Hold Plot' => 'hold',
+                                'Alloted Plot' => 'alloted',
+                                'Registry Plot' => 'registry',
+                            ];
+                            $style = $map[$plot->current_status] ?? 'unknown';
+                            $popContent = 'Project: '.($plot->project?->name ?? '-')
+                                .'<br>Block: '.($plot->block?->block ?? '-')
+                                .'<br>Area: '.($plot->plot_area ?? 0).' Sqft'
+                                .'<br>Rate: Rs. '.number_format((float) ($plot->plot_rate ?? 0), 2);
+                        @endphp
+
+                        <button type="button" class="plot-box plot-box-{{ $style }}"
+                            data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-html="true"
+                            title="Plot #{{ $plot->plot_number }}" data-bs-content="{{ $popContent }}">
+                            <span class="plot-number">#{{ $plot->plot_number }}</span>
+                            <span class="plot-area">{{ $plot->plot_area ?? 0 }} Sqft</span>
+                            <span class="plot-status-label">{{ str_replace(' Plot', '', $plot->current_status) }}</span>
+                        </button>
+                    @empty
+                        <div class="plot-empty-state">
+                            <i class="bi bi-map fs-1 d-block mb-2 text-muted"></i>
+                            No plots found for selected filters.
+                        </div>
+                    @endforelse
+                </div>
+            </div>
         </div>
     </div>
+@endsection
 
+@push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-            popoverTriggerList.map(function(el) {
-                return new bootstrap.Popover(el);
+            document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function(el) {
+                new bootstrap.Popover(el, {
+                    container: 'body'
+                });
             });
         });
     </script>
-
-    <style>
-        .dot-status {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .bg-available {
-            background-color: #10b981;
-        }
-
-        .bg-booked {
-            background-color: #f59e0b;
-        }
-
-        .bg-hold {
-            background-color: #ef4444;
-        }
-
-        .bg-alloted {
-            background-color: #3b82f6;
-        }
-
-        .bg-registry {
-            background-color: #1f2937;
-        }
-
-        /* Premium Status Classes */
-        .status-available {
-            border: 1px solid #10b981;
-            color: #065f46;
-            background: #ecfdf5;
-        }
-
-        .status-available:hover {
-            background: #10b981;
-            color: white;
-        }
-
-        .status-booked {
-            border: 1px solid #f59e0b;
-            color: #92400e;
-            background: #fffbeb;
-        }
-
-        .status-booked:hover {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .status-hold {
-            border: 1px solid #ef4444;
-            color: #991b1b;
-            background: #fef2f2;
-        }
-
-        .status-hold:hover {
-            background: #ef4444;
-            color: white;
-        }
-
-        .status-alloted {
-            border: 1px solid #3b82f6;
-            color: #1e40af;
-            background: #eff6ff;
-        }
-
-        .status-alloted:hover {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .status-registry {
-            border: 1px solid #1f2937;
-            color: #111827;
-            background: #f3f4f6;
-        }
-
-        .status-registry:hover {
-            background: #1f2937;
-            color: white;
-        }
-
-        .plot-box {
-            height: 90px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .plot-box:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-            z-index: 5;
-        }
-
-        .plot-box .h5 {
-            font-size: 1.1rem;
-        }
-
-        .card {
-            border-radius: 15px;
-        }
-
-        .form-select:focus,
-        .form-control:focus {
-            border-color: #198754 !important;
-            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
-        }
-    </style>
-@endsection
+@endpush

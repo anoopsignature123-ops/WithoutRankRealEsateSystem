@@ -31,25 +31,29 @@ class BookingLetterController extends Controller
         return view('customer-booking.booking-letter.agreement-letter', compact('booking'));
     }
 
-    public function allotementPdf($id)
+    public function allotementPdf(Request $request, $id)
     {
-        $booking = $this->service->findBooking($id);
+        $booking = $this->service->findBooking($id, $request->plot_sale_detail_id);
 
         $pdf = Pdf::loadView('customer-booking.booking-letter.allotement-letter', compact('booking'));
 
         $pdf->setPaper('A4');
 
-        return $pdf->download('allotement-letter-' . ($booking->booking_code ?? $booking->id) . '.pdf');
+        $plotCode = $booking->plotSaleDetail?->booking_code ?? $booking->booking_code ?? $booking->id;
+
+        return $pdf->download('allotement-letter-' . $plotCode . '.pdf');
     }
 
-    public function agreementPdf($id)
+    public function agreementPdf(Request $request, $id)
     {
-        $booking = $this->service->findBooking($id);
+        $booking = $this->service->findBooking($id, $request->plot_sale_detail_id);
 
         $pdf = Pdf::loadView('customer-booking.booking-letter.agreement-letter', compact('booking'));
 
         $pdf->setPaper('A4');
 
-        return $pdf->download('agreement-letter-' . ($booking->booking_code ?? $booking->id) . '.pdf');
+        $plotCode = $booking->plotSaleDetail?->booking_code ?? $booking->booking_code ?? $booking->id;
+
+        return $pdf->download('agreement-letter-' . $plotCode . '.pdf');
     }
 }

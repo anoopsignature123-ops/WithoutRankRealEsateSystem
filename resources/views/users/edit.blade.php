@@ -1,100 +1,172 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-4">
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div class="container-fluid mt-4 transaction-page staff-management-page">
+        <div class="transaction-hero mb-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="transaction-icon">
+                        <i class="bi bi-pencil-square"></i>
+                    </span>
                     <div>
-                        <h3 class="fw-bold mb-1 text-dark">
-                            <i class="bi bi-pencil-square me-2 text-success"></i> Edit User: {{ $user->name }}
-                        </h3>
-                        <p class="text-muted mb-0 small">Update user details and role permissions.</p>
+                        <span class="text-success fw-bold text-uppercase small">Staff Account</span>
+                        <h3 class="fw-bold mb-1 text-dark">Edit User: {{ $user->name }}</h3>
+                        <p class="text-muted mb-0 small">Update staff profile, role and account status.</p>
                     </div>
-                    <a href="{{ route('users.index') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">
-                        <i class="bi bi-arrow-left me-1"></i> Back to Users
-                    </a>
                 </div>
+
+                <a href="{{ route('users.index') }}" class="btn btn-outline-success">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Back to Users
+                </a>
             </div>
         </div>
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body p-4">
-                <form action="{{ route('users.update', $user->id) }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')      
-                    <div class="row g-4">  
-                        {{-- ROLE --}}
+
+        <form action="{{ route('users.update', $user->id) }}" method="POST" enctype="multipart/form-data"
+            id="staffForm">
+            @csrf
+            @method('PUT')
+
+            <div class="transaction-card mb-4">
+                <div class="transaction-card-body">
+                    <div class="transaction-section-title">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="transaction-section-title-icon">
+                                <i class="bi bi-person-vcard"></i>
+                            </span>
+                            <div>
+                                <h5 class="fw-bold mb-1">Account Details</h5>
+                                <small class="text-muted">Update staff account and access assignment.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark">Assign Role</label>
-                            <select name="role" class="form-select form-select-lg">
-                                <option value="">Select a role...</option>
+                            <label class="form-label fw-semibold">Assign Role <span class="text-danger">*</span></label>
+                            <select name="role" class="form-select @error('role') is-invalid @enderror" required>
+                                <option value="">Select Role</option>
                                 @foreach ($roles as $role)
-                                    <option value="{{ $role->name }}" {{ (old('role', $user->roles->pluck('name')->first()) == $role->name) ? 'selected' : '' }}>
+                                    <option value="{{ $role->name }}"
+                                        {{ old('role', $user->roles->pluck('name')->first()) == $role->name ? 'selected' : '' }}>
                                         {{ ucfirst($role->name) }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('role') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            @error('role')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
+
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark">Full Name</label>
-                            <input type="text" name="name" value="{{ old('name', $user->name) }}" class="form-control form-control" placeholder="e.g. John Doe">
-                            @error('name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" value="{{ old('name', $user->name) }}"
+                                class="form-control @error('name') is-invalid @enderror" placeholder="Enter full name"
+                                required>
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
+
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark">Email Address</label>
-                            <input type="email" name="email" value="{{ old('email', $user->email) }}" class="form-control form-control" placeholder="name@company.com">
-                            @error('email') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            <label class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" name="email" value="{{ old('email', $user->email) }}"
+                                class="form-control @error('email') is-invalid @enderror" placeholder="name@company.com"
+                                required>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
+
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark">Status</label>
-                            <select name="status" class="form-select form-select-lg">
+                            <label class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
+                            <select name="status" class="form-select @error('status') is-invalid @enderror" required>
                                 <option value="active" {{ old('status', $user->status) == 'active' ? 'selected' : '' }}>Active</option>
                                 <option value="inactive" {{ old('status', $user->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
                             </select>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label fw-bold text-dark">Profile Image</label>
-                            <div class="d-flex align-items-center gap-4 p-3 bg-light rounded-4 border border-light">
-                                <div class="position-relative">
-                                    <img id="previewImage" 
-                                         src="{{ $user->profile_image ? asset('storage/'.$user->profile_image) : asset('assets/images/avatar.png') }}" 
-                                         class="rounded-circle border border-2 border-white shadow-sm" 
-                                         style="height: 80px; width: 80px; object-fit: cover;">
-                                    <div class="position-absolute bottom-0 end-0 bg-success text-white rounded-circle p-1" style="font-size: 10px;">
-                                        <i class="bi bi-camera-fill"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="fw-semibold text-dark">Change Profile Photo</div>
-                                    <div class="text-muted small mb-2">JPG, PNG, JPEG Max size 2MB.</div>
-                                    <label for="imageInput" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-none">Choose File</label>
-                                    <input type="file" name="profile_image" id="imageInput" class="d-none" accept="image/*">
-                                </div>
-                            </div>
-                            @error('profile_image') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            @error('status')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
-                    <div class="d-flex justify-content-end mt-4 pt-3 border-top">
-                        <button type="submit" class="btn btn-success px-5 rounded-pill shadow-sm">
-                            <i class="bi bi-check-circle me-2"></i> Update User
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
+
+            <div class="transaction-card mb-4">
+                <div class="transaction-card-body">
+                    <div class="transaction-section-title">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="transaction-section-title-icon">
+                                <i class="bi bi-image"></i>
+                            </span>
+                            <div>
+                                <h5 class="fw-bold mb-1">Profile Image</h5>
+                                <small class="text-muted">Change profile image if required.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="staff-photo-box">
+                        <div class="position-relative">
+                            <img id="previewImage"
+                                src="{{ $user->profile_image ? getFileUrl($user->profile_image) : asset('assets/images/avatar.png') }}"
+                                class="staff-photo-preview" alt="{{ $user->name }}"
+                                onerror="this.src='{{ asset('assets/images/avatar.png') }}'">
+                            <span class="staff-photo-camera">
+                                <i class="bi bi-camera-fill"></i>
+                            </span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-dark">Change Profile Photo</div>
+                            <div class="text-muted small mb-2">JPG, PNG or JPEG. Maximum size 2 MB.</div>
+                            <label for="imageInput" class="btn btn-outline-success btn-sm">
+                                Choose File
+                            </label>
+                            <input type="file" name="profile_image" id="imageInput" class="d-none"
+                                accept="image/*">
+                        </div>
+                    </div>
+                    @error('profile_image')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="transaction-action-bar mb-4">
+                <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-success" id="staffSubmitBtn">
+                    <span class="btn-label">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Update User
+                    </span>
+                    <span class="btn-loader d-none">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Updating...
+                    </span>
+                </button>
+            </div>
+        </form>
     </div>
 @endsection
 
 @push('scripts')
     <script>
-        document.getElementById('imageInput').addEventListener('change', function(e) {
+        document.getElementById('imageInput')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = e => document.getElementById('previewImage').src = e.target.result;
                 reader.readAsDataURL(file);
             }
+        });
+
+        document.getElementById('staffForm')?.addEventListener('submit', function() {
+            const button = document.getElementById('staffSubmitBtn');
+            button.disabled = true;
+            button.querySelector('.btn-label')?.classList.add('d-none');
+            button.querySelector('.btn-loader')?.classList.remove('d-none');
         });
     </script>
 @endpush

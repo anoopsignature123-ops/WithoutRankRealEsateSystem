@@ -3932,6 +3932,404 @@
     background-color: #ffffff;
 }
 
+.role-management-page .transaction-table {
+    min-width: 860px;
+}
+
+.role-stat-card {
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #dfeae4;
+    border-radius: 8px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+    display: flex;
+    gap: 14px;
+    min-height: 94px;
+    padding: 18px;
+}
+
+.role-stat-card small {
+    color: #64748b;
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.role-stat-card strong {
+    color: #0f172a;
+    display: block;
+    font-size: 22px;
+    line-height: 1.2;
+}
+
+.role-stat-icon,
+.role-avatar {
+    align-items: center;
+    background: #ecfbf2;
+    color: #198754;
+    display: inline-flex;
+    font-weight: 800;
+    justify-content: center;
+}
+
+.role-stat-icon {
+    border-radius: 8px;
+    flex: 0 0 50px;
+    font-size: 22px;
+    height: 50px;
+    width: 50px;
+}
+
+.role-avatar {
+    border: 1px solid #bfe4ce;
+    border-radius: 50%;
+    flex: 0 0 38px;
+    height: 38px;
+    width: 38px;
+}
+
+.role-permission-stack {
+    display: grid;
+    gap: 18px;
+}
+
+.role-module-card {
+    background: #ffffff;
+    border: 1px solid #dfeae4;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.role-module-head {
+    align-items: center;
+    background: #f8fbf9;
+    border-bottom: 1px solid #dfeae4;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    padding: 16px 18px;
+}
+
+.role-module-head h6 {
+    color: #0f172a;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.role-module-head small {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.role-permission-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    padding: 18px;
+}
+
+.role-permission-item {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px;
+}
+
+.role-permission-title {
+    border-bottom: 1px solid #edf2f7;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+}
+
+.role-check-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.role-check {
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 10px;
+}
+
+.role-check:hover {
+    border-color: #bfe4ce;
+    color: #198754;
+}
+
+.role-check span {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.role-management-page .form-check-input:checked {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.role-management-page .form-check-input:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.18rem rgba(25, 135, 84, 0.12);
+}
+
+.staff-management-page .transaction-table {
+    min-width: 1040px;
+}
+
+.staff-avatar {
+    border: 2px solid #d7eadf;
+    border-radius: 50%;
+    height: 44px;
+    object-fit: cover;
+    width: 44px;
+}
+
+.staff-password-code {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #0f172a;
+    display: inline-block;
+    font-size: 12px;
+    max-width: 150px;
+    overflow: hidden;
+    padding: 5px 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.staff-photo-box {
+    align-items: center;
+    background: #f8fbf9;
+    border: 1px dashed #bfe4ce;
+    border-radius: 8px;
+    display: flex;
+    gap: 18px;
+    padding: 18px;
+}
+
+.staff-photo-preview {
+    background: #ffffff;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+    height: 86px;
+    object-fit: cover;
+    width: 86px;
+}
+
+.staff-photo-camera {
+    align-items: center;
+    background: #198754;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    bottom: 3px;
+    color: #ffffff;
+    display: inline-flex;
+    font-size: 12px;
+    height: 26px;
+    justify-content: center;
+    position: absolute;
+    right: 3px;
+    width: 26px;
+}
+
+.plot-availability-page .transaction-card {
+    overflow: visible;
+}
+
+.plot-status-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.plot-status-card {
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #dfeae4;
+    border-radius: 8px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+    display: flex;
+    gap: 12px;
+    min-height: 84px;
+    padding: 16px;
+}
+
+.plot-status-card small {
+    color: #64748b;
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.plot-status-card strong {
+    color: #0f172a;
+    display: block;
+    font-size: 22px;
+    line-height: 1.1;
+}
+
+.plot-status-dot {
+    border-radius: 999px;
+    display: inline-block;
+    flex: 0 0 12px;
+    height: 12px;
+    width: 12px;
+}
+
+.plot-status-card .plot-status-dot {
+    flex-basis: 42px;
+    height: 42px;
+    opacity: 0.16;
+    width: 42px;
+}
+
+.plot-status-available .plot-status-dot,
+.plot-box-available {
+    background: #ecfdf5;
+    border-color: #10b981;
+    color: #065f46;
+}
+
+.plot-status-booked .plot-status-dot,
+.plot-box-booked {
+    background: #fff7ed;
+    border-color: #f97316;
+    color: #9a3412;
+}
+
+.plot-status-hold .plot-status-dot,
+.plot-box-hold {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
+
+.plot-status-alloted .plot-status-dot,
+.plot-box-alloted {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    color: #1e40af;
+}
+
+.plot-status-registry .plot-status-dot,
+.plot-box-registry {
+    background: #f8fafc;
+    border-color: #475569;
+    color: #0f172a;
+}
+
+.plot-legend {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+}
+
+.plot-legend span {
+    align-items: center;
+    color: #475569;
+    display: inline-flex;
+    font-size: 13px;
+    font-weight: 800;
+    gap: 6px;
+}
+
+.plot-legend .plot-status-available {
+    background: #10b981;
+}
+
+.plot-legend .plot-status-booked {
+    background: #f97316;
+}
+
+.plot-legend .plot-status-hold {
+    background: #ef4444;
+}
+
+.plot-legend .plot-status-alloted {
+    background: #3b82f6;
+}
+
+.plot-legend .plot-status-registry {
+    background: #475569;
+}
+
+.plot-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+}
+
+.plot-box {
+    align-items: center;
+    border: 1px solid;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+    min-height: 104px;
+    padding: 12px;
+    text-align: center;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.plot-box:hover,
+.plot-box:focus {
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.12);
+    outline: 0;
+    transform: translateY(-3px);
+}
+
+.plot-number {
+    color: inherit;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.plot-area {
+    color: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.78;
+}
+
+.plot-status-label {
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 999px;
+    color: inherit;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 4px 8px;
+}
+
+.plot-empty-state {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    color: #64748b;
+    grid-column: 1 / -1;
+    padding: 42px 16px;
+    text-align: center;
+}
+
 
 /* =========================
    RESPONSIVE

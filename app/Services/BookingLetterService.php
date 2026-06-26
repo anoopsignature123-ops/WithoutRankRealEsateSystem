@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\CustomerBooking;
+use App\Models\PlotSaleDetail;
 
 class BookingLetterService
 {
@@ -16,25 +17,28 @@ class BookingLetterService
 
     public function getBookings($bookingId = null)
     {
-        $query = CustomerBooking::with([
-            'primaryDetail',
-            'plotSaleDetail.project',
-            'plotSaleDetail.block',
-            'plotSaleDetail.plotDetail',
-            'payment',
+        $query = PlotSaleDetail::with([
+            'customerBooking.primaryDetail.correspondenceDetail',
+            'project',
+            'block',
+            'plotDetail',
+            'payments',
         ])
-            ->whereNotNull('booking_code');
+            ->whereNotNull('booking_code')
+            ->whereHas('customerBooking', function ($query) {
+                $query->whereNotNull('booking_code');
+            });
 
         if ($bookingId) {
-            $query->where('id', $bookingId);
+            $query->where('customer_booking_id', $bookingId);
         }
 
         return $query->latest('id')->get();
     }
 
-    public function findBooking($id)
+    public function findBooking($id, $plotSaleDetailId = null)
     {
-        return CustomerBooking::with([
+        $booking = CustomerBooking::with([
             'primaryDetail',
             'secondaryDetail',
             'nomineeDetail',
@@ -45,5 +49,22 @@ class BookingLetterService
             'payments',
             'associate',
         ])->findOrFail($id);
+
+        if ($plotSaleDetailId) {
+            $plotSale = PlotSaleDetail::with([
+                'project',
+                'block',
+                'plotDetail',
+                'payments',
+            ])
+                ->where('customer_booking_id', $booking->id)
+                ->findOrFail($plotSaleDetailId);
+
+            $booking->setRelation('plotSaleDetail', $plotSale);
+            $booking->setRelation('payments', $plotSale->payments);
+            $booking->setRelation('payment', $plotSale->payments->first());
+        }
+
+        return $booking;
     }
 }

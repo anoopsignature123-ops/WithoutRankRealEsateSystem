@@ -152,7 +152,7 @@
                                 <div class="dashboard-inner-box success-box p-3 rounded-4 border">
                                     <small class="text-muted fw-semibold">Confirmed Amount</small>
                                     <h5 class="fw-bold text-success mb-0">
-                                        ₹ {{ number_format($businessConfirmedPayment ?? 0, 2) }}
+                                        &#8377; {{ number_format($businessConfirmedPayment ?? 0, 2) }}
                                     </h5>
                                 </div>
                             </div>
@@ -161,7 +161,7 @@
                                 <div class="dashboard-inner-box p-3 rounded-4 border">
                                     <small class="text-muted fw-semibold">Due Amount</small>
                                     <h5 class="fw-bold text-dark mb-0">
-                                        ₹ {{ number_format($businesspendingPayment ?? 0, 2) }}
+                                        &#8377; {{ number_format($businesspendingPayment ?? 0, 2) }}
                                     </h5>
                                 </div>
                             </div>
@@ -350,7 +350,7 @@
 
                                             <td>
                                                 <span class="text-danger fw-bold">
-                                                    ₹{{ number_format((float) ($due->due_amount ?? 0), 2) }}
+                                                    &#8377;{{ number_format((float) ($due->due_amount ?? 0), 2) }}
                                                 </span>
                                             </td>
 
@@ -410,7 +410,7 @@
                             </small>
 
                             <h3 class="fw-bold text-success mb-0">
-                                ₹ {{ number_format($confirmedPayment + $pendingPayment, 2) }}
+                                &#8377; {{ number_format($confirmedPayment + $pendingPayment, 2) }}
                             </h3>
 
                         </div>
@@ -425,7 +425,7 @@
                                 <div class="flex-grow-1">
                                     <small class="text-muted">Confirmed Payment</small>
                                     <h5 class="fw-bold mb-0 text-success">
-                                        ₹ {{ number_format($confirmedPayment, 2) }}
+                                        &#8377; {{ number_format($confirmedPayment, 2) }}
                                     </h5>
                                 </div>
 
@@ -442,7 +442,7 @@
                                 <div class="flex-grow-1">
                                     <small class="text-muted">Pending Payment</small>
                                     <h5 class="fw-bold mb-0 text-warning">
-                                        ₹ {{ number_format($pendingPayment, 2) }}
+                                        &#8377; {{ number_format($pendingPayment, 2) }}
                                     </h5>
                                 </div>
 
@@ -483,7 +483,7 @@
             const mainChartCtx = mainChartCanvas.getContext('2d');
 
             const formatINR = function(value) {
-                return '₹ ' + Number(value || 0).toLocaleString('en-IN');
+                return 'Rs. ' + Number(value || 0).toLocaleString('en-IN');
             };
 
             const getChartConfig = function(type) {
