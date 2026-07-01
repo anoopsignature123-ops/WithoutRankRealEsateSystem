@@ -9,6 +9,7 @@ use App\Models\CustomerPayment;
 use App\Models\PlotDetail;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class CustomerLedgerController extends Controller
 {
@@ -27,38 +28,107 @@ class CustomerLedgerController extends Controller
         }
 
         if ($request->filled('booking_id')) {
+            $associateIds = $this->teamAssociateIds();
             $booking = CustomerBooking::with([
                 'primaryDetail',
                 'associate',
-                'plotSaleDetail.plotDetail.block.project',
+                'plotSaleDetails.project',
+                'plotSaleDetails.block',
+                'plotSaleDetails.plotDetail',
+                'payments.plotSaleDetail.plotDetail',
             ])
+                ->whereIn('associate_id', $associateIds)
                 ->where('booking_code', $request->booking_id)
                 ->first();
 
             if ($booking) {
-                $payments = CustomerPayment::where('customer_booking_id', $booking->id)
-                    ->latest()->get();
-
-                $plotSale = $booking->plotSaleDetail;
-                $plot = $plotSale?->plotDetail;
-                $block = $plot?->block;
-                $project = $block?->project;
+                $payments = $booking->payments->sortByDesc('id')->values();
+                $plotSales = $booking->plotSaleDetails->values();
+                $receiptGroups = $this->groupPaymentsByReceipt($payments);
+                $totalPlotCost = (float) $plotSales->sum(fn ($plotSale) => $plotSale->total_plot_cost ?? $plotSale->final_payable ?? $plotSale->plot_cost ?? 0);
+                $paidAmount = (float) $payments
+                    ->whereIn('payment_status', ['paid', 'cleared'])
+                    ->sum(fn ($payment) => $payment->paid_amount ?? $payment->booking_amount ?? 0);
+                $holdAmount = (float) $payments
+                    ->whereIn('payment_status', ['hold', 'pending'])
+                    ->sum(fn ($payment) => $payment->paid_amount ?? $payment->booking_amount ?? 0);
+                $firstPayment = $payments->sortBy('id')->first();
+                $bookingPayment = $payments
+                    ->where('transaction_category', 'booking_fee')
+                    ->sortBy('id')
+                    ->first();
+                $emiInstallments = $payments
+                    ->where('transaction_category', 'emi_payment')
+                    ->whereIn('payment_status', ['paid', 'cleared'])
+                    ->groupBy(fn ($payment) => $payment->receipt_number ?: 'payment-'.$payment->id)
+                    ->map(fn ($group) => $group->sortBy('id')->first())
+                    ->values();
 
                 $ledgerData = (object) [
                     'booking' => $booking,
                     'customer_name' => $booking->primaryDetail?->name ?? '-',
                     'customer_id' => $booking->customer_code ?? '-',
                     'associate_name' => $booking->associate?->associate_name ?? '-',
-                    'project_name' => $project?->name ?? '-',
-                    'block_name' => $block?->block ?? '-',
-                    'plot_no' => $plot?->plot_number ?? '-',
-                    'plot_amount' => $plotSale?->plot_cost ?? 0,
+                    'project_name' => $plotSales->pluck('project.name')->filter()->unique()->implode(', ') ?: '-',
+                    'block_name' => $plotSales->pluck('block.block')->filter()->unique()->implode(', ') ?: '-',
+                    'plot_no' => $plotSales->pluck('plotDetail.plot_number')->filter()->implode(', ') ?: '-',
+                    'plot_amount' => $totalPlotCost,
+                    'plots' => $plotSales,
                     'payments' => $payments,
-                    'total_paid' => $payments->sum('net_payable_amount'),
+                    'receipt_groups' => $receiptGroups,
+                    'first_payment' => $firstPayment,
+                    'booking_payment' => $bookingPayment,
+                    'paid_amount' => $paidAmount,
+                    'hold_amount' => $holdAmount,
+                    'due_amount' => max(0, $totalPlotCost - $paidAmount),
+                    'emi_installments' => $emiInstallments,
                 ];
             }
         }
 
         return view('associate-panel.customer-ledger.index', compact('projects', 'blocks', 'plots', 'ledgerData'));
+    }
+
+    private function groupPaymentsByReceipt(Collection $payments): Collection
+    {
+        return $payments
+            ->groupBy(fn ($payment) => $payment->receipt_number ?: 'payment-'.$payment->id)
+            ->map(function (Collection $group) {
+                $first = $group->sortByDesc('id')->first();
+                $plots = $group->pluck('plotSaleDetail.plotDetail.plot_number')->filter()->unique()->implode(', ');
+                $statuses = $group->pluck('payment_status')->filter()->unique()->values();
+                $categories = $group->pluck('transaction_category')->filter()->unique()->values();
+
+                return (object) [
+                    'id' => $first->id,
+                    'receipt_number' => $first->receipt_number ?? '-',
+                    'manual_receipt_number' => $first->manual_receipt_number,
+                    'plots' => $plots ?: '-',
+                    'payment_type' => $categories->count() > 1 ? 'mixed' : ($categories->first() ?? '-'),
+                    'paid_amount' => (float) $group->sum(fn ($payment) => $payment->paid_amount ?? $payment->booking_amount ?? 0),
+                    'due_amount' => (float) $group->last()?->due_amount,
+                    'payment_mode' => $first->payment_mode,
+                    'payment_status' => $statuses->count() > 1 ? 'mixed' : ($statuses->first() ?? '-'),
+                    'created_at' => $first->created_at,
+                    'payments' => $group->values(),
+                ];
+            })
+            ->sortByDesc('created_at')
+            ->values();
+    }
+
+    private function teamAssociateIds(): array
+    {
+        $associate = auth()->guard('associate')->user() ?: auth()->user();
+
+        if (! $associate) {
+            return [];
+        }
+
+        return collect(method_exists($associate, 'getDownlineIds') ? $associate->getDownlineIds() : [])
+            ->push($associate->id)
+            ->unique()
+            ->values()
+            ->all();
     }
 }

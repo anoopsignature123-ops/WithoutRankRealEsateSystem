@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CustomerPanle;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class CustomerDashboardController extends Controller
 {
@@ -17,7 +18,7 @@ class CustomerDashboardController extends Controller
             'plotSaleDetails.project',
             'plotSaleDetails.block',
             'plotSaleDetails.plotDetail',
-            'payments',
+            'payments.plotSaleDetail.plotDetail',
         ]);
 
         $plots = $customer->plotSaleDetails;
@@ -34,7 +35,36 @@ class CustomerDashboardController extends Controller
             ->where('due_amount', '>', 0)
             ->count();
         $paidPercent = $totalPlotCost > 0 ? min(round(($totalPaid / $totalPlotCost) * 100), 100) : 0;
-        $latestPlots = $plots->sortByDesc('created_at')->take(3);
+        $bookingGroups = $plots
+            ->whereNotNull('booking_code')
+            ->groupBy(fn ($plot) => $plot->booking_code ?: 'plot-'.$plot->id)
+            ->map(function (Collection $group) use ($payments) {
+                $first = $group->first();
+                $groupPayments = $payments->whereIn('plot_sale_detail_id', $group->pluck('id'));
+                $groupCost = $group->sum(fn ($plot) => (float) ($plot->total_plot_cost ?? $plot->final_payable ?? 0));
+                $groupPaid = $groupPayments
+                    ->whereIn('payment_status', ['paid', 'cleared'])
+                    ->sum(fn ($payment) => (float) ($payment->paid_amount ?? $payment->booking_amount ?? 0));
+                $planTypes = $groupPayments->pluck('plan_type')->filter()->unique()->values();
+
+                return [
+                    'booking_code' => $first?->booking_code ?? '-',
+                    'project' => $group->pluck('project.name')->filter()->unique()->implode(', ') ?: 'N/A',
+                    'block' => $group->pluck('block.block')->filter()->unique()->implode(', ') ?: 'N/A',
+                    'plots' => $group->pluck('plotDetail.plot_number')->filter()->implode(', ') ?: 'N/A',
+                    'plot_count' => $group->count(),
+                    'total_area' => $group->sum(fn ($plot) => (float) ($plot->plot_area ?? 0)),
+                    'total_cost' => $groupCost,
+                    'paid' => $groupPaid,
+                    'due' => max($groupCost - $groupPaid, 0),
+                    'plan_type' => $planTypes->count() > 1 ? 'mixed' : ($planTypes->first() ?? 'full_payment'),
+                    'created_at' => $group->max('created_at'),
+                    'booking_date' => $first?->booking_date,
+                ];
+            })
+            ->sortByDesc('created_at')
+            ->values();
+        $latestBookings = $bookingGroups->take(4);
         $latestPayments = $payments->sortByDesc('created_at')->take(4);
 
         return view('customer_dashboard', compact(
@@ -47,7 +77,8 @@ class CustomerDashboardController extends Controller
             'dueAmount',
             'pendingPayments',
             'paidPercent',
-            'latestPlots',
+            'bookingGroups',
+            'latestBookings',
             'latestPayments'
         ));
     }

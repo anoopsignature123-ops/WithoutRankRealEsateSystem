@@ -121,6 +121,25 @@
         .sig-party {
             font-weight: bold;
         }
+
+        .plot-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0 14px 0;
+            font-size: 11px;
+        }
+
+        .plot-table th,
+        .plot-table td {
+            border: 1px solid #555;
+            padding: 4px 6px;
+            text-align: left;
+        }
+
+        .plot-table th {
+            background: #f1f1f1;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -129,6 +148,9 @@
     @php
         $primary = $booking->primaryDetail;
         $plotSale = $booking->plotSaleDetail;
+        $plotSales = $booking->relationLoaded('plotSaleDetails') && $booking->plotSaleDetails->isNotEmpty()
+            ? $booking->plotSaleDetails
+            : collect([$plotSale])->filter();
         $plotDetail = $plotSale?->plotDetail;
         $project = $plotSale?->project;
         $block = $plotSale?->block;
@@ -140,8 +162,9 @@
 
         $projectName = $project?->name ?? 'Sani Infra Height';
         $blockName = $block?->block ?? '-';
-        $plotNumber = $plotDetail?->plot_number ?? '-';
-        $plotArea = $plotSale?->plot_area ?? '-';
+        $plotNumber = $plotSales->pluck('plotDetail.plot_number')->filter()->implode(', ') ?: ($plotDetail?->plot_number ?? '-');
+        $plotArea = number_format($plotSales->sum(fn ($sale) => (float) ($sale->plot_area ?? 0)), 2);
+        $isMultiplePlot = $plotSales->count() > 1;
     @endphp
 
     <div class="header">
@@ -179,10 +202,36 @@
         <p>
             WHEREAS, the First Party is owner-in-possession of certain land situated at
             <strong>{{ $projectName }}</strong>, Block <strong>{{ $blockName }}</strong>,
-            Plot No. <strong>{{ $plotNumber }}</strong>, area <strong>{{ $plotArea }}</strong> Sq.Ft.,
+            Plot No{{ $isMultiplePlot ? 's' : '' }}. <strong>{{ $plotNumber }}</strong>, total area
+            <strong>{{ $plotArea }}</strong> Sq.Ft.,
             and is developing the said project under the brand name
             <strong>{{ $projectName }}</strong>; hereinafter referred to as the 'Project Land'.
         </p>
+
+        @if ($isMultiplePlot)
+            <table class="plot-table">
+                <thead>
+                    <tr>
+                        <th>Plot No.</th>
+                        <th>Block</th>
+                        <th>Area</th>
+                        <th>Rate</th>
+                        <th>Total Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($plotSales as $sale)
+                        <tr>
+                            <td>{{ $sale?->plotDetail?->plot_number ?? '-' }}</td>
+                            <td>{{ $sale?->block?->block ?? '-' }}</td>
+                            <td>{{ number_format((float) ($sale?->plot_area ?? 0), 2) }} Sq.Ft.</td>
+                            <td>Rs. {{ number_format((float) ($sale?->plot_rate ?? 0), 2) }}</td>
+                            <td>Rs. {{ number_format((float) ($sale?->total_plot_cost ?? 0), 2) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
 
         <p>
             WHEREAS, the Second Party has experience of Site Develop &amp; Maintenance, development of infrastructure

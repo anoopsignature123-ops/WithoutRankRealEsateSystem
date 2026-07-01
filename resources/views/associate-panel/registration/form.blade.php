@@ -1,560 +1,339 @@
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="border rounded p-4 bg-light">
-            <h4 class="fw-bold mb-4">Basic Information</h4>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="mb-2">Sponsor Id</label>
-                    <input type="text" class="form-control" value="{{ $loggedInAssociate->associate_id }}" readonly>
-                    <input type="hidden" name="sponsor_id" value="{{ $loggedInAssociate->associate_id }}">
-                </div>
+@php
+    $isEdit = isset($associate);
+    $sponsorAssociate = $loggedInAssociate ?? auth('associate')->user() ?? auth()->user();
+    $currentBank = $associate->bankDetail ?? null;
+@endphp
 
-                <div class="col-md-4 mb-3">
-                    <label class="mb-2">Rank</label>
-                    <input type="text" class="form-control"
-                        value="{{ $loggedInAssociate->rank->designation ?? 'N/A' }}" readonly>
-                    <input type="hidden" name="rank_id" value="{{ $loggedInAssociate->rank_id }}">
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <label class="mb-2">Under Place Id</label>
-                    <input type="text" name="under_place_id" id="under_place_id"
-                        value="{{ $loggedInAssociate->associate_id }}" class="form-control" readonly>
-                </div>
-                {{-- Associate Name --}}
-                <div class="col-md-6 mb-3">
-                    <label class="mb-2">Associate Name</label>
-                    <input type="text" name="associate_name"
-                        value="{{ old('associate_name', $associate->associate_name ?? '') }}"
-                        placeholder="Enter associate name" class="form-control">
-                    @error('associate_name')
-                        <small class="text-danger d-block">{{ $message }}</small>
-                    @enderror
-                </div>
-                {{-- Gender --}}
-                <div class="col-md-3 mb-3">
-                    <label class="mb-2">Gender</label>
-                    <select name="gender" class="form-control">
-                        <option value="">Select Gender</option>
-                        <option value="male"
-                            {{ old('gender', $associate->gender ?? '') == 'male' ? 'selected' : '' }}>
-                            Male
-                        </option>
-                        <option value="female"
-                            {{ old('gender', $associate->gender ?? '') == 'female' ? 'selected' : '' }}>
-                            Female
-                        </option>
-                    </select>
-                    @error('gender')
-                        <small class="text-danger d-block">{{ $message }}</small>
-                    @enderror
-                </div>
-                {{-- Title --}}
-                <div class="col-md-3
-                            mb-3">
-                    <label class="mb-2">Title</label>
-                    <select name="title" class="form-control">
-                        <option value="">Select Title</option>
-                        <option value="s/o" {{ old('title', $associate->title ?? '') == 's/o' ? 'selected' : '' }}>
-                            S/O
-                        </option>
-
-                        <option value="w/o" {{ old('title', $associate->title ?? '') == 'w/o' ? 'selected' : '' }}>
-                            W/O
-                        </option>
-                        <option value="b/o" {{ old('title', $associate->title ?? '') == 'b/o' ? 'selected' : '' }}>
-                            B/O
-                        </option>
-
-                        <option value="d/o" {{ old('title', $associate->title ?? '') == 'd/o' ? 'selected' : '' }}>
-                            D/O
-                        </option>
-                        <option value="f/o" {{ old('title', $associate->title ?? '') == 'f/o' ? 'selected' : '' }}>
-                            F/O
-                        </option>
-                    </select>
-                    @error('title')
-                        <small class="text-danger d-block">{{ $message }}</small>
-                    @enderror
-                </div>
-                {{-- Father Name --}}
-                <div class="col-md-6 mb-3">
-                    <label class="mb-2">Father / Husband Name</label>
-                    <input type="text" name="father_name"
-                        value="{{ old('father_name', $associate->father_name ?? '') }}" placeholder="Enter name"
-                        class="form-control">
-                    @error('father_name')
-                        <small class="text-danger d-block">{{ $message }}</small>
-                    @enderror
-                </div>
-                {{-- DOB --}}
-                <div class="col-md-6 mb-3">
-                    <label class="mb-2">Date Of Birth</label>
-                    <input type="date" name="dob" value="{{ old('dob', $associate->dob ?? '') }}"
-                        class="form-control">
-                    @error('dob')
-                        <small class="text-danger d-block">{{ $message }}</small>
-                    @enderror
-                </div>
-                {{-- Address --}}
-                <div class="col-md-12 mb-3">
-                    <label class="mb-2">Address</label>
-                    <textarea name="address" rows="2" class="form-control" placeholder="Enter full address">{{ old('address', $associate->address ?? '') }}</textarea>
-                    @error('address')
-                        <small class="text-danger d-block">{{ $message }}</small>
-                    @enderror
-                </div>
-                {{-- City --}}
-                <div class="col-md-3 mb-3">
-                    <label class="mb-2">City</label>
-                    <input type="text" name="city" value="{{ old('city', $associate->city ?? '') }}"
-                        class="form-control" placeholder="Enter City">
-                    @error('city')
-                        <small class="text-danger d-block ">{{ $message }}</small>
-                    @enderror
-                </div>
-                {{-- State --}}
-                <div class="col-md-3 mb-3">
-                    <label class="mb-2">State</label>
-                    <input type="text" name="state" value="{{ old('state', $associate->state ?? '') }}"
-                        class="form-control" placeholder="Enter State">
-                    @error('state')
-                        <small class="text-danger d-block">{{ $message }}</small>
-                    @enderror
-                </div>
-                {{-- Mobile --}}
-                <div class="col-md-3 mb-3">
-                    <label class="mb-2">Mobile Number</label>
-                    <input type="text" name="mobile_number"
-                        value="{{ old('mobile_number', $associate->mobile_number ?? '') }}" class="form-control"
-                        placeholder="Enter Mobile Number">
-                    @error('mobile_number')
-                        <small class="text-danger d-block">{{ $message }}</small>
-                    @enderror
-                </div>
-                {{-- Email --}}
-                <div class="col-md-3 mb-3">
-                    <label class="mb-2">Email</label>
-                    <input type="email" name="email" value="{{ old('email', $associate->email ?? '') }}"
-                        class="form-control" placeholder="Enter Email">
-                    @error('email')
-                        <small class="text-danger d-block ">{{ $message }}</small>
-                    @enderror
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="mb-2">PAN Card Number</label>
-                    <input type="text" name="pancard_number"
-                        value="{{ old('pancard_number', $associate->pancard_number ?? '') }}" class="form-control"
-                        placeholder="Enter PAN Card Number">
-                    @error('pancard_number')
-                        <small class="text-danger d-block ">{{ $message }}</small>
-                    @enderror
-
-                </div>
-                {{-- Aadhaar --}}
-                <div class="col-md-6 mb-3">
-                    <label class="mb-2">Aadhaar Number</label>
-                    <input type="text" name="aadhar_number"
-                        value="{{ old('aadhar_number', $associate->aadhar_number ?? '') }}" class="form-control"
-                        placeholder="Enter Aadhaar Number">
-                    @error('aadhar_number')
-                        <small class="text-danger d-block">{{ $message }}</small>
-                    @enderror
+<div class="transaction-card mb-4">
+    <div class="transaction-card-body">
+        <div class="transaction-section-title">
+            <div class="d-flex align-items-center gap-3">
+                <span class="transaction-section-title-icon"><i class="bi bi-person-lines-fill"></i></span>
+                <div>
+                    <h5 class="fw-bold mb-1">Basic Information</h5>
+                    <small class="text-muted">Sponsor, placement and personal details.</small>
                 </div>
             </div>
+            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                {{ $isEdit ? 'Update Mode' : 'New Registration' }}
+            </span>
         </div>
-    </div>
-    <!-- Bank Details -->
-    <div class="col-12 mb-4">
 
-        <div class="border rounded p-4 bg-light">
-
-            <h4 class="fw-bold mb-4">
-                Bank Details
-            </h4>
-
-            <div class="row">
-
-                {{-- Bank Name --}}
-                <div class="col-md-3 mb-3">
-
-                    <label class="mb-2">
-                        Bank Name
-                    </label>
-
-                    <input type="text" name="bank_name"
-                        value="{{ old('bank_name', $associate->bankDetail->bank_name ?? '') }}"
-                        placeholder="Enter bank name" class="form-control @error('bank_name') is-invalid @enderror">
-
-                    @error('bank_name')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-
-                </div>
-
-
-                {{-- Account Number --}}
-                <div class="col-md-3 mb-3">
-
-                    <label class="mb-2">
-                        Account Number
-                    </label>
-
-                    <input type="text" name="account_number"
-                        value="{{ old('account_number', $associate->bankDetail->account_number ?? '') }}"
-                        placeholder="Enter account number"
-                        class="form-control @error('account_number') is-invalid @enderror">
-
-                    @error('account_number')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-
-                </div>
-
-
-                {{-- IFSC Code --}}
-                <div class="col-md-3 mb-3">
-
-                    <label class="mb-2">
-                        IFSC Code
-                    </label>
-
-                    <input type="text" name="ifsc_code"
-                        value="{{ old('ifsc_code', $associate->bankDetail->ifsc_code ?? '') }}"
-                        placeholder="Enter IFSC code" class="form-control @error('ifsc_code') is-invalid @enderror">
-
-                    @error('ifsc_code')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-
-                </div>
-
-                {{-- Account Holder Name --}}
-                <div class="col-md-3 mb-3">
-
-                    <label class="mb-2">
-                        Account Holder Name
-                    </label>
-
-                    <input type="text" name="account_holder_name"
-                        value="{{ old('account_holder_name', $associate->bankDetail->account_holder_name ?? '') }}"
-                        placeholder="Enter account holder name"
-                        class="form-control @error('account_holder_name') is-invalid @enderror">
-
-                    @error('account_holder_name')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-
-                </div>
-
+        <div class="row g-3">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label fw-semibold">Sponsor ID</label>
+                <input type="text" class="form-control" value="{{ $sponsorAssociate?->associate_id }}" readonly>
+                <input type="hidden" name="sponsor_id" value="{{ $sponsorAssociate?->associate_id }}">
             </div>
 
-        </div>
-
-    </div>
-    <!-- Nominee Details -->
-    <div class="col-12 mb-4">
-
-        <div class="border rounded p-4 bg-light">
-
-            <h4 class="fw-bold mb-4">
-                Nominee Details
-            </h4>
-
-            <div class="row">
-
-                {{-- Nominee Name --}}
-                <div class="col-md-3 mb-3">
-
-                    <label class="mb-2">
-                        Nominee Name
-                    </label>
-
-                    <input type="text" name="nominee_name"
-                        value="{{ old('nominee_name', $associate->nominee_name ?? '') }}"
-                        placeholder="Enter nominee name"
-                        class="form-control @error('nominee_name') is-invalid @enderror">
-
-                    @error('nominee_name')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-
-                </div>
-
-
-                {{-- Nominee Relation --}}
-                <div class="col-md-3 mb-3">
-
-                    <label class="mb-2">
-                        Nominee Relation
-                    </label>
-
-                    <input type="text" name="nominee_relation"
-                        value="{{ old('nominee_relation', $associate->nominee_relation ?? '') }}"
-                        placeholder="Enter relation"
-                        class="form-control @error('nominee_relation') is-invalid @enderror">
-
-                    @error('nominee_relation')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-
-                </div>
-
-
-                {{-- Nominee Age --}}
-                <div class="col-md-3 mb-3">
-
-                    <label class="mb-2">
-                        Nominee Age
-                    </label>
-
-                    <input type="number" name="nominee_age"
-                        value="{{ old('nominee_age', $associate->nominee_age ?? '') }}" placeholder="Enter age"
-                        class="form-control @error('nominee_age') is-invalid @enderror">
-
-                    @error('nominee_age')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-
-                </div>
-
-
-                {{-- Joining Date --}}
-                <div class="col-md-3 mb-3">
-                    <label class="mb-2">
-                        Joining Date
-                    </label>
-                    <input type="date" name="joining_date"
-                        value="{{ old('joining_date', $associate->joining_date ?? '') }}"
-                        class="form-control @error('joining_date') is-invalid @enderror">
-                    @error('joining_date')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ocument Details -->
-    <div class="col-12 mb-4">
-        <div class="border rounded p-4 bg-light">
-
-            <h4 class="fw-bold mb-4">
-                Document Details
-            </h4>
-
-            <div class="row">
-
-                {{-- Photo --}}
-                <div class="col-md-3 mb-3">
-
-                    <label class="mb-2">
-                        Upload Photo
-                    </label>
-
-                    <input type="file" name="photo"
-                        class="form-control preview-file @error('photo') is-invalid @enderror">
-
-                    <img class="img-preview mt-2 rounded border"
-                        style="width:100px; height:100px; object-fit:cover; display:none;">
-
-                    @if (!empty($associate->photo))
-                        <div class="mt-2">
-                            <a href="{{ getFileUrl($associate->photo) }}" target="_blank">
-                                View Current Photo
-                            </a>
-                        </div>
-                    @endif
-
-                    @error('photo')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-
-                </div>
-
-
-
-                {{-- ID Proof --}}
-                <div class="col-md-3 mb-3">
-
-                    <label class="mb-2">
-                        Upload ID Proof
-                    </label>
-
-                    <input type="file" name="id_proof_photo"
-                        class="form-control preview-file @error('id_proof_photo') is-invalid @enderror">
-
-                    <img class="img-preview mt-2 rounded border"
-                        style="width:100px; height:100px; object-fit:cover; display:none;">
-
-                    @if (!empty($associate->id_proof_photo))
-                        <div class="mt-2">
-                            <a href="{{ getFileUrl($associate->id_proof_photo) }}" target="_blank">
-                                View Current ID Proof
-                            </a>
-                        </div>
-                    @endif
-
-                    @error('id_proof_photo')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-
-                </div>
-
-
-
-                {{-- PAN Card --}}
-                <div class="col-md-3 mb-3">
-
-                    <label class="mb-2">
-                        Upload PAN Card
-                    </label>
-
-                    <input type="file" name="pancard_photo"
-                        class="form-control preview-file @error('pancard_photo') is-invalid @enderror">
-
-                    <img class="img-preview mt-2 rounded border"
-                        style="width:100px; height:100px; object-fit:cover; display:none;">
-
-                    @if (!empty($associate->pancard_photo))
-                        <div class="mt-2">
-                            <a href="{{ getFileUrl($associate->pancard_photo) }}" target="_blank">
-                                View Current PAN Card
-                            </a>
-                        </div>
-                    @endif
-
-                    @error('pancard_photo')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-
-                </div>
-                {{-- Bank Passbook --}}
-                <div class="col-md-3 mb-3">
-
-                    <label class="mb-2">
-                        Upload Bank Passbook
-                    </label>
-
-                    <input type="file" name="bank_passbook"
-                        class="form-control preview-file @error('bank_passbook') is-invalid @enderror">
-
-                    <img class="img-preview mt-2 rounded border"
-                        style="width:100px; height:100px; object-fit:cover; display:none;">
-
-                    @if (!empty($associate->bankDetail->bank_passbook))
-                        <div class="mt-2">
-                            <a href="{{ getFileUrl($associate->bankDetail->bank_passbook) }}" target="_blank">
-                                View Current Passbook
-                            </a>
-                        </div>
-                    @endif
-
-                    @error('bank_passbook')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-
-                </div>
-
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label fw-semibold">Rank</label>
+                <input type="text" class="form-control" value="{{ $sponsorAssociate?->rank?->designation ?? 'N/A' }}" readonly>
+                <input type="hidden" name="rank_id" value="{{ $sponsorAssociate?->rank_id }}">
             </div>
 
-        </div>
-    </div>
-    <div class="col-12">
-        <button class="btn btn-success px-5">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label fw-semibold">Under Place ID</label>
+                <input type="text" name="under_place_id" id="under_place_id"
+                    value="{{ old('under_place_id', $associate->under_place_id ?? $sponsorAssociate?->associate_id) }}"
+                    class="form-control @error('under_place_id') is-invalid @enderror" readonly>
+                @error('under_place_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
 
-            {{ isset($associateData) ? 'Update Associate' : 'Save Associate' }}
-        </button>
+            <div class="col-lg-6">
+                <label class="form-label fw-semibold">Associate Name <span class="text-danger">*</span></label>
+                <input type="text" name="associate_name"
+                    value="{{ old('associate_name', $associate->associate_name ?? '') }}"
+                    placeholder="Enter associate name" class="form-control @error('associate_name') is-invalid @enderror">
+                @error('associate_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Gender</label>
+                <select name="gender" class="form-select @error('gender') is-invalid @enderror">
+                    <option value="">Select Gender</option>
+                    <option value="male" {{ old('gender', $associate->gender ?? '') == 'male' ? 'selected' : '' }}>Male</option>
+                    <option value="female" {{ old('gender', $associate->gender ?? '') == 'female' ? 'selected' : '' }}>Female</option>
+                </select>
+                @error('gender')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Title</label>
+                <select name="title" class="form-select @error('title') is-invalid @enderror">
+                    <option value="">Select Title</option>
+                    @foreach (['s/o' => 'S/O', 'w/o' => 'W/O', 'b/o' => 'B/O', 'd/o' => 'D/O', 'f/o' => 'F/O'] as $value => $label)
+                        <option value="{{ $value }}" {{ old('title', $associate->title ?? '') == $value ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
+                @error('title')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="col-lg-6">
+                <label class="form-label fw-semibold">Father / Husband Name</label>
+                <input type="text" name="father_name"
+                    value="{{ old('father_name', $associate->father_name ?? '') }}"
+                    placeholder="Enter father or husband name" class="form-control @error('father_name') is-invalid @enderror">
+                @error('father_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Date Of Birth</label>
+                <input type="date" name="dob" value="{{ old('dob', $associate->dob ?? '') }}"
+                    class="form-control @error('dob') is-invalid @enderror">
+                @error('dob')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Mobile Number</label>
+                <input type="text" name="mobile_number"
+                    value="{{ old('mobile_number', $associate->mobile_number ?? '') }}"
+                    placeholder="Enter mobile number" class="form-control @error('mobile_number') is-invalid @enderror">
+                @error('mobile_number')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Email</label>
+                <input type="email" name="email" value="{{ old('email', $associate->email ?? '') }}"
+                    placeholder="Enter email" class="form-control @error('email') is-invalid @enderror">
+                @error('email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">PAN Card Number</label>
+                <input type="text" name="pancard_number"
+                    value="{{ old('pancard_number', $associate->pancard_number ?? '') }}"
+                    placeholder="Enter PAN card number" class="form-control @error('pancard_number') is-invalid @enderror">
+                @error('pancard_number')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Aadhaar Number</label>
+                <input type="text" name="aadhar_number"
+                    value="{{ old('aadhar_number', $associate->aadhar_number ?? '') }}"
+                    placeholder="Enter Aadhaar number" class="form-control @error('aadhar_number') is-invalid @enderror">
+                @error('aadhar_number')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">City</label>
+                <input type="text" name="city" value="{{ old('city', $associate->city ?? '') }}"
+                    class="form-control @error('city') is-invalid @enderror" placeholder="Enter city">
+                @error('city')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">State</label>
+                <input type="text" name="state" value="{{ old('state', $associate->state ?? '') }}"
+                    class="form-control @error('state') is-invalid @enderror" placeholder="Enter state">
+                @error('state')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-semibold">Address</label>
+                <textarea name="address" rows="2" class="form-control @error('address') is-invalid @enderror"
+                    placeholder="Enter full address">{{ old('address', $associate->address ?? '') }}</textarea>
+                @error('address')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
     </div>
 </div>
+
+<div class="transaction-card mb-4">
+    <div class="transaction-card-body">
+        <div class="transaction-section-title">
+            <div class="d-flex align-items-center gap-3">
+                <span class="transaction-section-title-icon"><i class="bi bi-bank"></i></span>
+                <div>
+                    <h5 class="fw-bold mb-1">Bank Details</h5>
+                    <small class="text-muted">Commission payout bank account information.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Bank Name</label>
+                <input type="text" name="bank_name" value="{{ old('bank_name', $currentBank->bank_name ?? '') }}"
+                    placeholder="Enter bank name" class="form-control @error('bank_name') is-invalid @enderror">
+                @error('bank_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Account Number</label>
+                <input type="text" name="account_number" value="{{ old('account_number', $currentBank->account_number ?? '') }}"
+                    placeholder="Enter account number" class="form-control @error('account_number') is-invalid @enderror">
+                @error('account_number')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">IFSC Code</label>
+                <input type="text" name="ifsc_code" value="{{ old('ifsc_code', $currentBank->ifsc_code ?? '') }}"
+                    placeholder="Enter IFSC code" class="form-control @error('ifsc_code') is-invalid @enderror">
+                @error('ifsc_code')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Account Holder Name</label>
+                <input type="text" name="account_holder_name"
+                    value="{{ old('account_holder_name', $currentBank->account_holder_name ?? '') }}"
+                    placeholder="Enter account holder name" class="form-control @error('account_holder_name') is-invalid @enderror">
+                @error('account_holder_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="transaction-card mb-4">
+    <div class="transaction-card-body">
+        <div class="transaction-section-title">
+            <div class="d-flex align-items-center gap-3">
+                <span class="transaction-section-title-icon"><i class="bi bi-person-heart"></i></span>
+                <div>
+                    <h5 class="fw-bold mb-1">Nominee Details</h5>
+                    <small class="text-muted">Nominee and joining information.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Nominee Name</label>
+                <input type="text" name="nominee_name" value="{{ old('nominee_name', $associate->nominee_name ?? '') }}"
+                    placeholder="Enter nominee name" class="form-control @error('nominee_name') is-invalid @enderror">
+                @error('nominee_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Nominee Relation</label>
+                <input type="text" name="nominee_relation" value="{{ old('nominee_relation', $associate->nominee_relation ?? '') }}"
+                    placeholder="Enter relation" class="form-control @error('nominee_relation') is-invalid @enderror">
+                @error('nominee_relation')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Nominee Age</label>
+                <input type="number" name="nominee_age" value="{{ old('nominee_age', $associate->nominee_age ?? '') }}"
+                    placeholder="Enter age" class="form-control @error('nominee_age') is-invalid @enderror">
+                @error('nominee_age')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-semibold">Joining Date</label>
+                <input type="date" name="joining_date" value="{{ old('joining_date', $associate->joining_date ?? '') }}"
+                    class="form-control @error('joining_date') is-invalid @enderror">
+                @error('joining_date')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="transaction-card mb-4">
+    <div class="transaction-card-body">
+        <div class="transaction-section-title">
+            <div class="d-flex align-items-center gap-3">
+                <span class="transaction-section-title-icon"><i class="bi bi-folder2-open"></i></span>
+                <div>
+                    <h5 class="fw-bold mb-1">Document Details</h5>
+                    <small class="text-muted">Upload associate photo and KYC documents.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            @foreach ([
+                ['name' => 'photo', 'label' => 'Upload Photo', 'current' => $associate->photo ?? null],
+                ['name' => 'id_proof_photo', 'label' => 'Upload ID Proof', 'current' => $associate->id_proof_photo ?? null],
+                ['name' => 'pancard_photo', 'label' => 'Upload PAN Card', 'current' => $associate->pancard_photo ?? null],
+                ['name' => 'bank_passbook', 'label' => 'Upload Bank Passbook', 'current' => $currentBank->bank_passbook ?? null],
+            ] as $document)
+                <div class="col-lg-3 col-md-6 document-upload">
+                    <label class="form-label fw-semibold">{{ $document['label'] }}</label>
+                    <input type="file" name="{{ $document['name'] }}"
+                        class="form-control preview-file @error($document['name']) is-invalid @enderror">
+                    <img class="img-preview mt-2 rounded border"
+                        style="width:100px;height:100px;object-fit:cover;display:none;" alt="Preview">
+                    @if (!empty($document['current']))
+                        <div class="mt-2">
+                            <a href="{{ getFileUrl($document['current']) }}" target="_blank" class="text-success fw-semibold">
+                                View Current File
+                            </a>
+                        </div>
+                    @endif
+                    @error($document['name'])
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+
+<div class="transaction-card">
+    <div class="transaction-card-body">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h5 class="fw-bold mb-1">{{ $isEdit ? 'Update Associate' : 'Save Associate' }}</h5>
+                <small class="text-muted">Please review all details before submitting.</small>
+            </div>
+            <button type="submit" class="btn btn-success px-5">
+                <i class="bi bi-check-circle me-1"></i> {{ $isEdit ? 'Update Associate' : 'Save Associate' }}
+            </button>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
     <script>
-        $('#sponsor_id').change(function() {
-            let associateId = $(this).val();
-            $('#rank_id').html(
-                '<option value="">Loading...</option>'
-            );
-            $.get(
-                '/get-sponsor-ranks/' + associateId,
-                function(response) {
-
-                    let options =
-                        '<option value="">Select Rank</option>';
-
-                    response.forEach(function(rank) {
-
-                        options += `
-                        <option value="${rank.id}">
-                            ${rank.designation}
-                        </option>
-                    `;
-
-                    });
-
-                    $('#rank_id').html(options);
-
-                }
-            );
-            $('#sponsor_id').change(function() {
-                let sponsorId = $(this).val();
-                if (sponsorId) {
-                    $('#under_place_id').val(sponsorId);
-                }
-            });
-
+        $(document).ready(function() {
             $('.preview-file').on('change', function() {
-
-                let input = this;
-
-                let preview = $(this)
-                    .closest('.col-md-3')
-                    .find('.img-preview');
+                const input = this;
+                const preview = $(this).closest('.document-upload').find('.img-preview');
 
                 if (input.files && input.files[0]) {
-
-                    let reader = new FileReader();
-
+                    const reader = new FileReader();
                     reader.onload = function(e) {
-
-                        preview
-                            .attr('src', e.target.result)
-                            .show();
-
-                    }
-
-                    reader.readAsDataURL(
-                        input.files[0]
-                    );
-
+                        preview.attr('src', e.target.result).show();
+                    };
+                    reader.readAsDataURL(input.files[0]);
                 }
-
             });
-
-
         });
     </script>
 @endpush

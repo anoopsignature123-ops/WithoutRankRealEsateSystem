@@ -33,7 +33,18 @@ class BookingLetterService
             $query->where('customer_booking_id', $bookingId);
         }
 
-        return $query->latest('id')->get();
+        return $query->latest('id')
+            ->get()
+            ->groupBy(function ($plotSale) {
+                return $plotSale->customer_booking_id.'|'.($plotSale->booking_code ?: $plotSale->id);
+            })
+            ->map(function ($group) {
+                $representative = $group->first();
+                $representative->setRelation('letterPlotSales', $group->values());
+
+                return $representative;
+            })
+            ->values();
     }
 
     public function findBooking($id, $plotSaleDetailId = null)
@@ -60,9 +71,26 @@ class BookingLetterService
                 ->where('customer_booking_id', $booking->id)
                 ->findOrFail($plotSaleDetailId);
 
+            $plotSales = $plotSale->booking_code
+                ? PlotSaleDetail::with([
+                    'project',
+                    'block',
+                    'plotDetail',
+                    'payments',
+                ])
+                    ->where('customer_booking_id', $booking->id)
+                    ->where('booking_code', $plotSale->booking_code)
+                    ->orderBy('id')
+                    ->get()
+                : collect([$plotSale]);
+
             $booking->setRelation('plotSaleDetail', $plotSale);
-            $booking->setRelation('payments', $plotSale->payments);
-            $booking->setRelation('payment', $plotSale->payments->first());
+            $booking->setRelation('plotSaleDetails', $plotSales);
+            $payments = $plotSales->flatMap(function ($sale) {
+                return $sale->payments;
+            })->values();
+            $booking->setRelation('payments', $payments);
+            $booking->setRelation('payment', $payments->first());
         }
 
         return $booking;

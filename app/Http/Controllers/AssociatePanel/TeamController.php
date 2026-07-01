@@ -13,12 +13,18 @@ class TeamController extends Controller
     {
         $user = Auth::guard('associate')->user();
         $associateId = trim($request->associate_id ?? $user->associate_id);
+        $allowedIds = collect($user->getDownlineIds())
+            ->push($user->id)
+            ->unique()
+            ->values()
+            ->all();
 
         $rootAssociate = Associate::with([
             'rank',
             'children.rank',
             'children.children.rank',
         ])
+            ->whereIn('id', $allowedIds)
             ->where('associate_id', $associateId)
             ->first();
 

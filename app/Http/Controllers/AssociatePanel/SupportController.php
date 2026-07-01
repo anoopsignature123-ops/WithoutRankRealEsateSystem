@@ -33,7 +33,7 @@ class SupportController extends Controller
         ]);
 
         return redirect()->route('associate-panel.support.index')
-            ->with('success', 'Enquiry submitted successfully!');
+            ->with('success', 'Support ticket submitted successfully.');
     }
 
     public function supportList()

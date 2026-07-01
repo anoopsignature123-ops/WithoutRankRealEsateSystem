@@ -89,8 +89,8 @@
                             <th>Booking</th>
                             <th>Customer</th>
                             <th>Project / Plot</th>
-                            <th>Rate</th>
-                            <th>Area</th>
+                            <th>Total Cost</th>
+                            <th>Total Area</th>
                             <th>Plan</th>
                             <th class="text-center">Download</th>
                         </tr>
@@ -100,12 +100,21 @@
                         @forelse ($bookings as $row)
                             @php
                                 $plotSale = $row;
+                                $letterPlotSales = $plotSale->relationLoaded('letterPlotSales')
+                                    ? $plotSale->letterPlotSales
+                                    : collect([$plotSale]);
                                 $booking = $plotSale->customerBooking;
-                                $payment = $plotSale->payments->first();
-                                $projectName = $plotSale?->project?->name ?? ($plotSale?->plotDetail?->block?->project?->name ?? '-');
-                                $blockName = $plotSale?->block?->block ?? ($plotSale?->plotDetail?->block?->block ?? '-');
-                                $plotNumber = $plotSale?->plotDetail?->plot_number ?? '-';
-                                $planType = $payment?->plan_type;
+                                $payments = $letterPlotSales->flatMap(function ($sale) {
+                                    return $sale->payments;
+                                });
+                                $projectName = $letterPlotSales->pluck('project.name')->filter()->unique()->implode(', ') ?: '-';
+                                $blockName = $letterPlotSales->pluck('block.block')->filter()->unique()->implode(', ') ?: '-';
+                                $plotNumbers = $letterPlotSales->pluck('plotDetail.plot_number')->filter()->implode(', ') ?: '-';
+                                $plotCount = $letterPlotSales->count();
+                                $totalArea = $letterPlotSales->sum(fn ($sale) => (float) ($sale->plot_area ?? 0));
+                                $totalCost = $letterPlotSales->sum(fn ($sale) => (float) ($sale->total_plot_cost ?? 0));
+                                $planTypes = $payments->pluck('plan_type')->filter()->unique()->values();
+                                $planType = $planTypes->count() > 1 ? 'mixed' : $planTypes->first();
                             @endphp
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
@@ -122,17 +131,26 @@
                                 <td>
                                     <div class="fw-semibold text-dark">{{ $projectName }}</div>
                                     <small class="text-muted">
-                                        Block {{ $blockName }} / Plot {{ $plotNumber }}
+                                        Block {{ $blockName }} / Plot {{ $plotNumbers }}
                                     </small>
+                                    @if ($plotCount > 1)
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">
+                                            {{ $plotCount }} Plots
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="fw-bold">
-                                    &#8377;{{ number_format((float) ($plotSale?->plot_rate ?? 0), 2) }}
+                                    &#8377;{{ number_format($totalCost, 2) }}
                                 </td>
                                 <td>
-                                    {{ $plotSale?->plot_area ?? '-' }} Sq.ft
+                                    {{ number_format($totalArea, 2) }} Sq.ft
                                 </td>
                                 <td>
-                                    @if ($planType == 'emi_plan')
+                                    @if ($planType == 'mixed')
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                            Mixed
+                                        </span>
+                                    @elseif ($planType == 'emi_plan')
                                         <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
                                             EMI Plan
                                         </span>

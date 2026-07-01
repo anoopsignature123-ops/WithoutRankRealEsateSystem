@@ -46,6 +46,25 @@
             font-weight: bold;
         }
 
+        .plot-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0 16px 0;
+            font-size: 12px;
+        }
+
+        .plot-table th,
+        .plot-table td {
+            border: 1px solid #555;
+            padding: 5px 6px;
+            text-align: left;
+        }
+
+        .plot-table th {
+            background: #f1f1f1;
+            font-weight: bold;
+        }
+
         .signature-table,
         .witness-table {
             width: 100%;
@@ -103,6 +122,9 @@
     @php
         $primary = $booking->primaryDetail;
         $plotSale = $booking->plotSaleDetail;
+        $plotSales = $booking->relationLoaded('plotSaleDetails') && $booking->plotSaleDetails->isNotEmpty()
+            ? $booking->plotSaleDetails
+            : collect([$plotSale])->filter();
         $plotDetail = $plotSale?->plotDetail;
         $project = $plotSale?->project;
         $block = $plotSale?->block;
@@ -113,10 +135,12 @@
 
         $projectName = strtoupper($project?->name ?? 'SANI INFRA HEIGHT');
         $blockName = $block?->block ?? '-';
-        $plotNumber = $plotDetail?->plot_number ?? '-';
-        $plotArea = $plotSale?->plot_area ? number_format($plotSale->plot_area, 2) : '0.00';
+        $plotNumber = $plotSales->pluck('plotDetail.plot_number')->filter()->implode(', ') ?: ($plotDetail?->plot_number ?? '-');
+        $plotArea = number_format($plotSales->sum(fn ($sale) => (float) ($sale->plot_area ?? 0)), 2);
+        $isMultiplePlot = $plotSales->count() > 1;
 
-        $bookingAmount = $payment?->booking_amount ? number_format($payment->booking_amount, 2) . '/-' : '0.00/-';
+        $bookingAmountValue = $booking->payments?->sum(fn ($item) => (float) ($item->booking_amount ?? $item->paid_amount ?? 0)) ?? 0;
+        $bookingAmount = $bookingAmountValue > 0 ? number_format($bookingAmountValue, 2) . '/-' : '0.00/-';
         $paymentMode = $payment?->payment_mode ? ucwords(str_replace('_', ' ', $payment->payment_mode)) : '-';
         $paymentDate = $payment?->created_at ? $payment->created_at->format('d/m/Y') : '-';
 
@@ -152,10 +176,35 @@
             Payment Schedule (Annexure-B) of the attached Booking Form for the said Property Unit
             (Project - <strong>{{ $projectName }}</strong>,
             Block - <strong>{{ $blockName }}</strong>,
-            Plot No - <strong>{{ $plotNumber }}</strong>,
-            Area <strong>{{ $plotArea }} Sq.ft.</strong>) as per the attached map of the project
+            Plot No{{ $isMultiplePlot ? 's' : '' }} - <strong>{{ $plotNumber }}</strong>,
+            Total Area <strong>{{ $plotArea }} Sq.ft.</strong>) as per the attached map of the project
             <strong>{{ $projectName }}</strong> of the First Party (SANI INFRA HEIGHT).
         </p>
+
+        @if ($isMultiplePlot)
+            <table class="plot-table">
+                <thead>
+                    <tr>
+                        <th>Plot No.</th>
+                        <th>Block</th>
+                        <th>Area</th>
+                        <th>Rate</th>
+                        <th>Total Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($plotSales as $sale)
+                        <tr>
+                            <td>{{ $sale?->plotDetail?->plot_number ?? '-' }}</td>
+                            <td>{{ $sale?->block?->block ?? '-' }}</td>
+                            <td>{{ number_format((float) ($sale?->plot_area ?? 0), 2) }} Sq.ft.</td>
+                            <td>Rs. {{ number_format((float) ($sale?->plot_rate ?? 0), 2) }}</td>
+                            <td>Rs. {{ number_format((float) ($sale?->total_plot_cost ?? 0), 2) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
 
         <p>
             An amount of Rs. <strong>{{ $bookingAmount }}</strong>

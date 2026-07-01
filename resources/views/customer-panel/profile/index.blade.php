@@ -9,7 +9,11 @@
         $email = $contact?->email ?? 'N/A';
         $mobile = $contact?->mobile_number ? '+91 ' . $contact->mobile_number : 'N/A';
         $address = $primary?->permanent_address ?? 'N/A';
-        $initial = strtoupper(substr($customerName, 0, 1));
+        $initial = collect(explode(' ', trim($customerName)))
+            ->filter()
+            ->take(2)
+            ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+            ->implode('') ?: 'C';
     @endphp
 
     <div class="container-fluid customer-panel-page customer-profile-page">
@@ -44,6 +48,10 @@
                 <small>
                     Joined {{ $customer->created_at?->format('d M Y') ?? 'N/A' }}
                 </small>
+
+                <a href="{{ route('customer-panel.manage-profile') }}" class="btn btn-success btn-sm fw-semibold">
+                    <i class="bi bi-pencil-square me-1"></i> Manage Profile
+                </a>
             </div>
         </div>
 
@@ -52,7 +60,7 @@
                 <div class="customer-section-card mb-4">
                     <div class="customer-section-header d-block">
                         <h5 class="mb-1">Contact Details</h5>
-                        <p class="mb-0">Basic customer contact information.</p>
+                        <p class="mb-0">Your registered customer contact information.</p>
                     </div>
 
                     <div class="customer-profile-list">
@@ -95,14 +103,14 @@
 
                     <div class="customer-action-list">
                         <a href="{{ route('customer-panel.my-plot-booking') }}" class="customer-action-item">
-                            <i class="bi bi-house-check"></i>
+                            <i class="bi bi-pin-map"></i>
                             <span>
                                 <strong>My Plot Booking</strong>
                                 <small>View booked plots</small>
                             </span>
                         </a>
                         <a href="{{ route('customer-panel.payment-history') }}" class="customer-action-item">
-                            <i class="bi bi-wallet2"></i>
+                            <i class="bi bi-receipt"></i>
                             <span>
                                 <strong>Payment History</strong>
                                 <small>View receipts and status</small>
@@ -200,25 +208,34 @@
                     <div class="col-lg-6">
                         <div class="customer-section-card h-100">
                             <div class="customer-section-header d-block">
-                                <h5 class="mb-1">Latest Plot</h5>
-                                <p class="mb-0">Most recent plot booking.</p>
+                                <h5 class="mb-1">Latest Booking</h5>
+                                <p class="mb-0">Most recent booking group linked with your account.</p>
                             </div>
                             <div class="customer-section-body">
-                                @if ($latestPlot)
+                                @if ($latestBooking)
                                     <div class="customer-profile-mini">
                                         <span>Booking Code</span>
-                                        <strong>{{ $latestPlot->booking_code ?? 'N/A' }}</strong>
+                                        <strong>{{ $latestBooking['booking_code'] }}</strong>
                                     </div>
                                     <div class="customer-profile-mini">
                                         <span>Project</span>
-                                        <strong>{{ $latestPlot->project?->name ?? 'N/A' }}</strong>
+                                        <strong>{{ $latestBooking['project'] }}</strong>
                                     </div>
                                     <div class="customer-profile-mini">
-                                        <span>Plot No</span>
+                                        <span>Plot{{ $latestBooking['plot_count'] > 1 ? 's' : '' }}</span>
                                         <strong class="text-success">
-                                            {{ $latestPlot->plotDetail?->plot_number ?? ($latestPlot->plotDetail?->plot_no ?? 'N/A') }}
+                                            {{ $latestBooking['plots'] }}
                                         </strong>
                                     </div>
+                                    <div class="customer-profile-mini">
+                                        <span>Total Cost</span>
+                                        <strong>&#8377;{{ number_format($latestBooking['total_cost'], 2) }}</strong>
+                                    </div>
+                                    @if ($latestBooking['plot_count'] > 1)
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle mt-2">
+                                            {{ $latestBooking['plot_count'] }} Plots in this booking
+                                        </span>
+                                    @endif
                                     <a href="{{ route('customer-panel.my-plot-booking') }}"
                                         class="btn btn-outline-success rounded-pill px-4 mt-3">
                                         View Plot Details
@@ -242,6 +259,12 @@
                                         <span>Receipt No</span>
                                         <strong>{{ $latestPayment->receipt_number ?? 'N/A' }}</strong>
                                     </div>
+                                    @if ($latestPayment->plotSaleDetail?->plotDetail?->plot_number)
+                                        <div class="customer-profile-mini">
+                                            <span>Plot</span>
+                                            <strong>{{ $latestPayment->plotSaleDetail->plotDetail->plot_number }}</strong>
+                                        </div>
+                                    @endif
                                     <div class="customer-profile-mini">
                                         <span>Amount</span>
                                         <strong class="text-success">

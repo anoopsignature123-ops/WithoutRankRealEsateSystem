@@ -37,9 +37,9 @@ class AssociateDashboardService
         $recentLedgers = (clone $basePayments)
             ->with([
                 'customerBooking.primaryDetail',
-                'customerBooking.plotSaleDetail.plotDetail',
-                'customerBooking.plotSaleDetail.project',
-                'customerBooking.plotSaleDetail.block',
+                'plotSaleDetail.plotDetail',
+                'plotSaleDetail.project',
+                'plotSaleDetail.block',
             ])
             ->latest('id')
             ->take(10)

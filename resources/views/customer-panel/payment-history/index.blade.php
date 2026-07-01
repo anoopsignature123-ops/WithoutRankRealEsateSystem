@@ -5,30 +5,30 @@
         <div class="customer-profile-hero mb-4">
             <div class="customer-profile-main">
                 <div class="customer-avatar profile-avatar">
-                    <i class="bi bi-wallet2"></i>
+                    <i class="bi bi-receipt"></i>
                 </div>
                 <div>
                     <span class="customer-dashboard-kicker">Payment History</span>
                     <h3 class="mb-1">My Payment History</h3>
-                    <p class="mb-0">Track every payment, status, mode and receipt from one place.</p>
+                    <p class="mb-0">Track receipts, grouped payments, plots, mode details and download receipt PDFs.</p>
                 </div>
             </div>
 
             <div class="customer-profile-meta">
                 <span class="badge bg-white text-success border rounded-pill px-3 py-2">
-                    Total Payments: {{ $payments->count() }}
+                    {{ $paymentRecords->count() }} Receipt{{ $paymentRecords->count() === 1 ? '' : 's' }}
                 </span>
-                <small>Receipts available for download</small>
+                <small>Multiple plot receipts are shown as one record</small>
             </div>
         </div>
 
         <div class="row g-3 mb-4">
             <div class="col-md-6 col-xl-3">
                 <div class="customer-stat-card success">
-                    <div class="customer-stat-icon"><i class="bi bi-receipt"></i></div>
+                    <div class="customer-stat-icon"><i class="bi bi-receipt-cutoff"></i></div>
                     <div>
                         <small>Total Receipts</small>
-                        <h4>{{ $payments->count() }}</h4>
+                        <h4>{{ $paymentRecords->count() }}</h4>
                     </div>
                 </div>
             </div>
@@ -65,19 +65,19 @@
             <div class="customer-section-header">
                 <div>
                     <h5 class="mb-1">Payment Records</h5>
-                    <p class="mb-0">Click View Details to see full receipt, plot, payment mode and amount breakup.</p>
+                    <p class="mb-0">Each receipt is listed once, with all related plot/payment details inside the modal.</p>
                 </div>
             </div>
 
             <div class="customer-section-body">
-                @if ($payments->count())
+                @if ($paymentRecords->count())
                     <div class="table-responsive">
                         <table id="paymentHistoryTable" class="table table-hover align-middle nowrap w-100 customer-table payment-history-table">
                             <thead>
                                 <tr>
-                                    <th>Sr.No</th>
+                                    <th>#</th>
                                     <th>Receipt</th>
-                                    <th>Booking / Plot</th>
+                                    <th>Booking / Plots</th>
                                     <th>Payment Type</th>
                                     <th>Mode</th>
                                     <th>Amount</th>
@@ -87,69 +87,73 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($payments as $key => $payment)
-                                @php
-                                    $plotSale = $payment->plotSaleDetail;
-                                    $amount = (float) ($payment->paid_amount ?? $payment->booking_amount ?? 0);
-                                    $paymentAs = match ($payment->transaction_category) {
-                                        'booking_fee' => 'Booking Amount',
-                                        'emi_payment' => 'EMI Payment',
-                                        'one_time' => 'One Time Payment',
-                                        default => ucwords(str_replace('_', ' ', $payment->transaction_category ?? 'Payment')),
-                                    };
-                                    $paymentDate = $payment->payment_date
-                                        ? \Carbon\Carbon::parse($payment->payment_date)->format('d M Y')
-                                        : ($payment->created_at ? $payment->created_at->format('d M Y') : 'N/A');
-                                    $statusText = ucfirst($payment->payment_status ?? 'N/A');
-                                    $statusClass = match ($payment->payment_status) {
-                                        'cleared', 'paid' => 'bg-success-subtle text-success border border-success-subtle',
-                                        'pending' => 'bg-warning-subtle text-warning border border-warning-subtle',
-                                        'bounced' => 'bg-danger-subtle text-danger border border-danger-subtle',
-                                        default => 'bg-secondary-subtle text-secondary border border-secondary-subtle',
-                                    };
-                                    $bookingStatusClass = ($payment->booking_status ?? '') === 'booked'
-                                        ? 'bg-success-subtle text-success border border-success-subtle'
-                                        : 'bg-warning-subtle text-warning border border-warning-subtle';
-                                    $modalId = 'paymentDetailModal' . $payment->id;
-                                @endphp
+                                @foreach($paymentRecords as $key => $record)
+                                    @php
+                                        $payment = $record->representative;
+                                        $paymentAs = match ($record->transaction_category) {
+                                            'booking_fee' => 'Booking Amount',
+                                            'emi_payment' => 'EMI Payment',
+                                            'one_time' => 'One Time Payment',
+                                            default => ucwords(str_replace('_', ' ', $record->transaction_category ?? 'Payment')),
+                                        };
+                                        $statusText = $record->payment_status === 'mixed'
+                                            ? 'Mixed'
+                                            : ucfirst($record->payment_status ?? 'N/A');
+                                        $statusClass = match ($record->payment_status) {
+                                            'cleared', 'paid' => 'bg-success-subtle text-success border border-success-subtle',
+                                            'pending', 'hold', 'mixed' => 'bg-warning-subtle text-warning border border-warning-subtle',
+                                            'bounced' => 'bg-danger-subtle text-danger border border-danger-subtle',
+                                            default => 'bg-secondary-subtle text-secondary border border-secondary-subtle',
+                                        };
+                                        $modalId = 'paymentDetailModal' . $record->id;
+                                    @endphp
 
-                                <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                    <td style="min-width: 170px;">
-                                        <strong class="d-block">{{ $payment->receipt_number ?? 'N/A' }}</strong>
-                                        <small class="text-muted">S.No #{{ $payment->id }}</small>
-                                    </td>
-                                    <td style="min-width: 220px;">
-                                        <strong class="d-block">{{ $plotSale?->booking_code ?? 'N/A' }}</strong>
-                                        <small class="text-muted">
-                                            {{ $plotSale?->project?->name ?? 'N/A' }}
-                                            / Plot {{ $plotSale?->plotDetail?->plot_number ?? 'N/A' }}
-                                        </small>
-                                    </td>
-                                    <td>{{ $paymentAs }}</td>
-                                    <td>{{ strtoupper(str_replace('_', ' / ', $payment->payment_mode ?? 'N/A')) }}</td>
-                                    <td>
-                                        <strong class="text-success">&#8377;{{ number_format($amount, 2) }}</strong>
-                                    </td>
-                                    <td>{{ $paymentDate }}</td>
-                                    <td>
-                                        <span class="badge rounded-pill px-3 py-2 {{ $statusClass }}">
-                                            {{ $statusText }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3"
-                                                data-bs-toggle="modal" data-bs-target="#{{ $modalId }}">
-                                                <i class="bi bi-eye me-1"></i> Details
-                                            </button>
-                                            <a href="{{ route('customer-panel.payment-history.receipt.download', $payment->id) }}"
-                                                class="btn btn-success btn-sm rounded-pill px-3">
-                                                <i class="bi bi-download me-1"></i> Receipt
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td>{{ $key + 1 }}</td>
+                                        <td style="min-width: 180px;">
+                                            <strong class="d-block">{{ $record->receipt_number }}</strong>
+                                            <small class="text-muted">
+                                                S.No #{{ $record->id }}
+                                                @if ($record->manual_receipt_number)
+                                                    | Manual: {{ $record->manual_receipt_number }}
+                                                @endif
+                                            </small>
+                                        </td>
+                                        <td style="min-width: 240px;">
+                                            <strong class="d-block">{{ $record->booking_codes }}</strong>
+                                            <small class="text-muted d-block">
+                                                {{ $record->project_names }} / Plot {{ $record->plot_numbers }}
+                                            </small>
+                                            @if ($record->plot_count > 1)
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">
+                                                    {{ $record->plot_count }} Plots
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $paymentAs }}</td>
+                                        <td>{{ strtoupper(str_replace('_', ' / ', $record->payment_mode ?? 'N/A')) }}</td>
+                                        <td>
+                                            <strong class="text-success">&#8377;{{ number_format($record->amount, 2) }}</strong>
+                                        </td>
+                                        <td>{{ $record->created_at ? $record->created_at->format('d M Y') : 'N/A' }}</td>
+                                        <td>
+                                            <span class="badge rounded-pill px-3 py-2 {{ $statusClass }}">
+                                                {{ $statusText }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3"
+                                                    data-bs-toggle="modal" data-bs-target="#{{ $modalId }}">
+                                                    <i class="bi bi-eye me-1"></i> Details
+                                                </button>
+                                                <a href="{{ route('customer-panel.payment-history.receipt.download', $record->id) }}"
+                                                    class="btn btn-success btn-sm rounded-pill px-3">
+                                                    <i class="bi bi-download me-1"></i> Receipt
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforeach
                             </tbody>
                         </table>
@@ -164,20 +168,19 @@
             </div>
         </div>
 
-        @foreach($payments as $payment)
+        @foreach($paymentRecords as $record)
             @php
-                $plotSale = $payment->plotSaleDetail;
-                $amount = (float) ($payment->paid_amount ?? $payment->booking_amount ?? 0);
-                $paymentAs = match ($payment->transaction_category) {
+                $payment = $record->representative;
+                $paymentAs = match ($record->transaction_category) {
                     'booking_fee' => 'Booking Amount',
                     'emi_payment' => 'EMI Payment',
                     'one_time' => 'One Time Payment',
-                    default => ucwords(str_replace('_', ' ', $payment->transaction_category ?? 'Payment')),
+                    default => ucwords(str_replace('_', ' ', $record->transaction_category ?? 'Payment')),
                 };
-                $modalId = 'paymentDetailModal' . $payment->id;
-                $statusClass = match ($payment->payment_status) {
+                $modalId = 'paymentDetailModal' . $record->id;
+                $statusClass = match ($record->payment_status) {
                     'cleared', 'paid' => 'bg-success-subtle text-success border border-success-subtle',
-                    'pending' => 'bg-warning-subtle text-warning border border-warning-subtle',
+                    'pending', 'hold', 'mixed' => 'bg-warning-subtle text-warning border border-warning-subtle',
                     'bounced' => 'bg-danger-subtle text-danger border border-danger-subtle',
                     default => 'bg-secondary-subtle text-secondary border border-secondary-subtle',
                 };
@@ -193,8 +196,8 @@
                                 </div>
                                 <div>
                                     <span>Payment Receipt</span>
-                                    <h5>{{ $payment->receipt_number ?? 'N/A' }}</h5>
-                                    <small>S.No #{{ $payment->id }} | {{ $paymentAs }}</small>
+                                    <h5>{{ $record->receipt_number }}</h5>
+                                    <small>S.No #{{ $record->id }} | {{ $paymentAs }}</small>
                                 </div>
                             </div>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -204,22 +207,22 @@
                             <div class="customer-receipt-summary">
                                 <div>
                                     <small>Paid Amount</small>
-                                    <strong>&#8377;{{ number_format($amount, 2) }}</strong>
+                                    <strong>&#8377;{{ number_format($record->amount, 2) }}</strong>
                                 </div>
                                 <div>
                                     <small>Payment Mode</small>
-                                    <strong>{{ strtoupper(str_replace('_', ' / ', $payment->payment_mode ?? 'N/A')) }}</strong>
+                                    <strong>{{ strtoupper(str_replace('_', ' / ', $record->payment_mode ?? 'N/A')) }}</strong>
                                 </div>
                                 <div>
                                     <small>Payment Date</small>
-                                    <strong>{{ $payment->created_at ? $payment->created_at->format('d M Y') : 'N/A' }}</strong>
+                                    <strong>{{ $record->created_at ? $record->created_at->format('d M Y') : 'N/A' }}</strong>
                                 </div>
                                 <div class="customer-receipt-status">
                                     <span class="badge rounded-pill px-3 py-2 {{ $statusClass }}">
-                                        {{ ucfirst($payment->payment_status ?? 'N/A') }}
+                                        {{ $record->payment_status === 'mixed' ? 'Mixed' : ucfirst($record->payment_status ?? 'N/A') }}
                                     </span>
                                     <span class="badge rounded-pill px-3 py-2 bg-light text-dark border">
-                                        {{ ucfirst($payment->booking_status ?? 'N/A') }}
+                                        {{ $record->booking_status === 'mixed' ? 'Mixed' : ucfirst($record->booking_status ?? 'N/A') }}
                                     </span>
                                 </div>
                             </div>
@@ -233,20 +236,20 @@
                                                 <span>Amount Breakup</span>
                                             </div>
                                             <div class="customer-receipt-line">
-                                                <span>Booking Amount</span>
-                                                <strong>&#8377;{{ number_format((float) ($payment->booking_amount ?? 0), 2) }}</strong>
+                                                <span>Total Receipt Amount</span>
+                                                <strong>&#8377;{{ number_format($record->amount, 2) }}</strong>
+                                            </div>
+                                            <div class="customer-receipt-line">
+                                                <span>Net Plot Payable</span>
+                                                <strong>&#8377;{{ number_format($record->net_payable_amount, 2) }}</strong>
                                             </div>
                                             <div class="customer-receipt-line highlight">
                                                 <span>Paid Amount</span>
-                                                <strong>&#8377;{{ number_format($amount, 2) }}</strong>
+                                                <strong>&#8377;{{ number_format($record->amount, 2) }}</strong>
                                             </div>
                                             <div class="customer-receipt-line">
                                                 <span>Due Amount</span>
-                                                <strong class="text-danger">&#8377;{{ number_format((float) ($payment->due_amount ?? 0), 2) }}</strong>
-                                            </div>
-                                            <div class="customer-receipt-line">
-                                                <span>Net Payable</span>
-                                                <strong>&#8377;{{ number_format((float) ($payment->net_payable_amount ?? 0), 2) }}</strong>
+                                                <strong class="text-danger">&#8377;{{ number_format($record->due_amount, 2) }}</strong>
                                             </div>
                                         </div>
 
@@ -261,9 +264,11 @@
                                             </div>
                                             <div class="customer-receipt-line">
                                                 <span>Plan Type</span>
-                                                <strong>{{ $payment->plan_type === 'emi_plan' ? 'EMI Plan' : 'Full Payment' }}</strong>
+                                                <strong>
+                                                    {{ $record->plan_type === 'emi_plan' ? 'EMI Plan' : ($record->plan_type === 'mixed' ? 'Mixed Plan' : 'Full Payment') }}
+                                                </strong>
                                             </div>
-                                            @if ($payment->plan_type === 'emi_plan')
+                                            @if ($record->plan_type === 'emi_plan')
                                                 <div class="customer-receipt-line">
                                                     <span>EMI Months</span>
                                                     <strong>{{ $payment->emi_months ?? 'N/A' }}</strong>
@@ -273,7 +278,7 @@
                                                     <strong>&#8377;{{ number_format((float) ($payment->after_booking_payable_amount ?? 0), 2) }}</strong>
                                                 </div>
                                             @endif
-                                            @if ($payment->payment_mode === 'cheque')
+                                            @if ($record->payment_mode === 'cheque')
                                                 <div class="customer-receipt-line">
                                                     <span>Cheque No</span>
                                                     <strong>{{ $payment->cheque_number ?? 'N/A' }}</strong>
@@ -282,18 +287,18 @@
                                                     <span>Cheque Status</span>
                                                     <strong>{{ ucfirst($payment->cheque_status ?? 'N/A') }}</strong>
                                                 </div>
-                                            @elseif ($payment->payment_mode === 'dd')
+                                            @elseif ($record->payment_mode === 'dd')
                                                 <div class="customer-receipt-line">
                                                     <span>DD Number</span>
                                                     <strong>{{ $payment->dd_number ?? 'N/A' }}</strong>
                                                 </div>
-                                            @elseif (in_array($payment->payment_mode, ['neft_rtgs', 'card']))
+                                            @elseif (in_array($record->payment_mode, ['neft_rtgs', 'card']))
                                                 <div class="customer-receipt-line">
                                                     <span>Transaction No</span>
                                                     <strong>{{ $payment->transaction_number ?? 'N/A' }}</strong>
                                                 </div>
                                             @endif
-                                            @if (in_array($payment->payment_mode, ['cheque', 'dd', 'neft_rtgs', 'card']))
+                                            @if (in_array($record->payment_mode, ['cheque', 'dd', 'neft_rtgs', 'card']))
                                                 <div class="customer-receipt-line">
                                                     <span>Bank</span>
                                                     <strong>{{ $payment->bank_name ?? 'N/A' }}</strong>
@@ -309,38 +314,79 @@
                                     <div class="col-lg-7">
                                         <div class="customer-receipt-panel">
                                             <div class="customer-receipt-panel-title">
-                                                <i class="bi bi-house-check"></i>
+                                                <i class="bi bi-pin-map"></i>
                                                 <span>Booking & Plot Detail</span>
                                             </div>
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <div class="customer-info-card">
-                                                    <small>Booking Code</small>
-                                                    <strong>{{ $plotSale?->booking_code ?? $payment->customerBooking?->booking_code ?? 'N/A' }}</strong>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="customer-info-card">
-                                                    <small>Project</small>
-                                                    <strong>{{ $plotSale?->project?->name ?? 'N/A' }}</strong>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="customer-info-card">
-                                                    <small>Block / Plot</small>
-                                                    <strong>
-                                                        {{ $plotSale?->block?->block ?? 'N/A' }} /
-                                                        {{ $plotSale?->plotDetail?->plot_number ?? 'N/A' }}
-                                                    </strong>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="customer-info-card">
-                                                    <small>Total Plot Cost</small>
-                                                    <strong>&#8377;{{ number_format((float) ($plotSale?->total_plot_cost ?? 0), 2) }}</strong>
-                                                </div>
+
+                                            <div class="table-responsive transaction-mini-table">
+                                                <table class="table table-hover align-middle mb-0 transaction-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Plot</th>
+                                                            <th>Project / Block</th>
+                                                            <th>Area</th>
+                                                            <th>Total Cost</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @forelse ($record->plots as $plotSale)
+                                                            <tr>
+                                                                <td class="fw-bold text-success">
+                                                                    {{ $plotSale?->plotDetail?->plot_number ?? 'N/A' }}
+                                                                </td>
+                                                                <td>
+                                                                    <strong>{{ $plotSale?->project?->name ?? 'N/A' }}</strong>
+                                                                    <small class="text-muted d-block">
+                                                                        Block {{ $plotSale?->block?->block ?? 'N/A' }}
+                                                                    </small>
+                                                                </td>
+                                                                <td>{{ number_format((float) ($plotSale?->plot_area ?? 0), 2) }} Sq.Ft.</td>
+                                                                <td class="fw-bold">&#8377;{{ number_format((float) ($plotSale?->total_plot_cost ?? 0), 2) }}</td>
+                                                            </tr>
+                                                        @empty
+                                                            <tr>
+                                                                <td colspan="4" class="text-center text-muted py-3">
+                                                                    Plot details not available.
+                                                                </td>
+                                                            </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
+
+                                        <div class="customer-receipt-panel mt-4">
+                                            <div class="customer-receipt-panel-title">
+                                                <i class="bi bi-list-check"></i>
+                                                <span>Receipt Payment Rows</span>
+                                            </div>
+
+                                            <div class="table-responsive transaction-mini-table">
+                                                <table class="table table-hover align-middle mb-0 transaction-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Plot</th>
+                                                            <th>Paid</th>
+                                                            <th>Due</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($record->payments as $rowPayment)
+                                                            <tr>
+                                                                <td>{{ $rowPayment->plotSaleDetail?->plotDetail?->plot_number ?? 'N/A' }}</td>
+                                                                <td class="fw-bold text-success">
+                                                                    &#8377;{{ number_format((float) ($rowPayment->paid_amount ?? $rowPayment->booking_amount ?? 0), 2) }}
+                                                                </td>
+                                                                <td class="fw-bold text-danger">
+                                                                    &#8377;{{ number_format((float) ($rowPayment->due_amount ?? 0), 2) }}
+                                                                </td>
+                                                                <td>{{ ucfirst($rowPayment->payment_status ?? 'N/A') }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
 
                                             <div class="customer-receipt-note mt-4">
                                                 <span>Remark</span>
@@ -354,7 +400,7 @@
 
                         <div class="modal-footer bg-light border-0">
                             <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
-                            <a href="{{ route('customer-panel.payment-history.receipt.download', $payment->id) }}"
+                            <a href="{{ route('customer-panel.payment-history.receipt.download', $record->id) }}"
                                 class="btn btn-success rounded-pill px-4">
                                 <i class="bi bi-download me-1"></i>
                                 Download Receipt
@@ -368,7 +414,7 @@
 @endsection
 
 @push('scripts')
-    @if ($payments->count())
+    @if ($paymentRecords->count())
         <script>
             $(document).ready(function() {
                 $('#paymentHistoryTable').DataTable({
