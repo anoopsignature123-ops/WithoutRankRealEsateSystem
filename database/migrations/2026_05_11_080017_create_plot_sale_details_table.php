@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('coupon_discount')->nullable();
             $table->string('total_plot_cost')->nullable();
             $table->date('booking_date')->nullable();
+            $table->enum('status', ['active', 'cancelled', 'transferred', 'changed'])->default('active');
             $table->timestamps();
         });
     }

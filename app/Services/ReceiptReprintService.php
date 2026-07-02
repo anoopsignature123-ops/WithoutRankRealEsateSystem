@@ -50,7 +50,8 @@ class ReceiptReprintService
             ->groupBy(fn ($payment) => $payment->receipt_number ?: 'payment-'.$payment->id)
             ->map(function ($group, $key) {
                 $receipt = $group->sortByDesc('id')->first();
-                $plotSales = $group->pluck('plotSaleDetail')->filter();
+                $plotSales = $group->pluck('plotSaleDetail')
+                    ->filter();
                 $plotLabels = $plotSales->map(function ($plotSale) {
                     return trim(($plotSale?->block?->block ?? '-') . '-' . ($plotSale?->plotDetail?->plot_number ?? '-'));
                 })->unique()->values();

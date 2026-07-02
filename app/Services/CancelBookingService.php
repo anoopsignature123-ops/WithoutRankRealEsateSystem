@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\CancelBooking;
-use App\Models\CustomerBooking;
 use App\Models\PlotDetail;
 use App\Models\PlotSaleDetail;
 use App\Models\Project;
@@ -26,6 +25,7 @@ class CancelBookingService
             'payments',
         ])
             ->whereNotNull('booking_code')
+            ->where('status', 'active')
             ->whereHas('customerBooking', function ($query) {
                 $query->where('status', '!=', 'cancelled');
             })
@@ -63,10 +63,15 @@ class CancelBookingService
                 throw new Exception('Customer booking not found.');
             }
 
+            if ($plotSale->status !== 'active') {
+                throw new Exception('Selected plot sale is not active.');
+            }
+
             $groupPlotSales = $plotSale->booking_code
                 ? PlotSaleDetail::with(['payments', 'plotDetail'])
                     ->where('customer_booking_id', $booking->id)
                     ->where('booking_code', $plotSale->booking_code)
+                    ->where('status', 'active')
                     ->whereHas('plotDetail', function ($query) {
                         $query->whereIn('status', ['booked', 'hold']);
                     })
@@ -108,6 +113,7 @@ class CancelBookingService
 
             $totalDeduction = round((float) ($data['deduction_amount'] ?? 0), 2);
             $totalRefund = round((float) ($data['refund_amount'] ?? 0), 2);
+
             $allocatedDeduction = 0.0;
             $allocatedRefund = 0.0;
             $lastPlotIndex = $groupPlotSales->count() - 1;
@@ -146,17 +152,21 @@ class CancelBookingService
                     'cheque_date' => $data['cheque_date'] ?? null,
                 ]);
 
+                $sale->update([
+                    'status' => 'cancelled',
+                ]);
+
                 if ($sale->plot_detail_id) {
-                    PlotDetail::where('id', $sale->plot_detail_id)
-                        ->update([
-                            'status' => 'available',
-                        ]);
+                    PlotDetail::where('id', $sale->plot_detail_id)->update([
+                        'status' => 'available',
+                    ]);
                 }
             }
 
             $activePlotCount = PlotSaleDetail::where('customer_booking_id', $booking->id)
                 ->whereNotIn('id', $groupPlotSales->pluck('id'))
                 ->whereNotNull('booking_code')
+                ->where('status', 'active')
                 ->whereHas('plotDetail', function ($query) {
                     $query->whereIn('status', ['booked', 'hold']);
                 })

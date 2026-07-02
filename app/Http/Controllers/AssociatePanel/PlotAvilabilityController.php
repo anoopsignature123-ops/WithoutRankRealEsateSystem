@@ -13,26 +13,39 @@ class PlotAvilabilityController extends Controller
 {
     public function plotAvilable(Request $request)
     {
-        $query = PlotDetail::with(['project', 'block', 'plotSaleDetail']);
+        $query = PlotDetail::with([
+            'project',
+            'block',
+            'plotSaleDetail' => function ($q) {
+                $q->where('status', 'active');
+            },
+        ]);
 
         if ($request->filled('project_id')) {
             $query->where('project_id', $request->project_id);
         }
+
         if ($request->filled('block_id')) {
             $query->where('block_id', $request->block_id);
         }
+
         if ($request->filled('plot_number')) {
-            $query->where('plot_number', 'like', '%'.$request->plot_number.'%');
+            $query->where('plot_number', 'like', '%' . $request->plot_number . '%');
         }
 
         $plots = $query->get()->each(function ($plot) {
             $plot->current_status = 'Available';
-            if ($plot->plotSaleDetail) {
-                $plot->current_status = ($plot->plotSaleDetail->booking_status == 'alloted') ? 'Alloted Plot' : 'Booked Plot';
-            }
+
             if ($plot->status == 'hold') {
                 $plot->current_status = 'Hold Plot';
             }
+
+            if ($plot->status == 'booked' && $plot->plotSaleDetail) {
+                $plot->current_status = ($plot->plotSaleDetail->booking_status == 'alloted')
+                    ? 'Alloted Plot'
+                    : 'Booked Plot';
+            }
+
             if (PlotRegistry::where('plot_detail_id', $plot->id)->exists()) {
                 $plot->current_status = 'Registry Plot';
             }
@@ -46,26 +59,39 @@ class PlotAvilabilityController extends Controller
 
     public function index(Request $request)
     {
-        $query = PlotDetail::with(['project', 'block', 'plotSaleDetail']);
+        $query = PlotDetail::with([
+            'project',
+            'block',
+            'plotSaleDetail' => function ($q) {
+                $q->where('status', 'active');
+            },
+        ]);
 
         if ($request->filled('project_id')) {
             $query->where('project_id', $request->project_id);
         }
+
         if ($request->filled('block_id')) {
             $query->where('block_id', $request->block_id);
         }
+
         if ($request->filled('plot_number')) {
-            $query->where('plot_number', 'like', '%'.$request->plot_number.'%');
+            $query->where('plot_number', 'like', '%' . $request->plot_number . '%');
         }
 
         $plots = $query->get()->each(function ($plot) {
             $plot->current_status = 'Available';
-            if ($plot->plotSaleDetail) {
-                $plot->current_status = ($plot->plotSaleDetail->booking_status == 'alloted') ? 'Alloted Plot' : 'Booked Plot';
-            }
+
             if ($plot->status == 'hold') {
                 $plot->current_status = 'Hold Plot';
             }
+
+            if ($plot->status == 'booked' && $plot->plotSaleDetail) {
+                $plot->current_status = ($plot->plotSaleDetail->booking_status == 'alloted')
+                    ? 'Alloted Plot'
+                    : 'Booked Plot';
+            }
+
             if (PlotRegistry::where('plot_detail_id', $plot->id)->exists()) {
                 $plot->current_status = 'Registry Plot';
             }

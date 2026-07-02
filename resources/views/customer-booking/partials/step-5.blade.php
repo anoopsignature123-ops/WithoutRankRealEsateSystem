@@ -14,7 +14,7 @@
             </a>
 
             <button type="submit" class="btn btn-success ms-2 px-4">
-                Add Customer & Book Plot
+                Save Payment & Complete
             </button>
         </div>
     </form>

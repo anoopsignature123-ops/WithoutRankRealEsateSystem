@@ -224,13 +224,44 @@ class CustomerBookingService
 
     public function storeStepFour($customerId, array $data)
     {
+        $editBookingCode = $data['edit_booking_code'] ?? null;
         $plotIds = collect($data['plot_detail_ids'] ?? [])
             ->filter()
             ->unique()
             ->values();
 
+        $bookingCode = null;
+        if ($editBookingCode) {
+            $bookingCode = $editBookingCode;
+        }
+
         if ($plotIds->isNotEmpty()) {
             $plotDetails = collect($data['plot_details'] ?? []);
+            if (! $bookingCode) {
+                $bookingCode = $this->makePlotBookingCode($customerId);
+            }
+
+            $groupHasPayment = PlotSaleDetail::where('customer_booking_id', $customerId)
+                ->where('booking_code', $bookingCode)
+                ->whereHas('payments', fn ($query) => $query->where('transaction_category', 'booking_fee'))
+                ->exists();
+
+            if ($groupHasPayment) {
+                throw new \Exception('This booking group already has payment and cannot be edited.');
+            }
+
+            $alreadyUsedPlots = PlotSaleDetail::where('customer_booking_id', $customerId)
+                ->whereIn('plot_detail_id', $plotIds->all())
+                ->where(function ($query) use ($bookingCode) {
+                    $query->whereNull('booking_code')
+                        ->orWhere('booking_code', '!=', $bookingCode);
+                })
+                ->exists();
+
+            if ($alreadyUsedPlots) {
+                throw new \Exception('One or more selected plots already belong to another booking group.');
+            }
+
             $baseTotal = $plotIds->sum(function ($plotId) use ($plotDetails) {
                 $detail = $plotDetails->get((string) $plotId, $plotDetails->get($plotId, []));
 
@@ -241,6 +272,7 @@ class CustomerBookingService
             $couponDiscount = (float) ($data['coupon_discount'] ?? 0);
 
             PlotSaleDetail::where('customer_booking_id', $customerId)
+                ->when($bookingCode, fn ($query) => $query->where('booking_code', $bookingCode))
                 ->whereNotIn('plot_detail_id', $plotIds->all())
                 ->whereDoesntHave('payments')
                 ->delete();
@@ -253,9 +285,15 @@ class CustomerBookingService
                 $plcAmount = (float) ($detail['plc_amount'] ?? 0);
                 $baseAmount = $plotCost + $plcAmount;
                 $ratio = $baseTotal > 0 ? $baseAmount / $baseTotal : (1 / max($plotIds->count(), 1));
-                $allocatedDevelopment = round($developmentCharge * $ratio, 2);
-                $allocatedOther = round($otherCharges * $ratio, 2);
-                $allocatedDiscount = round($couponDiscount * $ratio, 2);
+                $allocatedDevelopment = isset($detail['total_development_charge'])
+                    ? (float) $detail['total_development_charge']
+                    : round($developmentCharge * $ratio, 2);
+                $allocatedOther = isset($detail['other_charges'])
+                    ? (float) $detail['other_charges']
+                    : round($otherCharges * $ratio, 2);
+                $allocatedDiscount = isset($detail['coupon_discount'])
+                    ? (float) $detail['coupon_discount']
+                    : round($couponDiscount * $ratio, 2);
                 $finalPayable = max(0, $plotCost + $plcAmount + $allocatedDevelopment + $allocatedOther);
                 $totalPlotCost = max(0, $finalPayable - $allocatedDiscount);
 
@@ -266,26 +304,31 @@ class CustomerBookingService
                     $finalPayable = round($totalPlotCost + $allocatedDiscount, 2);
                 }
 
+                $searchAttributes = ['customer_booking_id' => $customerId, 'plot_detail_id' => $plotId];
+                if (!empty($detail['sale_id'])) {
+                    $searchAttributes = ['id' => $detail['sale_id']];
+                }
+
                 $savedPlotSales->push(PlotSaleDetail::updateOrCreate(
+                    $searchAttributes,
                     [
-                        'customer_booking_id' => $customerId,
-                        'plot_detail_id' => $plotId,
-                    ],
-                    [
+                        'booking_code' => $bookingCode,
                         'project_id' => $data['project_id'] ?? null,
                         'block_id' => $data['block_id'] ?? null,
+                        'customer_booking_id' => $customerId,
+                        'plot_detail_id' => $plotId,
                         'total_development_charge' => $allocatedDevelopment,
-                        'development_rate' => $data['development_rate'] ?? null,
+                        'development_rate' => $detail['development_rate'] ?? $data['development_rate'] ?? null,
                         'plot_rate' => $detail['plot_rate'] ?? null,
                         'plot_area' => $detail['plot_area'] ?? null,
                         'plot_cost' => $plotCost,
                         'plc_amount' => $plcAmount,
-                        'remark' => $data['remark'] ?? null,
+                        'remark' => $detail['remark'] ?? $data['remark'] ?? null,
                         'other_charges' => $allocatedOther,
                         'final_payable' => $finalPayable,
                         'coupon_discount' => $allocatedDiscount,
                         'total_plot_cost' => $totalPlotCost,
-                        'booking_date' => $data['booking_date'] ?? null,
+                        'booking_date' => $detail['booking_date'] ?? $data['booking_date'] ?? null,
                     ]
                 ));
             }
@@ -295,7 +338,12 @@ class CustomerBookingService
             return $savedPlotSales;
         }
 
+        if (! $bookingCode) {
+            $bookingCode = $this->makePlotBookingCode($customerId);
+        }
+
         $oldPlotSale = PlotSaleDetail::where('customer_booking_id', $customerId)
+            ->where('booking_code', $bookingCode)
             ->latest()
             ->first();
 
@@ -306,9 +354,9 @@ class CustomerBookingService
             return $oldPlotSale;
         }
 
-        // New plot selected → new booking create karo
         $plotSale = PlotSaleDetail::create([
             'customer_booking_id' => $customerId,
+            'booking_code' => $bookingCode,
             'project_id' => $data['project_id'] ?? null,
             'block_id' => $data['block_id'] ?? null,
             'plot_detail_id' => $data['plot_detail_id'] ?? null,
@@ -344,12 +392,6 @@ class CustomerBookingService
         $isInstantPayment = in_array($paymentMode, ['cash', 'card', 'neft_rtgs'], true);
         $bookingStatus = $isInstantPayment ? 'booked' : 'hold';
         $booking = CustomerBooking::find($customerId);
-        if ($booking && !$booking->booking_code) {
-            $booking->update([
-                'booking_code' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
-            ]);
-        }
-
         $plotSales = PlotSaleDetail::where('customer_booking_id', $customerId)
             ->whereIn('id', $plotSaleIds)
             ->get();
@@ -409,9 +451,9 @@ class CustomerBookingService
                 PlotDetail::where('id', $plotSale->plot_detail_id)->update(['status' => $newStatus]);
             }
 
-            if (!$plotSale->booking_code || $plotSale->booking_code !== $booking->booking_code) {
+            if (!$plotSale->booking_code) {
                 $plotSale->update([
-                    'booking_code' => $booking->booking_code,
+                    'booking_code' => $this->makePlotBookingCode($customerId),
                 ]);
             }
         }
@@ -420,6 +462,32 @@ class CustomerBookingService
             'current_step' => 5,
             'status' => $isInstantPayment ? 'completed' : 'pending',
         ]);
+    }
+
+    private function makePlotBookingCode(int $customerId): string
+    {
+        $booking = CustomerBooking::findOrFail($customerId);
+
+        if (!$booking->booking_code) {
+            $booking->update([
+                'booking_code' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+            ]);
+        }
+
+        $baseCode = $booking->booking_code;
+        $existingCodes = PlotSaleDetail::where('customer_booking_id', $customerId)
+            ->whereNotNull('booking_code')
+            ->pluck('booking_code')
+            ->unique()
+            ->values();
+        $nextNumber = $existingCodes->count() + 1;
+
+        do {
+            $code = $baseCode . '-' . str_pad($nextNumber, 2, '0', STR_PAD_LEFT);
+            $nextNumber++;
+        } while ($existingCodes->contains($code));
+
+        return $code;
     }
 
     public function deleteBooking($id)

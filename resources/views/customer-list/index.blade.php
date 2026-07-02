@@ -5,8 +5,8 @@
 @endpush
 @section('content')
     @php
-        $totalBookings = $customers->sum(fn ($customer) => ($customer->booked_plots ?? collect())->count());
-        $referenceCount = $customers->filter(fn ($customer) => filled($customer->customer_id))->count();
+        $totalBookings = $customers->sum(fn($customer) => ($customer->booked_plots ?? collect())->count());
+        $referenceCount = $customers->filter(fn($customer) => filled($customer->customer_id))->count();
     @endphp
 
     <div class="container-fluid mt-4 customer-list-page">
@@ -77,8 +77,9 @@
                                 @php
                                     $primary = $customer->primaryDetail;
                                     $contact = $primary?->correspondenceDetail;
-                                    $address = $primary?->permanent_address
-                                        ?? ($primary?->city ? $primary->city . ', ' . $primary->state : 'N/A');
+                                    $address =
+                                        $primary?->permanent_address ??
+                                        ($primary?->city ? $primary->city . ', ' . $primary->state : 'N/A');
                                     $parentCustomer = $customer->parentCustomer;
                                     $plots = $customer->booked_plots ?? collect();
                                     $customerName = ucfirst($primary?->name ?? 'N/A');
@@ -134,8 +135,8 @@
                                     </td>
 
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-outline-success"
-                                            data-bs-toggle="modal" data-bs-target="#plotModal{{ $customer->id }}">
+                                        <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal"
+                                            data-bs-target="#plotModal{{ $customer->id }}">
                                             <i class="bi bi-eye me-1"></i> View
                                         </button>
                                     </td>
@@ -160,7 +161,8 @@
                 $plots = $customer->booked_plots ?? collect();
             @endphp
 
-            <div class="modal fade customer-list-modal" id="plotModal{{ $customer->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal fade customer-list-modal" id="plotModal{{ $customer->id }}" tabindex="-1"
+                aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -208,6 +210,7 @@
                                                 <th>Plot Area</th>
                                                 <th>Plot Rate</th>
                                                 <th>Total Cost</th>
+                                                <th>Status</th>
                                                 <th>Booking Date</th>
                                             </tr>
                                         </thead>
@@ -222,14 +225,34 @@
                                                         </span>
                                                     </td>
                                                     <td>{{ $plot->project?->name ?? 'N/A' }}</td>
-                                                    <td>{{ $plot->block?->block ?? $plot->block?->name ?? 'N/A' }}</td>
+                                                    <td>{{ $plot->block?->block ?? ($plot->block?->name ?? 'N/A') }}</td>
                                                     <td class="fw-bold text-success">
-                                                        {{ $plot->plotDetail?->plot_number ?? $plot->plotDetail?->plot_no ?? 'N/A' }}
+                                                        {{ $plot->plotDetail?->plot_number ?? ($plot->plotDetail?->plot_no ?? 'N/A') }}
                                                     </td>
-                                                    <td>{{ $plot->plot_area ?? $plot->plotDetail?->plot_area ?? 'N/A' }}</td>
-                                                    <td>&#8377;{{ number_format((float) ($plot->plot_rate ?? $plot->rate ?? 0), 2) }}</td>
+                                                    <td>{{ $plot->plot_area ?? ($plot->plotDetail?->plot_area ?? 'N/A') }}
+                                                    </td>
+                                                    <td>&#8377;{{ number_format((float) ($plot->plot_rate ?? ($plot->rate ?? 0)), 2) }}
+                                                    </td>
                                                     <td class="fw-bold">
-                                                        &#8377;{{ number_format((float) ($plot->total_plot_cost ?? $plot->total_amount ?? 0), 2) }}
+                                                        &#8377;{{ number_format((float) ($plot->total_plot_cost ?? ($plot->total_amount ?? 0)), 2) }}
+                                                    </td>
+                                                    <td>
+                                                        @if ($plot->status === 'active')
+                                                            <span
+                                                                class="badge bg-success-subtle text-success border">Active</span>
+                                                        @elseif ($plot->status === 'cancelled')
+                                                            <span
+                                                                class="badge bg-danger-subtle text-danger border">Cancelled</span>
+                                                        @elseif ($plot->status === 'transferred')
+                                                            <span
+                                                                class="badge bg-warning-subtle text-warning border">Transferred</span>
+                                                        @elseif ($plot->status === 'changed')
+                                                            <span
+                                                                class="badge bg-info-subtle text-info border">Changed</span>
+                                                        @else
+                                                            <span
+                                                                class="badge bg-secondary-subtle text-secondary border">N/A</span>
+                                                        @endif
                                                     </td>
                                                     <td>
                                                         {{ $plot->booking_date ? \Carbon\Carbon::parse($plot->booking_date)->format('d-M-Y') : 'N/A' }}

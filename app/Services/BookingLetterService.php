@@ -25,6 +25,7 @@ class BookingLetterService
             'payments',
         ])
             ->whereNotNull('booking_code')
+            ->where('status', 'active')
             ->whereHas('customerBooking', function ($query) {
                 $query->whereNotNull('booking_code');
             });
@@ -68,6 +69,7 @@ class BookingLetterService
                 'plotDetail',
                 'payments',
             ])
+                ->where('status', 'active')
                 ->where('customer_booking_id', $booking->id)
                 ->findOrFail($plotSaleDetailId);
 
@@ -78,6 +80,7 @@ class BookingLetterService
                     'plotDetail',
                     'payments',
                 ])
+                    ->where('status', 'active')
                     ->where('customer_booking_id', $booking->id)
                     ->where('booking_code', $plotSale->booking_code)
                     ->orderBy('id')

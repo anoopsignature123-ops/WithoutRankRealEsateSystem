@@ -88,7 +88,7 @@
             }
 
             function selectedPlotType() {
-                return $('input[name="payment_plot_type"]:checked').val() || 'single';
+                return $('input[name="payment_plot_type"]:checked').val() || 'multiple';
             }
 
             function resetPlotGroups() {

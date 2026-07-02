@@ -1,17 +1,63 @@
 @if ($step == 4)
     @php
-        $existingPlotSalesForJs = ($plotSales ?? collect())
+        $existingPlotSalesForJs = ($activePlotSales ?? collect())
             ->mapWithKeys(function ($sale) {
                 return [
                     $sale->plot_detail_id => [
                         'id' => $sale->plot_detail_id,
+                        'saleId' => $sale->id,
+                        'bookingCode' => $sale->booking_code,
+                        'projectId' => $sale->project_id,
+                        'projectName' => $sale->project?->name,
+                        'blockId' => $sale->block_id,
+                        'blockName' => $sale->block?->block,
                         'number' => $sale->plotDetail?->plot_number,
                         'rate' => (float) $sale->plot_rate,
                         'area' => (float) $sale->plot_area,
                         'plc' => (float) $sale->plc_amount,
                         'plotCost' => (float) $sale->plot_cost,
+                        'totalDevelopmentCharge' => (float) $sale->total_development_charge,
+                        'developmentRate' => (float) $sale->development_rate,
+                        'otherCharges' => (float) $sale->other_charges,
+                        'couponDiscount' => (float) $sale->coupon_discount,
+                        'finalPayable' => (float) $sale->final_payable,
+                        'totalPlotCost' => (float) $sale->total_plot_cost,
+                        'bookingDate' => $sale->booking_date ? (is_string($sale->booking_date) ? \Carbon\Carbon::parse($sale->booking_date)->format('Y-m-d') : $sale->booking_date->format('Y-m-d')) : '',
+                        'remark' => $sale->remark ?? '',
                     ],
                 ];
+            })
+            ->toArray();
+
+        $bookingGroupsForJs = ($plotSales ?? collect())
+            ->groupBy('booking_code')
+            ->map(function ($group) {
+                return $group->mapWithKeys(function ($sale) {
+                    return [
+                        $sale->plot_detail_id => [
+                            'id' => $sale->plot_detail_id,
+                            'saleId' => $sale->id,
+                            'bookingCode' => $sale->booking_code,
+                            'projectId' => $sale->project_id,
+                            'projectName' => $sale->project?->name,
+                            'blockId' => $sale->block_id,
+                            'blockName' => $sale->block?->block,
+                            'number' => $sale->plotDetail?->plot_number,
+                            'rate' => (float) $sale->plot_rate,
+                            'area' => (float) $sale->plot_area,
+                            'plc' => (float) $sale->plc_amount,
+                            'plotCost' => (float) $sale->plot_cost,
+                            'totalDevelopmentCharge' => (float) $sale->total_development_charge,
+                            'developmentRate' => (float) $sale->development_rate,
+                            'otherCharges' => (float) $sale->other_charges,
+                            'couponDiscount' => (float) $sale->coupon_discount,
+                            'finalPayable' => (float) $sale->final_payable,
+                            'totalPlotCost' => (float) $sale->total_plot_cost,
+                            'bookingDate' => $sale->booking_date ? (is_string($sale->booking_date) ? \Carbon\Carbon::parse($sale->booking_date)->format('Y-m-d') : $sale->booking_date->format('Y-m-d')) : '',
+                            'remark' => $sale->remark ?? '',
+                        ],
+                    ];
+                })->toArray();
             })
             ->toArray();
     @endphp
@@ -24,16 +70,8 @@
 
         @include('customer-booking.partials.plot-sale-form')
 
-        <div class="d-flex justify-content-end mt-4">
-            <a href="{{ route('customer-booking.edit', [$customer->id, 'step' => 3]) }}"
-                class="btn btn-outline-secondary px-4">
-                Previous
-            </a>
-
-            <button type="submit" class="btn btn-success px-4 ms-2">
-                Save & Next
-            </button>
-        </div>
+        
+        
     </form>
 
     @push('scripts')
@@ -43,28 +81,46 @@
                 let selectedBlockId = "{{ old('block_id', $plotSale?->block_id) }}";
                 let customerId = "{{ $customer->id ?? '' }}";
                 let selectedPlots = {};
+                let currentEditPlotDetailId = null;
                 let existingPlotSales = @json($existingPlotSalesForJs);
+                let batchPlotSales = @json($bookingGroupsForJs);
 
-                if ($('#bookingMode').val() === 'multiple') {
-                    selectedPlots = existingPlotSales || {};
+                if (Object.keys(existingPlotSales).length) {
+                    selectedPlots = Object.assign({}, existingPlotSales);
+                    let batch = Object.values(selectedPlots)[0];
+                    if (batch) {
+                        $('#editBookingCode').val(batch.bookingCode || '');
+                        $('#projectId').val(batch.projectId || '');
+                        $('#blockId').val(batch.blockId || '');
+                        $('#showPlots').removeClass('d-none');
+                    }
+                }
+
+                function populateBatchSelection(bookingCode) {
+                    selectedPlots = {};
+                    currentEditPlotDetailId = null;
+
+                    if (bookingCode && batchPlotSales[bookingCode]) {
+                        selectedPlots = Object.assign({}, batchPlotSales[bookingCode]);
+                    }
+
+                    $('#editBookingCode').val(bookingCode || '');
+                    $('#editPlotSaleDetailId').val('');
+                    renderSelectedPlots();
                 }
 
                 function calculateFinalAmount() {
                     let plotCost = 0;
                     let plcAmount = 0;
-                    if ($('#bookingMode').val() === 'multiple') {
-                        Object.values(selectedPlots).forEach(function(plot) {
-                            plotCost += parseFloat(plot.plotCost) || 0;
-                            plcAmount += parseFloat(plot.plc) || 0;
-                        });
-                    } else {
-                        plotCost = parseFloat($('#plotCost').val()) || 0;
-                        plcAmount = parseFloat($('#plcAmount').val()) || 0;
-                    }
+                    Object.values(selectedPlots).forEach(function(plot) {
+                        plotCost += parseFloat(plot.plotCost) || 0;
+                        plcAmount += parseFloat(plot.plc) || 0;
+                    });
+                    let developmentCharge = parseFloat($('#totalDevelopmentCharge').val()) || 0;
                     let otherCharges = parseFloat($('#otherCharges').val()) || 0;
                     let couponDiscount = parseFloat($('#couponDiscount').val()) || 0;
 
-                    let finalAmount = plotCost + plcAmount + otherCharges - couponDiscount;
+                    let finalAmount = plotCost + plcAmount + developmentCharge + otherCharges - couponDiscount;
 
                     if (finalAmount < 0) {
                         finalAmount = 0;
@@ -91,23 +147,53 @@
                         plcTotal += parseFloat(plot.plc) || 0;
                         hiddenHtml += `
                             <input type="hidden" name="plot_detail_ids[]" value="${plot.id}">
+                            <input type="hidden" name="plot_details[${plot.id}][sale_id]" value="${plot.saleId || ''}">
                             <input type="hidden" name="plot_details[${plot.id}][plot_number]" value="${plot.number}">
                             <input type="hidden" name="plot_details[${plot.id}][plot_rate]" value="${plot.rate}">
                             <input type="hidden" name="plot_details[${plot.id}][plot_area]" value="${plot.area}">
                             <input type="hidden" name="plot_details[${plot.id}][plot_cost]" value="${plot.plotCost}">
                             <input type="hidden" name="plot_details[${plot.id}][plc_amount]" value="${plot.plc}">
+                            <input type="hidden" name="plot_details[${plot.id}][booking_code]" value="${plot.bookingCode || ''}">
+                            <input type="hidden" name="plot_details[${plot.id}][booking_date]" value="${plot.bookingDate}">
+                            <input type="hidden" name="plot_details[${plot.id}][remark]" value="${plot.remark}">
                         `;
+
+                        if (plot.totalDevelopmentCharge !== undefined) {
+                            hiddenHtml += `<input type="hidden" name="plot_details[${plot.id}][total_development_charge]" value="${plot.totalDevelopmentCharge}">`;
+                        }
+                        if (plot.developmentRate !== undefined) {
+                            hiddenHtml += `<input type="hidden" name="plot_details[${plot.id}][development_rate]" value="${plot.developmentRate}">`;
+                        }
+                        if (plot.otherCharges !== undefined) {
+                            hiddenHtml += `<input type="hidden" name="plot_details[${plot.id}][other_charges]" value="${plot.otherCharges}">`;
+                        }
+                        if (plot.couponDiscount !== undefined) {
+                            hiddenHtml += `<input type="hidden" name="plot_details[${plot.id}][coupon_discount]" value="${plot.couponDiscount}">`;
+                        }
+                        if (plot.finalPayable !== undefined) {
+                            hiddenHtml += `<input type="hidden" name="plot_details[${plot.id}][final_payable]" value="${plot.finalPayable}">`;
+                        }
+                        if (plot.totalPlotCost !== undefined) {
+                            hiddenHtml += `<input type="hidden" name="plot_details[${plot.id}][total_plot_cost]" value="${plot.totalPlotCost}">`;
+                        }
                     });
 
                     $('#selectedPlotHiddenFields').html(hiddenHtml);
 
-                    if ($('#bookingMode').val() === 'multiple') {
-                        $('#plotId').val(plots[0]?.id || '');
+                    if (plots.length) {
+                        $('#plotId').val(plots[0].id || '');
                         $('#plotNumber').val(numbers.join(', '));
-                        $('#plotRate').val(plots.length ? (rateTotal / plots.length).toFixed(2) : '');
-                        $('#plotArea').val(plots.length ? areaTotal.toFixed(2) : '');
-                        $('#plotCost').val(plots.length ? costTotal.toFixed(2) : '');
-                        $('#plcAmount').val(plots.length ? plcTotal.toFixed(2) : '');
+                        $('#plotRate').val((rateTotal / plots.length).toFixed(2));
+                        $('#plotArea').val(areaTotal.toFixed(2));
+                        $('#plotCost').val(costTotal.toFixed(2));
+                        $('#plcAmount').val(plcTotal.toFixed(2));
+                    } else {
+                        $('#plotId').val('');
+                        $('#plotNumber').val('');
+                        $('#plotRate').val('');
+                        $('#plotArea').val('');
+                        $('#plotCost').val('');
+                        $('#plcAmount').val('');
                     }
 
                     $('.plot-card').each(function() {
@@ -269,11 +355,7 @@
                                 plotType = plot.plot_type.plot_type_name;
                             }
 
-                            let selectedClass = '';
-
-                            if ($('#plotId').val() == plot.id) {
-                                selectedClass = 'border-success shadow';
-                            }
+                            let selectedClass = selectedPlots[String(plot.id)] ? 'border-success shadow' : '';
 
                             html += `
                                 <div class="col-xl-3 col-lg-4 col-md-6">
@@ -354,70 +436,180 @@
                     let plc = parseFloat($(this).data('plc')) || 0;
                     let plotCost = rate * area;
 
-                    if ($('#bookingMode').val() === 'multiple') {
-                        let key = String(id);
-                        if (selectedPlots[key]) {
-                            delete selectedPlots[key];
-                        } else {
-                            selectedPlots[key] = {
-                                id,
-                                number,
-                                rate: rate.toFixed(2),
-                                area: area.toFixed(2),
-                                plc: plc.toFixed(2),
-                                plotCost: plotCost.toFixed(2),
-                            };
-                        }
+                    let key = String(id);
+                    if (selectedPlots[key]) {
+                        delete selectedPlots[key];
+                    } else {
+                        selectedPlots[key] = {
+                            saleId: existingPlotSales[key]?.saleId || null,
+                            id,
+                            number,
+                            rate: rate.toFixed(2),
+                            area: area.toFixed(2),
+                            plc: plc.toFixed(2),
+                            plotCost: plotCost.toFixed(2),
+                            bookingCode: $('#editBookingCode').val() || '',
+                            bookingDate: $('input[name="booking_date"]')?.val() || '',
+                            remark: $('textarea[name="remark"]')?.val() || '',
+                        };
+                    }
 
-                        renderSelectedPlots();
+                    renderSelectedPlots();
+                });
+
+                $(document).on('click', '.plot-add-more-btn', function() {
+                    let bookingCode = $(this).data('booking-code');
+                    populateBatchSelection(bookingCode);
+
+                    let batch = Object.values(selectedPlots)[0];
+                    if (batch) {
+                        $('#projectId').val(batch.projectId || '');
+                        loadBlocks(batch.projectId || '', batch.blockId || '');
+                    }
+
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Booking Batch Selected',
+                        text: 'Existing batch loaded. Add more plots or update batch details as needed.'
+                    });
+                });
+
+                $(document).on('click', '.plot-view-group-btn', function() {
+                    let bookingCode = $(this).data('booking-code');
+                    let group = batchPlotSales[bookingCode] || {};
+                    let rows = '';
+                    let total = 0;
+                    let bookingDate = '';
+
+                    Object.values(group).forEach(function(plot) {
+                        rows += `
+                            <tr>
+                                <td>
+                                    <strong>${plot.number}</strong>
+                                    <div class="text-muted small">Plot ${plot.number}</div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">${plot.projectName || '—'}</div>
+                                    <small class="text-muted">Block ${plot.blockName || '—'}</small>
+                                </td>
+                                <td class="text-end">${parseFloat(plot.area).toFixed(2)} Sq.Ft</td>
+                                <td class="text-end">₹${parseFloat(plot.plotCost).toFixed(2)}</td>
+                                <td class="text-end">₹${parseFloat(plot.plc).toFixed(2)}</td>
+                                <td class="text-end">₹${parseFloat(plot.finalPayable).toFixed(2)}</td>
+                                <td class="text-end">₹${parseFloat(plot.totalPlotCost).toFixed(2)}</td>
+                            </tr>
+                        `;
+                        total += parseFloat(plot.totalPlotCost) || 0;
+                        if (!bookingDate && plot.bookingDate) {
+                            bookingDate = plot.bookingDate;
+                        }
+                    });
+
+                    $('#viewGroupBookingCode').text(bookingCode);
+                    $('#viewGroupBookingDate').text(bookingDate ? `Booking date: ${bookingDate}` : 'Booking date not set');
+                    $('#viewGroupBookingTableBody').html(rows || `
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No plot details found for this booking group.</td>
+                        </tr>
+                    `);
+                    $('#viewGroupBookingTotal').text(`₹${total.toFixed(2)}`);
+                    $('#viewBookingGroupModal').modal('show');
+                });
+
+                $(document).on('click', '.plot-edit-btn', function() {
+                    let saleId = $(this).data('sale-id');
+                    let bookingCode = $(this).data('booking-code');
+                    let plotId = $(this).data('plot-id');
+
+                    populateBatchSelection(bookingCode);
+                    currentEditPlotDetailId = String(plotId);
+                    $('#editPlotSaleDetailId').val(saleId);
+
+                    let batch = Object.values(selectedPlots)[0];
+                    if (batch) {
+                        $('#projectId').val(batch.projectId || '');
+                        loadBlocks(batch.projectId || '', batch.blockId || '');
+                    }
+
+                    $('#modalBookingCode').val(bookingCode);
+                    $('#modalPlotNumber').val($(this).data('plot-number'));
+                    $('#modalPlotRate').val($(this).data('plot-rate'));
+                    $('#modalPlotArea').val($(this).data('plot-area'));
+                    $('#modalPlotCost').val($(this).data('plot-cost'));
+                    $('#modalPlcAmount').val($(this).data('plc') ?? 0);
+                    $('#modalTotalDevelopmentCharge').val($(this).data('total-development-charge') ?? 0);
+                    $('#modalDevelopmentRate').val($(this).data('development-rate') ?? 0);
+                    $('#modalOtherCharges').val($(this).data('other-charges') ?? 0);
+                    $('#modalCouponDiscount').val($(this).data('coupon-discount') ?? 0);
+                    $('#modalFinalPayable').val($(this).data('final-payable') ?? 0);
+                    $('#modalTotalPlotCost').val($(this).data('total-plot-cost') ?? 0);
+                    $('#modalBookingDate').val($(this).data('booking-date') ?? '');
+                    $('#modalRemark').val($(this).data('remark') ?? '');
+                    $('#plotEditModal').modal('show');
+                });
+
+                function calculateModalTotals() {
+                    let plotCost = parseFloat($('#modalPlotCost').val()) || 0;
+                    let plcAmount = parseFloat($('#modalPlcAmount').val()) || 0;
+                    let developmentCharge = parseFloat($('#modalTotalDevelopmentCharge').val()) || 0;
+                    let otherCharges = parseFloat($('#modalOtherCharges').val()) || 0;
+                    let couponDiscount = parseFloat($('#modalCouponDiscount').val()) || 0;
+
+                    let finalPayable = Math.max(0, plotCost + plcAmount + developmentCharge + otherCharges);
+                    let totalPlotCost = Math.max(0, finalPayable - couponDiscount);
+
+                    $('#modalFinalPayable').val(finalPayable.toFixed(2));
+                    $('#modalTotalPlotCost').val(totalPlotCost.toFixed(2));
+                }
+
+                $('#modalPlcAmount, #modalTotalDevelopmentCharge, #modalOtherCharges, #modalCouponDiscount').on('keyup change', calculateModalTotals);
+
+                $('#applyPlotEdit').click(function() {
+                    if (!currentEditPlotDetailId) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Plot missing',
+                            text: 'Unable to update the selected plot.'
+                        });
                         return;
                     }
 
-                    selectedPlots = {};
-                    $('.plot-card').removeClass('border-success shadow');
-                    $(this).addClass('border-success shadow');
+                    let plot = selectedPlots[currentEditPlotDetailId];
+                    if (!plot) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Plot missing',
+                            text: 'Please select the plot before editing.'
+                        });
+                        return;
+                    }
 
-                    $('#plotId').val(id);
-                    $('#plotNumber').val(number);
-                    $('#plotRate').val(rate.toFixed(2));
-                    $('#plotArea').val(area.toFixed(2));
-                    $('#plcAmount').val(plc.toFixed(2));
-                    $('#plotCost').val(plotCost.toFixed(2));
+                    plot.plc = parseFloat($('#modalPlcAmount').val()) || 0;
+                    plot.totalDevelopmentCharge = parseFloat($('#modalTotalDevelopmentCharge').val()) || 0;
+                    plot.developmentRate = parseFloat($('#modalDevelopmentRate').val()) || 0;
+                    plot.otherCharges = parseFloat($('#modalOtherCharges').val()) || 0;
+                    plot.couponDiscount = parseFloat($('#modalCouponDiscount').val()) || 0;
+                    plot.finalPayable = parseFloat($('#modalFinalPayable').val()) || 0;
+                    plot.totalPlotCost = parseFloat($('#modalTotalPlotCost').val()) || 0;
+                    plot.bookingDate = $('#modalBookingDate').val() || '';
+                    plot.remark = $('#modalRemark').val() || '';
 
-                    calculateFinalAmount();
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Plot Selected',
-                        text: 'Plot ' + number + ' selected successfully.',
-                        timer: 1200,
-                        showConfirmButton: false
-                    });
+                    selectedPlots[currentEditPlotDetailId] = plot;
+                    renderSelectedPlots();
+                    $('#plotEditModal').modal('hide');
                 });
 
                 $('#otherCharges, #couponDiscount').on('keyup change', function() {
                     calculateFinalAmount();
                 });
 
-                $('#bookingMode').on('change', function() {
-                    selectedPlots = {};
-                    $('#plotId').val('');
-                    $('#plotNumber').val('');
-                    $('#plotRate').val('');
-                    $('#plotArea').val('');
-                    $('#plotCost').val('');
-                    $('#plcAmount').val('');
-                    renderSelectedPlots();
-                    $('#plotListSection').html('');
-                });
-
                 $('form').on('submit', function(event) {
-                    if ($('#bookingMode').val() === 'multiple' && Object.keys(selectedPlots).length === 0) {
+                    if (Object.keys(selectedPlots).length === 0) {
                         event.preventDefault();
                         Swal.fire({
                             icon: 'warning',
                             title: 'Plot Required',
-                            text: 'Please select at least one plot for multiple booking.'
+                            text: 'Please select at least one plot for booking.'
                         });
                     }
                 });

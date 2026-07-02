@@ -56,20 +56,77 @@ class CustomerBookingController extends Controller
         $customers = $this->customerBookingService->getCustomers();
         $projects = $this->customerBookingService->getProjects();
         $plotSales = $customer->plotSaleDetails;
-        $plotSale = $request->plot_sale_detail_id
-            ? $plotSales->firstWhere('id', $request->plot_sale_detail_id)
-            : $customer->plotSaleDetail;
-        $payment = $customer->payments->firstWhere('plot_sale_detail_id', $request->plot_sale_detail_id);
-        $selectedPlotSales = $step == 5
-            ? $plotSales->filter(fn ($sale) => ! $sale->payments->where('transaction_category', 'booking_fee')->count())
-            : collect();
+        $bookingGroups = $plotSales
+            ->whereNotNull('booking_code')
+            ->groupBy(fn ($sale) => $sale->booking_code ?: 'plot-'.$sale->id)
+            ->map(function ($sales, $code) {
+                $first = $sales->first();
+                $hasPayment = $sales->flatMap->payments->where('transaction_category', 'booking_fee')->isNotEmpty();
 
-        if ($step == 5 && $selectedPlotSales->isEmpty()) {
-            $selectedPlotSales = $plotSales;
+                return [
+                    'code' => $code,
+                    'first_sale_id' => $first?->id,
+                    'plot_count' => $sales->count(),
+                    'plot_numbers' => $sales->map(fn ($sale) => $sale->plotDetail?->plot_number)->filter()->implode(', '),
+                    'project' => $first?->project?->name ?? '-',
+                    'block' => $first?->block?->block ?? '-',
+                    'total' => (float) $sales->sum('total_plot_cost'),
+                    'has_payment' => $hasPayment,
+                ];
+            })
+            ->values();
+
+        $plotSale = $request->plot_sale_detail_id
+            ? $plotSales->firstWhere('id', (int) $request->plot_sale_detail_id)
+            : null;
+
+        $activePlotSales = collect();
+
+        if ($plotSale) {
+            $activePlotSales = $plotSale->booking_code
+                ? $plotSales->where('booking_code', $plotSale->booking_code)->values()
+                : collect([$plotSale]);
         }
 
+        if ($step == 4 && ! $request->filled('plot_sale_detail_id')) {
+            $plotSale = null;
+            $activePlotSales = collect();
+        }
+
+        $selectedPlotSales = collect();
+
+        if ($step == 5) {
+            if ($plotSale) {
+                $selectedPlotSales = $activePlotSales;
+            } else {
+                $unpaidGroup = $plotSales
+                    ->filter(fn ($sale) => ! $sale->payments->where('transaction_category', 'booking_fee')->count())
+                    ->groupBy(fn ($sale) => $sale->booking_code ?: 'plot-'.$sale->id)
+                    ->last();
+
+                $selectedPlotSales = $unpaidGroup ? $unpaidGroup->values() : collect();
+                $plotSale = $selectedPlotSales->first();
+                $activePlotSales = $selectedPlotSales;
+            }
+        }
+
+        $payment = $selectedPlotSales->flatMap->payments->where('transaction_category', 'booking_fee')->first()
+            ?: ($plotSale ? $customer->payments->firstWhere('plot_sale_detail_id', $plotSale->id) : null);
+
         return view('customer-booking.create',
-            compact('customer', 'step', 'associates', 'customers', 'projects', 'plotSale', 'payment', 'plotSales', 'selectedPlotSales'));
+            compact(
+                'customer',
+                'step',
+                'associates',
+                'customers',
+                'projects',
+                'plotSale',
+                'payment',
+                'plotSales',
+                'activePlotSales',
+                'bookingGroups',
+                'selectedPlotSales'
+            ));
     }
 
     public function update(Request $request, $id)
@@ -99,7 +156,13 @@ class CustomerBookingController extends Controller
         }
         if ($step == 4) {
             $validated = app(CustomerBookingStepFourRequest::class)->validated();
-            $plotSale = $this->customerBookingService->storeStepFour($id, $validated);
+            try {
+                $plotSale = $this->customerBookingService->storeStepFour($id, $validated);
+            } catch (\Throwable $e) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['plot_detail_ids' => $e->getMessage()]);
+            }
             $plotSaleId = $plotSale instanceof \Illuminate\Support\Collection
                 ? $plotSale->first()?->id
                 : $plotSale->id;

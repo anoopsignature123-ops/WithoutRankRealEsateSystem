@@ -24,6 +24,7 @@ class PlotSaleDetail extends Model
         'total_plot_cost',
         'booking_date',
         'booking_code',
+        'status'
     ];
 
     public function customerBooking()

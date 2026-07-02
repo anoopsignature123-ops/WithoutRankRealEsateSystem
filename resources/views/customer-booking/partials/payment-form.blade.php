@@ -5,6 +5,7 @@
         $selectedPlotSales = collect([$plotSale]);
     }
     $totalBookingPayable = (float) $selectedPlotSales->sum('total_plot_cost');
+    $selectedBookingCode = $selectedPlotSales->first()?->booking_code ?? '-';
 @endphp
 
 <div class="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden">
@@ -33,23 +34,27 @@
                     <i class="bi bi-cash-stack fs-3"></i>
                     <div>
                         <h6 class="fw-bold mb-1">Total Payable Amount</h6>
-                        <small>Final amount calculated from selected plot sale details.</small>
+                        <small>
+                            Booking Code:
+                            <strong>{{ $selectedBookingCode }}</strong>
+                            | Payment will be collected only for this group.
+                        </small>
                     </div>
                 </div>
 
                 <div class="fs-5 fw-bold">
-                    ₹ {{ number_format($totalBookingPayable, 2) }}
+                    &#8377; {{ number_format($totalBookingPayable, 2) }}
                 </div>
             </div>
         </div>
 
-        @if ($selectedPlotSales->count() > 1)
+        @if ($selectedPlotSales->count() > 0)
             <div class="card border-0 bg-light rounded-4 mb-4">
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                         <h6 class="fw-bold text-success mb-0">
                             <i class="bi bi-houses me-1"></i>
-                            Multiple Plot Booking Summary
+                            Selected Plot Details
                         </h6>
                         <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
                             {{ $selectedPlotSales->count() }} Plots
@@ -75,8 +80,8 @@
                                             </small>
                                         </td>
                                         <td class="text-end">{{ number_format((float) $sale->plot_area, 2) }}</td>
-                                        <td class="text-end">₹{{ number_format((float) $sale->plot_cost, 2) }}</td>
-                                        <td class="text-end fw-bold text-success">₹{{ number_format((float) $sale->total_plot_cost, 2) }}</td>
+                                        <td class="text-end">&#8377; {{ number_format((float) $sale->plot_cost, 2) }}</td>
+                                        <td class="text-end fw-bold text-success">&#8377; {{ number_format((float) $sale->total_plot_cost, 2) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -85,6 +90,63 @@
                 </div>
             </div>
         @endif
+
+        <div class="modal fade" id="viewPaymentGroupModal" tabindex="-1" aria-labelledby="viewPaymentGroupModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewPaymentGroupModalLabel">Selected Booking Group Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <span class="badge bg-success rounded-pill">{{ $selectedBookingCode }}</span>
+                            <small class="text-muted d-block mt-2">Review plot details and payment group totals before saving.</small>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-borderless align-middle mb-0">
+                                <thead>
+                                    <tr class="text-muted small text-uppercase">
+                                        <th>Plot</th>
+                                        <th>Project / Block</th>
+                                        <th class="text-end">Area</th>
+                                        <th class="text-end">Plot Cost</th>
+                                        <th class="text-end">PLC</th>
+                                        <th class="text-end">Final Payable</th>
+                                        <th class="text-end">Total Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($selectedPlotSales as $sale)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $sale->plotDetail?->plot_number ?? '-' }}</strong>
+                                                <div class="text-muted small">Plot {{ $sale->plotDetail?->plot_number ?? '-' }}</div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-semibold">{{ $sale->project?->name ?? '-' }}</div>
+                                                <small class="text-muted">Block {{ $sale->block?->block ?? '-' }}</small>
+                                            </td>
+                                            <td class="text-end">{{ number_format((float) $sale->plot_area, 2) }} Sq.Ft</td>
+                                            <td class="text-end">&#8377; {{ number_format((float) $sale->plot_cost, 2) }}</td>
+                                            <td class="text-end">&#8377; {{ number_format((float) $sale->plc_amount, 2) }}</td>
+                                            <td class="text-end">&#8377; {{ number_format((float) $sale->final_payable, 2) }}</td>
+                                            <td class="text-end fw-bold">&#8377; {{ number_format((float) $sale->total_plot_cost, 2) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-4">
+                            <div class="text-end">
+                                <div class="text-muted small">Group Total</div>
+                                <div class="fw-bold fs-5">&#8377; {{ number_format($totalBookingPayable, 2) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="row g-3">
 

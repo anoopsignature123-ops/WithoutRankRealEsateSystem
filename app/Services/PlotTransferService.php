@@ -87,6 +87,7 @@ class PlotTransferService
             'customerBooking.plotSaleDetails.block',
         ])
             ->where('block_id', $blockId)
+            ->where('status', 'active')
             ->whereHas('plotDetail', function ($query) {
                 $query->where('status', 'booked');
             })
@@ -154,6 +155,7 @@ class PlotTransferService
             'payments',
         ])
             ->where('plot_detail_id', $plotId)
+            ->where('status', 'active')
             ->whereHas('customerBooking', function ($query) {
                 $query->where('status', '!=', 'cancelled');
             })
@@ -168,6 +170,7 @@ class PlotTransferService
             ? $booking->plotSaleDetails()
                 ->with(['project', 'block', 'plotDetail', 'payments'])
                 ->where('booking_code', $plotSale->booking_code)
+                ->where('status', 'active')
                 ->get()
             : collect([$plotSale]);
 
@@ -277,6 +280,7 @@ class PlotTransferService
             $groupPlotSales = $plotSale->booking_code
                 ? PlotSaleDetail::where('customer_booking_id', $oldBooking->id)
                     ->where('booking_code', $plotSale->booking_code)
+                    ->where('status', 'active')
                     ->get()
                 : collect([$plotSale]);
 
@@ -345,6 +349,7 @@ class PlotTransferService
             PlotSaleDetail::whereIn('id', $groupPlotSales->pluck('id'))
                 ->update([
                     'customer_booking_id' => $newBooking->id,
+                    'status' => 'active',
                 ]);
 
             // Existing payments owner update

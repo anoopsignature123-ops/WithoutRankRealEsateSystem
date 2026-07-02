@@ -90,6 +90,7 @@ class PaymentTransferService
             'customerBooking.plotSaleDetails.plotDetail',
         ])
             ->where('block_id', $blockId)
+            ->where('status', 'active')
             ->whereHas('payments')
             ->get()
             ->groupBy(function ($sale) {
@@ -131,6 +132,7 @@ class PaymentTransferService
             'payments',
         ])
             ->where('plot_detail_id', $plotId)
+            ->where('status', 'active')
             ->first();
 
         if (! $plotSale) {
@@ -145,6 +147,7 @@ class PaymentTransferService
             ? $booking->plotSaleDetails()
                 ->with(['project', 'block', 'plotDetail'])
                 ->where('booking_code', $plotSale->booking_code)
+                ->where('status', 'active')
                 ->get()
             : collect([$plotSale]);
 
@@ -203,7 +206,8 @@ class PaymentTransferService
             ->where('status', '!=', 'cancelled')
             ->whereNotNull('customer_code')
             ->whereHas('plotSaleDetails', function ($query) {
-                $query->whereNotNull('booking_code');
+                $query->whereNotNull('booking_code')->where('status', 'active');
+                ;
             })
             ->orderBy('customer_code')
             ->get()
@@ -228,6 +232,7 @@ class PaymentTransferService
         ])
             ->where('customer_booking_id', $customerBookingId)
             ->whereNotNull('booking_code')
+            ->where('status', 'active')
             ->orderByDesc('id')
             ->get()
             ->groupBy(fn ($plotSale) => $plotSale->booking_code ?: 'plot-'.$plotSale->id)
@@ -275,7 +280,7 @@ class PaymentTransferService
                 'project',
                 'block',
                 'plotDetail',
-            ])->findOrFail($data['new_plot_sale_detail_id']);
+            ])->where('status', 'active')->findOrFail($data['new_plot_sale_detail_id']);
 
             if ($newPlotSale->customer_booking_id != $newBooking->id) {
                 throw new \Exception('Selected plot does not belong to selected customer.');

@@ -51,6 +51,7 @@ class PlotChangeService
             'customerBooking.primaryDetail',
         ])
             ->where('block_id', $blockId)
+            ->where('status', 'active')
             ->whereHas('plotDetail', function ($query) {
                 $query->where('status', 'booked');
             })
@@ -111,6 +112,7 @@ class PlotChangeService
             'payments',
         ])
             ->where('plot_detail_id', $plotId)
+            ->where('status', 'active')
             ->first();
 
         if (! $plotSale) {
@@ -210,7 +212,9 @@ class PlotChangeService
                 'block',
                 'plotDetail',
                 'payments',
-            ])->findOrFail($data['plot_sale_detail_id']);
+            ])
+                ->where('status', 'active')
+                ->findOrFail($data['plot_sale_detail_id']);
 
             $oldPlotId = $plotSale->plot_detail_id;
 

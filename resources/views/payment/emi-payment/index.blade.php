@@ -37,7 +37,9 @@
                             <input type="hidden" id="max_due_amount" value="0">
 
                             <div class="row">
-                                <div class="col-12 mb-3">
+                                 <input type="hidden" class="form-check-input" name="payment_plot_type"
+                                                id="emi_plot_type_multiple" value="multiple" autocomplete="off">
+                                {{-- <div class="col-12 mb-3">
                                     <label class="form-label fw-semibold d-block">Payment For <span class="text-danger">*</span></label>
                                     <div class="d-flex flex-wrap gap-4 border rounded-3 bg-white px-3 py-2">
                                         <div class="form-check">
@@ -58,7 +60,7 @@
                                     <small class="text-muted d-block mt-2" id="payment_plot_type_help">
                                         Select single EMI or grouped multiple plot EMI first.
                                     </small>
-                                </div>
+                                </div> --}}
 
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-semibold">Project <span class="text-danger">*</span></label>

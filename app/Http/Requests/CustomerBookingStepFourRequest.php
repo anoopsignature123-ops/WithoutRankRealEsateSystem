@@ -15,27 +15,26 @@ class CustomerBookingStepFourRequest extends FormRequest
     {
         return [
 
-            'booking_mode' => 'nullable|in:single,multiple',
+            'edit_booking_code' => 'nullable|string|max:255',
+            'edit_plot_sale_detail_id' => 'nullable|integer',
 
             // Required Relations
             'project_id' => 'required|exists:projects,id',
 
             'block_id' => 'required|exists:blocks,id',
 
-            'plot_detail_id' => 'nullable|required_without:plot_detail_ids|exists:plot_details,id',
-
-            'plot_detail_ids' => 'nullable|array|min:1',
+            'plot_detail_ids' => 'required|array|min:1',
             'plot_detail_ids.*' => 'exists:plot_details,id|distinct',
             'plot_details' => 'nullable|array',
 
             // Plot Fields
-            'plot_number' => 'nullable|required_without:plot_detail_ids|string|max:500',
+            'plot_number' => 'nullable|string|max:500',
 
-            'plot_rate' => 'nullable|required_without:plot_detail_ids|numeric|min:0',
+            'plot_rate' => 'nullable|numeric|min:0',
 
-            'plot_area' => 'nullable|required_without:plot_detail_ids|numeric|min:0',
+            'plot_area' => 'nullable|numeric|min:0',
 
-            'plot_cost' => 'nullable|required_without:plot_detail_ids|numeric|min:0',
+            'plot_cost' => 'nullable|numeric|min:0',
 
             'plc_amount' => 'nullable|numeric|min:0',
 
