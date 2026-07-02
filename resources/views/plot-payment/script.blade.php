@@ -58,6 +58,23 @@ $(document).ready(function () {
         }
     }
 
+    function validatePaidAmount() {
+        const total = parseFloat($('#totalPlotCost').val()) || 0;
+        const paid = parseFloat(sanitizeAmount($('#paidAmount').val())) || 0;
+
+        if (paid > total) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Paid Amount',
+                text: 'Paid amount cannot exceed payable amount for this receipt.'
+            });
+
+            return false;
+        }
+
+        return true;
+    }
+
     function setUpdateLoading(isLoading) {
         const button = $('#updatePaymentBtn');
         button.prop('disabled', isLoading);
@@ -82,9 +99,15 @@ $(document).ready(function () {
 
     $('#emiMonths').on('keyup change', calculateAmounts);
 
-    $('#editPaymentForm').on('submit', function () {
+    $('#editPaymentForm').on('submit', function (event) {
         $('#paidAmount').val(sanitizeAmount($('#paidAmount').val()));
         calculateAmounts();
+
+        if (!validatePaidAmount()) {
+            event.preventDefault();
+            return false;
+        }
+
         setUpdateLoading(true);
     });
 

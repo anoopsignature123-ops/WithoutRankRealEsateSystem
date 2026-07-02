@@ -3821,7 +3821,7 @@
 }
 
 .edit-payment-modal .modal-dialog {
-    max-width: 940px;
+    max-width: min(1120px, calc(100vw - 32px));
 }
 
 .edit-payment-modal .modal-header {
@@ -3921,6 +3921,19 @@
     border-radius: 8px;
     font-weight: 800;
     min-height: 42px;
+}
+
+.edit-payment-breakdown-table thead th {
+    color: #475569;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.edit-payment-breakdown-table tbody td {
+    background: #ffffff;
+    font-size: 13px;
+    vertical-align: middle;
 }
 
 .select2-container--open {

@@ -2,9 +2,15 @@
     $payment = $selectedPayment;
     $booking = $payment->customerBooking;
     $plotSale = $payment->plotSaleDetail;
-    $totalPlotCost = (float) ($plotSale?->total_plot_cost ?? 0);
-    $paidAmount = (float) ($payment?->paid_amount ?? $payment?->booking_amount ?? 0);
-    $dueAmount = max(0, $totalPlotCost - $paidAmount);
+    $groupPayments = $payment->relationLoaded('groupPayments')
+        ? $payment->getRelation('groupPayments')
+        : collect([$payment]);
+    $plotCount = (int) ($payment->group_plot_count ?? $groupPayments->count());
+    $plotNumbers = $payment->group_plot_numbers ?: ($plotSale?->plotDetail?->plot_number ?? '-');
+    $totalPlotCost = (float) ($payment->group_editable_payable ?? $payment->group_total_cost ?? $plotSale?->total_plot_cost ?? 0);
+    $paidAmount = (float) ($payment->group_paid_amount ?? $payment?->paid_amount ?? $payment?->booking_amount ?? 0);
+    $dueAmount = (float) ($payment->group_due_amount ?? max(0, $totalPlotCost - $paidAmount));
+    $plotBreakdown = $payment->group_plot_breakdown ?? collect();
 @endphp
 
 <div class="edit-payment-modal-form">
@@ -15,7 +21,7 @@
             <small class="text-muted">Update payment amount, plan and payment instrument details.</small>
         </div>
         <span class="badge bg-light text-dark border">
-            {{ ucfirst($payment?->payment_status ?? 'Pending') }}
+            {{ $plotCount > 1 ? $plotCount.' Plots' : ucfirst($payment?->payment_status ?? 'Pending') }}
         </span>
     </div>
 
@@ -41,9 +47,59 @@
             </div>
 
             <div class="col-md-12">
-                <label class="form-label fw-semibold">Plot</label>
-                <input type="text" class="form-control bg-light" readonly
-                    value="{{ $plotSale?->project?->name }} / {{ $plotSale?->block?->block }} / Plot {{ $plotSale?->plotDetail?->plot_number }}">
+                <div class="border rounded-3 p-3 bg-light">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-1">Plot Payment Details</h6>
+                            <small class="text-muted">
+                                {{ $plotCount > 1 ? 'Grouped receipt: update will apply to all listed plots.' : 'Single plot receipt.' }}
+                            </small>
+                        </div>
+                        <span class="badge bg-success-subtle text-success border">
+                            Plot {{ $plotNumbers }}
+                        </span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered align-middle mb-0 edit-payment-breakdown-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Plot</th>
+                                    <th>Area</th>
+                                    <th>Total Cost</th>
+                                    <th>Paid</th>
+                                    <th>Due</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($plotBreakdown as $plot)
+                                    <tr>
+                                        <td>
+                                            <strong>{{ $plot['plot'] ?? '-' }}</strong>
+                                            <span class="d-block small text-muted">
+                                                {{ $plot['project'] ?? '-' }} / Block {{ $plot['block'] ?? '-' }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $plot['area'] ?? '0.00' }} Sq.Ft.</td>
+                                        <td class="fw-semibold">&#8377;{{ number_format((float) ($plot['total_cost'] ?? 0), 2) }}</td>
+                                        <td class="text-success fw-semibold">&#8377;{{ number_format((float) ($plot['paid_amount'] ?? 0), 2) }}</td>
+                                        <td class="text-danger fw-semibold">&#8377;{{ number_format((float) ($plot['due_amount'] ?? 0), 2) }}</td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">
+                                                {{ ucfirst($plot['payment_status'] ?? 'Pending') }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-3">No plot details found.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div class="col-md-6">
@@ -76,6 +132,9 @@
                 <input type="text" inputmode="decimal" name="paid_amount" id="paidAmount"
                     class="form-control @error('paid_amount') is-invalid @enderror"
                     value="{{ old('paid_amount', $paidAmount) }}">
+                <small class="text-muted">
+                    {{ $plotCount > 1 ? 'Enter total receipt paid amount. It will be split across all plots.' : 'Enter paid amount for this plot.' }}
+                </small>
                 @error('paid_amount')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

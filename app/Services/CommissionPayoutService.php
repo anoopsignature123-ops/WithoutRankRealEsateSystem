@@ -29,7 +29,113 @@ class CommissionPayoutService
         return now()->startOfMonth()->format('Y-m-d');
     }
 
-    public function previewAllCommission(string $fromDate, string $toDate): array
+    public function resolveCommissionPeriod(string $month): array
+    {
+        $fromDate = Carbon::createFromFormat('Y-m-d', $month . '-01')->startOfMonth();
+        $today = now()->startOfDay();
+
+        if ($fromDate->gt($today->copy()->startOfMonth())) {
+            throw new \InvalidArgumentException('Future month is not allowed.');
+        }
+
+        $toDate = $fromDate->copy()->endOfMonth();
+
+        if ($toDate->gt($today)) {
+            $toDate = $today;
+        }
+
+        return [
+            'value' => $fromDate->format('Y-m'),
+            'label' => $fromDate->format('F Y'),
+            'from_date' => $fromDate->toDateString(),
+            'to_date' => $toDate->toDateString(),
+            'range_label' => $fromDate->format('d M Y') . ' to ' . $toDate->format('d M Y'),
+            'is_current' => $fromDate->isSameMonth($today),
+        ];
+    }
+
+    public function getCommissionPeriodOptions()
+    {
+        $firstPaymentDate = $this->getFirstEligiblePaymentDate();
+        $startMonth = $firstPaymentDate
+            ? Carbon::parse($firstPaymentDate)->startOfMonth()
+            : now()->startOfMonth();
+        $currentMonth = now()->startOfMonth();
+        $generatedPeriods = $this->getGeneratedPeriodOptions()->keyBy('range_key');
+        $periods = collect();
+
+        while ($startMonth->lte($currentMonth)) {
+            $period = $this->resolveCommissionPeriod($startMonth->format('Y-m'));
+            $rangeKey = $period['value'];
+            $generatedPeriod = $generatedPeriods->get($rangeKey);
+
+            $periods->push(array_merge($period, [
+                'range_key' => $rangeKey,
+                'is_generated' => (bool) $generatedPeriod,
+                'generation_count' => (int) ($generatedPeriod['generation_count'] ?? 0),
+                'generated_commission' => (float) ($generatedPeriod['total_commission'] ?? 0),
+            ]));
+
+            $startMonth->addMonth();
+        }
+
+        return $periods;
+    }
+
+    public function getGeneratedPeriodOptions()
+    {
+        return CommissionGeneration::selectRaw("
+                DATE_FORMAT(from_date, '%Y-%m') as period_month,
+                MIN(from_date) as from_date,
+                MAX(to_date) as to_date,
+                COUNT(*) as generation_count,
+                SUM(total_commission) as total_commission
+            ")
+            ->groupBy('period_month')
+            ->orderByDesc('period_month')
+            ->get()
+            ->map(function ($period) {
+                $fromDate = Carbon::parse($period->from_date);
+                $toDate = Carbon::parse($period->to_date);
+
+                return [
+                    'value' => $period->period_month,
+                    'label' => $fromDate->format('F Y'),
+                    'from_date' => $fromDate->toDateString(),
+                    'to_date' => $toDate->toDateString(),
+                    'range_key' => $period->period_month,
+                    'range_label' => $fromDate->format('d M Y') . ' to ' . $toDate->format('d M Y'),
+                    'generation_count' => (int) $period->generation_count,
+                    'total_commission' => (float) $period->total_commission,
+                ];
+            });
+    }
+
+    public function isPeriodGenerated(string $fromDate, string $toDate): bool
+    {
+        return CommissionGeneration::where(function ($query) use ($fromDate, $toDate) {
+            $query->whereBetween('from_date', [$fromDate, $toDate])
+                ->orWhereBetween('to_date', [$fromDate, $toDate])
+                ->orWhere(function ($q) use ($fromDate, $toDate) {
+                    $q->whereDate('from_date', '<=', $fromDate)
+                        ->whereDate('to_date', '>=', $toDate);
+                });
+        })->exists();
+    }
+
+    private function getFirstEligiblePaymentDate(): ?string
+    {
+        return CustomerPayment::where('booking_status', 'booked')
+            ->whereNotNull('customer_booking_id')
+            ->whereNotNull('plot_sale_detail_id')
+            ->where(function ($query) {
+                $query->whereIn('payment_status', ['paid', 'cleared'])
+                    ->orWhere('transaction_category', 'booking_fee');
+            })
+            ->min('created_at');
+    }
+
+    public function previewAllCommission(string $fromDate, string $toDate, bool $skipExisting = true): array
     {
         $associates = Associate::with('rank')
             ->whereNotNull('rank_id')
@@ -51,7 +157,7 @@ class CommissionPayoutService
                 associate: $associate,
                 fromDate: $fromDate,
                 toDate: $toDate,
-                skipExisting: false
+                skipExisting: $skipExisting
             );
 
             if ($calculation['total_commission'] <= 0) {
@@ -86,6 +192,10 @@ class CommissionPayoutService
                 throw new \Exception('Invalid date range.');
             }
 
+            if ($this->isPeriodGenerated($fromDate, $toDate)) {
+                throw new \Exception('Commission for selected month has already been generated.');
+            }
+
             $preview = $this->previewAllCommission($fromDate, $toDate);
 
             $generatedCount = 0;
@@ -108,15 +218,6 @@ class CommissionPayoutService
                 ]);
 
                 foreach ($calculation['rows'] as $row) {
-                    $alreadyGenerated = CommissionPayout::where('associate_id', $row['associate_id'])
-                        ->where('customer_payment_id', $row['customer_payment_id'])
-                        ->where('commission_type', $row['commission_type'])
-                        ->exists();
-
-                    if ($alreadyGenerated) {
-                        continue;
-                    }
-
                     $row['commission_generation_id'] = $generation->id;
 
                     CommissionPayout::create($row);
@@ -124,9 +225,7 @@ class CommissionPayoutService
                     $payoutCount++;
                 }
 
-                if ($payoutCount > 0) {
-                    $generatedCount++;
-                }
+                $generatedCount++;
             }
 
             return [
@@ -344,6 +443,21 @@ class CommissionPayoutService
             $query->where('status', $request->status);
         }
 
+        if ($request->period_month) {
+            try {
+                $period = $this->resolveCommissionPeriod($request->period_month);
+
+                $query->whereHas('generation', function ($q) use ($period) {
+                    $fromDate = Carbon::parse($period['from_date']);
+
+                    $q->whereYear('from_date', $fromDate->year)
+                        ->whereMonth('from_date', $fromDate->month);
+                });
+            } catch (\Throwable) {
+                // Ignore invalid filter values and keep the ledger query usable.
+            }
+        }
+
         if ($request->from_date && $request->to_date) {
             $query->whereBetween('generated_date', [
                 Carbon::parse($request->from_date)->startOfDay(),
@@ -356,5 +470,49 @@ class CommissionPayoutService
         }
 
         return $query->get();
+    }
+
+
+
+    public function resolveCommissionDatePeriod(string $commissionDate): array
+    {
+        $toDate = Carbon::parse($commissionDate)->startOfDay();
+        $today = now()->startOfDay();
+
+        if ($toDate->gt($today)) {
+            throw new \Exception('Future commission date is not allowed.');
+        }
+
+        $lastGeneratedDate = $this->getLastGeneratedToDate();
+
+        if ($lastGeneratedDate) {
+            $lastDate = Carbon::parse($lastGeneratedDate)->startOfDay();
+
+            if ($toDate->lte($lastDate)) {
+                throw new \Exception(
+                    'Commission date must be after last generated date: ' . $lastDate->format('d M Y')
+                );
+            }
+
+            $fromDate = $lastDate->copy()->addDay();
+        } else {
+            $firstPaymentDate = $this->getFirstEligiblePaymentDate();
+
+            $fromDate = $firstPaymentDate
+                ? Carbon::parse($firstPaymentDate)->startOfDay()
+                : $toDate->copy()->startOfMonth();
+        }
+
+        if ($fromDate->gt($toDate)) {
+            throw new \Exception('Invalid commission date range.');
+        }
+
+        return [
+            'value' => $toDate->format('Y-m-d'),
+            'label' => $toDate->format('d M Y'),
+            'from_date' => $fromDate->toDateString(),
+            'to_date' => $toDate->toDateString(),
+            'range_label' => $fromDate->format('d M Y') . ' to ' . $toDate->format('d M Y'),
+        ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Services\CommissionPayoutService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class GenerateCommissionRequest extends FormRequest
 {
@@ -14,26 +15,37 @@ class GenerateCommissionRequest extends FormRequest
 
     public function rules(): array
     {
-        $fromDate = app(CommissionPayoutService::class)->getNextGlobalFromDate();
-
         return [
-            'to_date' => [
-                'required',
-                'date',
-                'before_or_equal:today',
-                'after_or_equal:' . $fromDate,
-            ],
+            'commission_date' => ['required', 'date', 'before_or_equal:today'],
         ];
     }
 
     public function messages(): array
     {
-        $fromDate = app(CommissionPayoutService::class)->getNextGlobalFromDate();
-
         return [
-            'to_date.required' => 'Please select To Date.',
-            'to_date.before_or_equal' => 'To Date cannot be future date.',
-            'to_date.after_or_equal' => 'Commission already generated before this date. Please select date from ' . date('d M Y', strtotime($fromDate)) . ' or after.',
+            'commission_date.required' => 'Please select commission date.',
+            'commission_date.date' => 'Please select a valid commission date.',
+            'commission_date.before_or_equal' => 'Please select a commission date that is not in the future.',
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            if (!$this->filled('commission_date')) {
+                return;
+            }
+
+            try {
+                $service = app(CommissionPayoutService::class);
+
+                $service->resolveCommissionDatePeriod($this->commission_date);
+            } catch (\Throwable $e) {
+                $validator->errors()->add(
+                    'commission_date',
+                    $e->getMessage() ?: 'Please select a valid commission date.'
+                );
+            }
+        });
     }
 }

@@ -37,9 +37,17 @@
                 <span><i class="bi bi-funnel"></i></span>
                 <div>
                     <h6 class="fw-bold mb-0">Find Payment</h6>
-                    <small class="text-muted">Choose a receipt to open edit form.</small>
+                    <small class="text-muted">Only pending or hold receipts can be edited here.</small>
                 </div>
             </div>
+
+            @if ($payments->isEmpty())
+                <div class="alert alert-info border-0 shadow-sm mb-3">
+                    <strong>No editable payment found.</strong>
+                    Paid and cleared receipts are locked. New data will appear here when a payment is in
+                    pending or hold status, for example cheque or DD payments before clearance.
+                </div>
+            @endif
 
             <form method="GET" action="{{ route('edit-payment-details.index') }}" id="paymentFilterForm">
                 <div class="row g-3 align-items-end">
@@ -51,13 +59,15 @@
                                 @php
                                     $booking = $payment->customerBooking;
                                     $plotSale = $payment->plotSaleDetail;
+                                    $plotCount = (int) ($payment->group_plot_count ?? 1);
+                                    $plotNumbers = $payment->group_plot_numbers ?: ($plotSale?->plotDetail?->plot_number ?? 'N/A');
                                 @endphp
                                 <option value="{{ $payment->id }}"
                                     {{ request('selected_payment') == $payment->id ? 'selected' : '' }}>
                                     {{ $payment->receipt_number ?? 'N/A' }}
                                     | {{ $booking?->customer_code ?? 'N/A' }}
                                     | {{ $booking?->primaryDetail?->name ?? $booking?->customer_name ?? 'N/A' }}
-                                    | Plot {{ $plotSale?->plotDetail?->plot_number ?? 'N/A' }}
+                                    | Plot {{ $plotNumbers }}{{ $plotCount > 1 ? ' (Multiple - '.$plotCount.' Plots)' : '' }}
                                 </option>
                             @endforeach
                         </select>
@@ -75,7 +85,7 @@
         @if ($selectedPayment)
             <div class="modal fade edit-payment-modal" id="editPaymentModal" tabindex="-1"
                 aria-labelledby="editPaymentModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
                             <div class="d-flex align-items-center gap-3">
@@ -137,14 +147,24 @@
                             @php
                                 $booking = $payment->customerBooking;
                                 $plotSale = $payment->plotSaleDetail;
+                                $plotCount = (int) ($payment->group_plot_count ?? 1);
+                                $plotNumbers = $payment->group_plot_numbers ?: ($plotSale?->plotDetail?->plot_number ?? '-');
+                                $projects = $payment->group_projects ?: ($plotSale?->project?->name ?? '-');
+                                $blocks = $payment->group_blocks ?: ($plotSale?->block?->block ?? '-');
                                 $paymentType = match ($payment->transaction_category) {
                                     'booking_fee' => 'Booking Amount',
                                     'emi_payment' => 'EMI Payment',
                                     'one_time' => 'One Time Payment',
                                     default => 'Payment',
                                 };
-                                $amount = (float) ($payment->paid_amount ?? $payment->booking_amount ?? 0);
-                                $statusClass = ($payment->payment_status ?? '') === 'cleared' ? 'success' : 'warning';
+                                $amount = (float) ($payment->group_paid_amount ?? $payment->paid_amount ?? $payment->booking_amount ?? 0);
+                                $status = $payment->group_payment_status ?? $payment->payment_status ?? 'pending';
+                                $bookingStatus = $payment->group_booking_status ?? $payment->booking_status ?? 'N/A';
+                                $statusClass = match ($status) {
+                                    'hold' => 'warning',
+                                    'pending', 'mixed' => 'secondary',
+                                    default => 'warning',
+                                };
                             @endphp
 
                             <tr>
@@ -163,10 +183,15 @@
                                     <strong>{{ $plotSale?->booking_code ?? $booking?->booking_code ?? 'N/A' }}</strong>
                                     <br>
                                     <small class="text-muted">
-                                        {{ $plotSale?->project?->name ?? '-' }} /
-                                        {{ $plotSale?->block?->block ?? '-' }} /
-                                        Plot {{ $plotSale?->plotDetail?->plot_number ?? '-' }}
+                                        {{ $projects }} /
+                                        Block {{ $blocks }} /
+                                        Plot {{ $plotNumbers }}
                                     </small>
+                                    @if ($plotCount > 1)
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle ms-1">
+                                            {{ $plotCount }} Plots
+                                        </span>
+                                    @endif
                                 </td>
                                 <td>{{ $paymentType }}</td>
                                 <td class="fw-bold text-success">&#8377;{{ number_format($amount, 2) }}</td>
@@ -176,11 +201,11 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ $statusClass }} {{ $statusClass === 'warning' ? 'text-dark' : '' }}">
-                                        {{ ucfirst($payment->payment_status ?? 'Pending') }}
+                                    <span class="badge bg-{{ $statusClass }} {{ in_array($statusClass, ['warning', 'secondary']) ? 'text-dark' : '' }}">
+                                        {{ ucfirst($status) }}
                                     </span>
                                     <br>
-                                    <small class="text-muted">{{ ucfirst($payment->booking_status ?? 'N/A') }}</small>
+                                    <small class="text-muted">{{ ucfirst($bookingStatus) }}</small>
                                 </td>
                                 <td>{{ $payment->created_at?->format('d-M-Y') ?? '-' }}</td>
                                 <td>
@@ -194,7 +219,10 @@
                             <tr>
                                 <td colspan="10" class="text-center text-muted py-5">
                                     <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                                    No payment records found.
+                                    No pending or hold payment records found.
+                                    <span class="d-block small mt-1">
+                                        Paid and cleared receipts are not editable from this section.
+                                    </span>
                                 </td>
                             </tr>
                         @endforelse

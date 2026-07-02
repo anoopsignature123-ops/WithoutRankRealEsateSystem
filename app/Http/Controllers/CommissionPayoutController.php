@@ -16,29 +16,42 @@ class CommissionPayoutController extends Controller
         private CommissionPayoutService $service,
         private PdfExportService $pdfExportService,
         private ExcelExportService $excelExportService
-    ) {}
+    ) {
+    }
 
     public function index(Request $request)
     {
-        $fromDate = $this->service->getNextGlobalFromDate();
         $lastGeneratedDate = $this->service->getLastGeneratedToDate();
+        $periodOptions = collect();
 
+        $commissionDate = $request->input('commission_date');
+
+        $fromDate = null;
+        $toDate = null;
+        $selectedPeriod = null;
         $preview = null;
         $warning = null;
 
-        if ($request->filled('to_date')) {
-            if ($lastGeneratedDate && $request->to_date <= $lastGeneratedDate) {
-                $warning = 'Selected date commission already generated. Please select date from '
-                    .date('d M Y', strtotime($fromDate))
-                    .' or after.';
-            } else {
-                $preview = $this->service->previewAllCommission($fromDate, $request->to_date);
+        if ($commissionDate) {
+            try {
+                $selectedPeriod = $this->service->resolveCommissionDatePeriod($commissionDate);
+
+                $fromDate = $selectedPeriod['from_date'];
+                $toDate = $selectedPeriod['to_date'];
+
+                $preview = $this->service->previewAllCommission($fromDate, $toDate);
+            } catch (\Throwable $e) {
+                $warning = $e->getMessage();
             }
         }
 
         return view('commission-payout.generate', compact(
             'fromDate',
+            'toDate',
             'lastGeneratedDate',
+            'periodOptions',
+            'commissionDate',
+            'selectedPeriod',
             'preview',
             'warning'
         ));
@@ -46,9 +59,12 @@ class CommissionPayoutController extends Controller
 
     public function store(GenerateCommissionRequest $request)
     {
-        $fromDate = $this->service->getNextGlobalFromDate();
+        $period = $this->service->resolveCommissionDatePeriod($request->commission_date);
 
-        $result = $this->service->generateAllCommission($fromDate, $request->to_date);
+        $result = $this->service->generateAllCommission(
+            $period['from_date'],
+            $period['to_date']
+        );
 
         return redirect()
             ->route('generate-commission.index')
@@ -58,8 +74,9 @@ class CommissionPayoutController extends Controller
     public function commissionList(Request $request)
     {
         $commissions = $this->service->getCommissionList($request);
+        $generatedPeriods = $this->service->getGeneratedPeriodOptions();
 
-        return view('commission-payout.list', compact('commissions'));
+        return view('commission-payout.list', compact('commissions', 'generatedPeriods'));
     }
 
     public function exportCommissionExcel(Request $request)
@@ -70,7 +87,7 @@ class CommissionPayoutController extends Controller
             data: $commissions,
             fileName: 'commission-ledger',
             headers: $this->commissionHeaders(),
-            callbackData: fn ($row) => $this->commissionExportRow($row)
+            callbackData: fn($row) => $this->commissionExportRow($row)
         );
     }
 
@@ -82,7 +99,7 @@ class CommissionPayoutController extends Controller
             data: $commissions,
             fileName: 'commission-ledger',
             headers: $this->commissionHeaders(),
-            callbackData: fn ($row) => $this->commissionExportRow($row),
+            callbackData: fn($row) => $this->commissionExportRow($row),
             view: 'commission-payout.pdf'
         );
     }
@@ -93,9 +110,9 @@ class CommissionPayoutController extends Controller
 
         return $this->excelExportService->exportDownload(
             data: collect([$commission]),
-            fileName: 'commission-'.$commission->id,
+            fileName: 'commission-' . $commission->id,
             headers: $this->commissionHeaders(),
-            callbackData: fn ($row) => $this->commissionExportRow($row)
+            callbackData: fn($row) => $this->commissionExportRow($row)
         );
     }
 
@@ -105,9 +122,9 @@ class CommissionPayoutController extends Controller
 
         return $this->pdfExportService->downloadPdf(
             data: collect([$commission]),
-            fileName: 'commission-'.$commission->id,
+            fileName: 'commission-' . $commission->id,
             headers: $this->commissionHeaders(),
-            callbackData: fn ($row) => $this->commissionExportRow($row),
+            callbackData: fn($row) => $this->commissionExportRow($row),
             view: 'commission-payout.pdf'
         );
     }
@@ -153,13 +170,13 @@ class CommissionPayoutController extends Controller
     {
         return [
             $row->generated_date
-                ? Carbon::parse($row->generated_date)->format('d-m-Y')
-                : '-',
+            ? Carbon::parse($row->generated_date)->format('d-m-Y')
+            : '-',
 
             ($row->generation?->from_date
                 ? Carbon::parse($row->generation->from_date)->format('d-m-Y')
                 : '-')
-            .' to '.
+            . ' to ' .
             ($row->generation?->to_date
                 ? Carbon::parse($row->generation->to_date)->format('d-m-Y')
                 : '-'),
@@ -177,12 +194,12 @@ class CommissionPayoutController extends Controller
             $row->plotSaleDetail?->block?->block ?? '-',
             $row->plotSaleDetail?->plotDetail?->plot_number ?? '-',
 
-            ($row->plotSaleDetail?->plotDetail?->plot_area ?? '-').' Sqft',
+            ($row->plotSaleDetail?->plotDetail?->plot_area ?? '-') . ' Sqft',
 
             ucfirst($row->commission_type ?? '-'),
 
             number_format((float) $row->payment_amount, 2),
-            number_format((float) $row->commission_percent, 2).'%',
+            number_format((float) $row->commission_percent, 2) . '%',
             number_format((float) $row->commission_amount, 2),
 
             ucfirst($row->status ?? '-'),
