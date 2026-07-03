@@ -41,7 +41,7 @@ class OneTimePaymentController extends Controller
         ])
             ->where('block_id', $blockId)
             ->whereHas('payments', function ($query) {
-                $query->where('plan_type', 'full_payment');
+                $query->where('plan_type', 'full_payment')->where('booking_status', 'booked');
             })
             ->get()
             ->groupBy(function ($sale) {

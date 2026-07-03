@@ -15,9 +15,13 @@ class CustomerDashboardController extends Controller
         $customer->load([
             'primaryDetail.correspondenceDetail',
             'primaryDocument',
+            'plotSaleDetails' => fn ($query) => $query->whereHas('payments', function ($paymentQuery) {
+                $paymentQuery->where('booking_status', 'booked');
+            }),
             'plotSaleDetails.project',
             'plotSaleDetails.block',
             'plotSaleDetails.plotDetail',
+            'payments' => fn ($query) => $query->where('booking_status', 'booked'),
             'payments.plotSaleDetail.plotDetail',
         ]);
 

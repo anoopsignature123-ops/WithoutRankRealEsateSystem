@@ -81,7 +81,9 @@ class DailyCollectionReportController extends Controller
             'customerBooking.primaryDetail',
             'customerBooking.associate',
             'plotSaleDetail.plotDetail',
-        ]);
+        ])
+
+            ->where('booking_status', 'booked');
 
         if ($request->filled('from_date')) {
             $query->whereDate('created_at', '>=', $request->from_date);

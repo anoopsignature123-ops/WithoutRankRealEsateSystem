@@ -82,6 +82,8 @@
                                         ($primary?->city ? $primary->city . ', ' . $primary->state : 'N/A');
                                     $parentCustomer = $customer->parentCustomer;
                                     $plots = $customer->booked_plots ?? collect();
+                                    $bookedPlotCount = $plots->where('admin_booking_status', 'booked')->count();
+                                    $holdPlotCount = $plots->where('admin_booking_status', 'hold')->count();
                                     $customerName = ucfirst($primary?->name ?? 'N/A');
                                 @endphp
 
@@ -132,6 +134,18 @@
                                         <span class="badge bg-light text-dark border">
                                             {{ $plots->count() }} {{ $plots->count() === 1 ? 'Plot' : 'Plots' }}
                                         </span>
+                                        <div class="d-flex flex-wrap gap-1 mt-2">
+                                            @if ($bookedPlotCount > 0)
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                                    {{ $bookedPlotCount }} Booked
+                                                </span>
+                                            @endif
+                                            @if ($holdPlotCount > 0)
+                                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                                    {{ $holdPlotCount }} Hold
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
 
                                     <td>
@@ -217,6 +231,9 @@
 
                                         <tbody>
                                             @foreach ($plots as $plotKey => $plot)
+                                                @php
+                                                    $adminBookingStatus = strtolower($plot->admin_booking_status ?? 'N/A');
+                                                @endphp
                                                 <tr>
                                                     <td>{{ $plotKey + 1 }}</td>
                                                     <td>
@@ -237,9 +254,12 @@
                                                         &#8377;{{ number_format((float) ($plot->total_plot_cost ?? ($plot->total_amount ?? 0)), 2) }}
                                                     </td>
                                                     <td>
-                                                        @if ($plot->status === 'active')
+                                                        @if ($adminBookingStatus === 'booked')
                                                             <span
-                                                                class="badge bg-success-subtle text-success border">Active</span>
+                                                                class="badge bg-success-subtle text-success border border-success-subtle">Booked</span>
+                                                        @elseif ($adminBookingStatus === 'hold')
+                                                            <span
+                                                                class="badge bg-warning-subtle text-warning border border-warning-subtle">Hold</span>
                                                         @elseif ($plot->status === 'cancelled')
                                                             <span
                                                                 class="badge bg-danger-subtle text-danger border">Cancelled</span>

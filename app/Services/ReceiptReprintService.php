@@ -17,6 +17,7 @@ class ReceiptReprintService
             'plotSaleDetail.plotDetail',
         ])
             ->where('customer_booking_id', $customerBookingId)
+            ->where('booking_status', 'booked')
             ->latest()
             ->get();
 
@@ -33,6 +34,7 @@ class ReceiptReprintService
             'plotSaleDetail.plotDetail',
         ])
             ->where('customer_booking_id', $customerBookingId)
+            ->where('booking_status', 'booked')
             ->latest()
             ->get();
 
@@ -80,6 +82,8 @@ class ReceiptReprintService
             'plotSaleDetail.block',
             'plotSaleDetail.plotDetail',
         ])->findOrFail($paymentId);
+
+        abort_unless($payment->booking_status === 'booked', 404);
 
         return $this->receiptPdfService->download($payment);
     }

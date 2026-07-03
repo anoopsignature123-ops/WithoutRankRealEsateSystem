@@ -298,7 +298,9 @@ Route::middleware(['auth', 'module.permission'])->group(function () {
 
     Route::controller(PaymentCollectionDuesSummaryReportController::class)->group(function () {
         Route::get('/payment-collection-dues-summary-report', 'index')->name('payment-collection-dues-summary-report.index');
-        Route::get('/payment-collection-dues-summary-report/export', 'export'
+        Route::get(
+            '/payment-collection-dues-summary-report/export',
+            'export'
         )->name('payment-collection-dues-summary-report.export');
     });
 

@@ -109,7 +109,8 @@ class PaymentCollectionDuesSummaryReportController extends Controller
                     ->map(function ($plotSales, $bookingCode) use ($booking) {
                         $plotSaleIds = $plotSales->pluck('id')->filter()->values();
 
-                        $payments = $booking->payments->whereIn('plot_sale_detail_id', $plotSaleIds);
+                        $payments = $booking->payments->whereIn('plot_sale_detail_id', $plotSaleIds)
+                            ->where('booking_status', 'booked');
 
                         if ($payments->isEmpty()) {
                             $payments = $booking->payments;
@@ -118,11 +119,13 @@ class PaymentCollectionDuesSummaryReportController extends Controller
                         $totalCost = $plotSales->sum(fn($sale) => (float) ($sale->total_plot_cost ?? 0));
 
                         if ($totalCost <= 0) {
-                            $totalCost = (float) ($payments->where('transaction_category', 'booking_fee')->first()?->net_payable_amount ?? 0);
+                            $totalCost = (float) ($payments->where('transaction_category', 'booking_fee')
+                                ->where('booking_status', 'booked')->first()?->net_payable_amount ?? 0);
                         }
 
                         $paidAmount = $payments
                             ->whereIn('payment_status', ['paid', 'cleared'])
+                            ->where('booking_status', 'booked')
                             ->sum('paid_amount');
 
                         $dueAmount = max(0, $totalCost - $paidAmount);

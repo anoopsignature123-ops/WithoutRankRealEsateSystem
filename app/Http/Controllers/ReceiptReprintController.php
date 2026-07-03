@@ -15,7 +15,9 @@ class ReceiptReprintController extends Controller
     public function index()
     {
         $customers = CustomerBooking::with('primaryDetail')
-            ->whereHas('payments')
+            ->whereHas('payments', function ($query) {
+                $query->where('booking_status', 'booked');
+            })
             ->orderBy('customer_code')
             ->get();
 
@@ -32,7 +34,9 @@ class ReceiptReprintController extends Controller
         ]);
 
         $customers = CustomerBooking::with('primaryDetail')
-            ->whereHas('payments')
+            ->whereHas('payments', function ($query) {
+                $query->where('booking_status', 'booked');
+            })
             ->orderBy('customer_code')
             ->get();
 
@@ -58,7 +62,9 @@ class ReceiptReprintController extends Controller
 
     public function getReceiptGroupsByCustomer($customerBookingId)
     {
-        CustomerBooking::findOrFail($customerBookingId);
+        CustomerBooking::whereHas('payments', function ($query) {
+            $query->where('booking_status', 'booked');
+        })->findOrFail($customerBookingId);
 
         return response()->json($this->service->receiptGroupsByCustomer($customerBookingId));
     }

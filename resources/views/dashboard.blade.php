@@ -417,19 +417,15 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="card-body p-4 pt-0">
-
                         <div class="dashboard-inner-box rounded-4 p-3 mb-4 text-center">
-
                             <small class="text-muted d-block mb-1">
                                 Total Business Volume
                             </small>
-
                             <h3 class="fw-bold text-success mb-0">
-                                &#8377; {{ number_format($confirmedPayment + $holdPayment + $pendingPayment, 2) }}
+                                {{-- &#8377; {{ number_format($confirmedPayment + $holdPayment + $pendingPayment, 2) }} --}}
+                                 &#8377; {{ number_format($confirmedPayment, 2) }}
                             </h3>
-
                         </div>
 
                         <div class="d-flex flex-column gap-3">

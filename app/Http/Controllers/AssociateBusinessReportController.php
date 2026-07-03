@@ -112,7 +112,8 @@ class AssociateBusinessReportController extends Controller
                     ->map(function ($plotSales, $bookingCode) use ($booking) {
                         $plotSaleIds = $plotSales->pluck('id')->filter()->values();
 
-                        $payments = $booking->payments->whereIn('plot_sale_detail_id', $plotSaleIds);
+                        $payments = $booking->payments->whereIn('plot_sale_detail_id', $plotSaleIds)
+                            ->where('booking_status', 'booked');
 
                         if ($payments->isEmpty()) {
                             $payments = $booking->payments;
@@ -121,7 +122,7 @@ class AssociateBusinessReportController extends Controller
                         $totalBusiness = $plotSales->sum(fn ($sale) => (float) ($sale->total_plot_cost ?? 0));
 
                         $paidAmount = $payments
-                            ->whereIn('payment_status', ['paid', 'cleared'])
+                            ->whereIn('payment_status', ['paid', 'cleared'])->where('booking_status', 'booked')
                             ->sum('paid_amount');
 
                         $dueAmount = max(0, $totalBusiness - $paidAmount);

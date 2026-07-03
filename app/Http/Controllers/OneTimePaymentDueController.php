@@ -29,6 +29,7 @@ class OneTimePaymentDueController extends Controller
         ];
 
         $customerIds = CustomerPayment::where('plan_type', 'full_payment')
+            ->where('booking_status', 'booked')
             ->where('transaction_category', 'booking_fee')
             ->with('customerBooking.primaryDetail')
             ->get()
@@ -98,6 +99,7 @@ class OneTimePaymentDueController extends Controller
             'plotSaleDetail.plotDetail',
         ])
             ->where('plan_type', 'full_payment')
+            ->where('booking_status', 'booked')
             ->where('transaction_category', 'booking_fee')
             ->whereNotNull('plot_sale_detail_id');
 

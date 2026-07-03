@@ -15,6 +15,7 @@ class UpdateEmiDateService
             'plotSaleDetail.plotDetail',
         ])
             ->where('plan_type', 'emi_plan')
+            ->where('booking_status', 'booked')
             ->whereNotNull('plot_sale_detail_id')
             ->whereIn('id', function ($query) {
                 $query->selectRaw('MAX(id)')

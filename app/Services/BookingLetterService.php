@@ -11,6 +11,9 @@ class BookingLetterService
     {
         return CustomerBooking::with('primaryDetail')
             ->whereNotNull('booking_code')
+            ->whereHas('payments', function ($query) {
+                $query->where('booking_status', 'booked');
+            })
             ->latest('id')
             ->get();
     }
@@ -26,6 +29,9 @@ class BookingLetterService
         ])
             ->whereNotNull('booking_code')
             ->where('status', 'active')
+            ->whereHas('payments', function ($query) {
+                $query->where('booking_status', 'booked');
+            })
             ->whereHas('customerBooking', function ($query) {
                 $query->whereNotNull('booking_code');
             });
@@ -71,6 +77,9 @@ class BookingLetterService
             ])
                 ->where('status', 'active')
                 ->where('customer_booking_id', $booking->id)
+                ->whereHas('payments', function ($query) {
+                    $query->where('booking_status', 'booked');
+                })
                 ->findOrFail($plotSaleDetailId);
 
             $plotSales = $plotSale->booking_code
@@ -83,6 +92,9 @@ class BookingLetterService
                     ->where('status', 'active')
                     ->where('customer_booking_id', $booking->id)
                     ->where('booking_code', $plotSale->booking_code)
+                    ->whereHas('payments', function ($query) {
+                        $query->where('booking_status', 'booked');
+                    })
                     ->orderBy('id')
                     ->get()
                 : collect([$plotSale]);

@@ -152,6 +152,7 @@ class AssociateTeamNewBookingDetailsReportController extends Controller
 
                         $payment = $payments
                             ->where('transaction_category', 'booking_fee')
+                            ->where('booking_status', 'booked')
                             ->sortBy('id')
                             ->first() ?? $payments->sortBy('id')->first();
 
@@ -159,6 +160,7 @@ class AssociateTeamNewBookingDetailsReportController extends Controller
 
                         $paidAmount = $payments
                             ->whereIn('payment_status', ['paid', 'cleared'])
+                            ->where('booking_status', 'booked')
                             ->sum('paid_amount');
 
                         if ($paidAmount <= 0) {

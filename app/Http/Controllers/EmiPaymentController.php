@@ -47,6 +47,7 @@ class EmiPaymentController extends Controller
             ->where('block_id', $blockId)
             ->whereHas('payments', function ($query) {
                 $query->where('plan_type', 'emi_plan')
+                    ->where('booking_status', 'booked')
                     ->where('due_amount', '>', 0);
             })
             ->get()

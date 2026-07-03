@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\CancelBooking;
+use App\Models\CustomerPayment;
 use App\Models\PlotDetail;
 use App\Models\PlotSaleDetail;
 use App\Models\Project;
@@ -31,6 +32,10 @@ class CancelBookingService
             })
             ->whereHas('plotDetail', function ($query) {
                 $query->whereIn('status', ['booked', 'hold']);
+            })
+            ->whereHas('payments', function ($query) {
+                $query->where('booking_status', 'booked')
+                    ->whereIn('payment_status', ['paid', 'cleared']);
             })
             ->latest()
             ->get();
@@ -67,6 +72,15 @@ class CancelBookingService
                 throw new Exception('Selected plot sale is not active.');
             }
 
+            $hasBookedPayment = $plotSale->payments->contains(function ($payment) {
+                return $payment->booking_status === 'booked'
+                    && in_array($payment->payment_status, ['paid', 'cleared']);
+            });
+
+            if (!$hasBookedPayment) {
+                throw new Exception('This plot does not have booked/confirmed payment.');
+            }
+
             $groupPlotSales = $plotSale->booking_code
                 ? PlotSaleDetail::with(['payments', 'plotDetail'])
                     ->where('customer_booking_id', $booking->id)
@@ -74,6 +88,10 @@ class CancelBookingService
                     ->where('status', 'active')
                     ->whereHas('plotDetail', function ($query) {
                         $query->whereIn('status', ['booked', 'hold']);
+                    })
+                    ->whereHas('payments', function ($query) {
+                        $query->where('booking_status', 'booked')
+                            ->whereIn('payment_status', ['paid', 'cleared']);
                     })
                     ->get()
                 : collect([$plotSale]);
@@ -105,23 +123,37 @@ class CancelBookingService
                 throw new Exception('Please select at least one plot for cancellation.');
             }
 
+            $plotSaleIds = $groupPlotSales->pluck('id')->values();
+
             $totalPaid = $groupPlotSales->sum(function ($sale) {
-                return $sale->payments->sum(function ($payment) {
-                    return (float) ($payment->paid_amount ?? $payment->booking_amount ?? 0);
-                });
+                return $sale->payments
+                    ->where('booking_status', 'booked')
+                    ->whereIn('payment_status', ['paid', 'cleared'])
+                    ->sum(function ($payment) {
+                        return (float) ($payment->paid_amount ?? $payment->booking_amount ?? 0);
+                    });
             });
 
             $totalDeduction = round((float) ($data['deduction_amount'] ?? 0), 2);
             $totalRefund = round((float) ($data['refund_amount'] ?? 0), 2);
+
+            if ($totalRefund + $totalDeduction > $totalPaid) {
+                throw new Exception('Refund and deduction amount cannot be greater than paid amount.');
+            }
+
+            $paymentStatusAfterCancel = $totalRefund > 0 ? 'refunded' : 'cancelled';
 
             $allocatedDeduction = 0.0;
             $allocatedRefund = 0.0;
             $lastPlotIndex = $groupPlotSales->count() - 1;
 
             foreach ($groupPlotSales as $index => $sale) {
-                $plotPaid = $sale->payments->sum(function ($payment) {
-                    return (float) ($payment->paid_amount ?? $payment->booking_amount ?? 0);
-                });
+                $plotPaid = $sale->payments
+                    ->where('booking_status', 'booked')
+                    ->whereIn('payment_status', ['paid', 'cleared'])
+                    ->sum(function ($payment) {
+                        return (float) ($payment->paid_amount ?? $payment->booking_amount ?? 0);
+                    });
 
                 $ratio = $totalPaid > 0
                     ? ($plotPaid / $totalPaid)
@@ -152,6 +184,14 @@ class CancelBookingService
                     'cheque_date' => $data['cheque_date'] ?? null,
                 ]);
 
+                CustomerPayment::where('customer_booking_id', $booking->id)
+                    ->where('plot_sale_detail_id', $sale->id)
+                    ->where('booking_status', 'booked')
+                    ->update([
+                        'booking_status' => 'cancelled',
+                        'payment_status' => $paymentStatusAfterCancel,
+                    ]);
+
                 $sale->update([
                     'status' => 'cancelled',
                 ]);
@@ -164,11 +204,15 @@ class CancelBookingService
             }
 
             $activePlotCount = PlotSaleDetail::where('customer_booking_id', $booking->id)
-                ->whereNotIn('id', $groupPlotSales->pluck('id'))
+                ->whereNotIn('id', $plotSaleIds)
                 ->whereNotNull('booking_code')
                 ->where('status', 'active')
                 ->whereHas('plotDetail', function ($query) {
                     $query->whereIn('status', ['booked', 'hold']);
+                })
+                ->whereHas('payments', function ($query) {
+                    $query->where('booking_status', 'booked')
+                        ->whereIn('payment_status', ['paid', 'cleared']);
                 })
                 ->count();
 

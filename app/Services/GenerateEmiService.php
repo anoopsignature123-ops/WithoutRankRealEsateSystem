@@ -20,7 +20,8 @@ class GenerateEmiService
             ->whereHas('plotSaleDetails', function ($query) {
                 $query->whereNotNull('booking_code')
                     ->whereHas('payments', function ($paymentQuery) {
-                        $paymentQuery->where('plan_type', 'emi_plan');
+                        $paymentQuery->where('plan_type', 'emi_plan')
+                            ->where('booking_status', 'booked');
                     });
             })
             ->orderBy('customer_code')
@@ -39,7 +40,8 @@ class GenerateEmiService
         ])
             ->whereNotNull('booking_code')
             ->whereHas('payments', function ($paymentQuery) {
-                $paymentQuery->where('plan_type', 'emi_plan');
+                $paymentQuery->where('plan_type', 'emi_plan')
+                    ->where('booking_status', 'booked');
             });
 
         if ($customerId) {

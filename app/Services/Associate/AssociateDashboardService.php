@@ -6,6 +6,7 @@ use App\Models\Associate;
 use App\Models\CommissionPayout;
 use App\Models\CustomerBooking;
 use App\Models\CustomerPayment;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class AssociateDashboardService
@@ -16,23 +17,11 @@ class AssociateDashboardService
 
         $bookingIds = CustomerBooking::where('associate_id', $associateId)->pluck('id');
 
-        $basePayments = CustomerPayment::whereIn('customer_booking_id', $bookingIds);
+        $basePayments = $this->bookedActivePaymentsQuery($bookingIds);
 
-        $confirmedPayments = (clone $basePayments)
-            ->whereIn('payment_status', ['paid', 'cleared']);
+        $payments = (clone $basePayments)->get();
 
-        $holdPayments = (clone $basePayments)
-            ->where('payment_status', 'hold');
-
-        $totalBusiness = (float) (clone $confirmedPayments)->sum('paid_amount');
-
-        $confirmedSales = (float) (clone $confirmedPayments)->sum('paid_amount');
-
-        $pendingSales = (float) $this->latestPaymentPerBooking(
-            (clone $basePayments)->get()
-        )->sum('due_amount');
-
-        $holdSales = (float) (clone $holdPayments)->sum('paid_amount');
+        $totalBusiness = (float) $payments->sum('paid_amount');
 
         $recentLedgers = (clone $basePayments)
             ->with([
@@ -58,9 +47,9 @@ class AssociateDashboardService
             'team_count' => (int) ($associate->downline_count ?? 0),
 
             'total_business' => $totalBusiness,
-            'confirmed_sales' => $confirmedSales,
-            'pending_sales' => $pendingSales,
-            'hold_sales' => $holdSales,
+            'confirmed_sales' => $totalBusiness,
+            'pending_sales' => 0,
+            'hold_sales' => 0,
 
             'recent_ledgers' => $recentLedgers,
             'chart_data' => $chartData,
@@ -74,7 +63,7 @@ class AssociateDashboardService
 
         $bookingIds = CustomerBooking::where('associate_id', $associateId)->pluck('id');
 
-        $payments = CustomerPayment::whereIn('customer_booking_id', $bookingIds)
+        $payments = $this->bookedActivePaymentsQuery($bookingIds)
             ->whereBetween('created_at', [$start, $end])
             ->get();
 
@@ -89,22 +78,13 @@ class AssociateDashboardService
         foreach ($categories as $category) {
             $filtered = $payments->where('transaction_category', $category);
 
-            $latestPayments = $this->latestPaymentPerBooking($filtered);
+            $confirmed = (float) $filtered->sum('paid_amount');
 
             $result[$category] = [
-                'pending' => (float) $latestPayments
-                    ->whereIn('payment_status', ['pending', 'paid', 'hold'])
-                    ->sum('due_amount'),
-
-                'confirmed' => (float) $filtered
-                    ->whereIn('payment_status', ['paid', 'cleared'])
-                    ->sum('paid_amount'),
-
-                'hold' => (float) $filtered
-                    ->where('payment_status', 'hold')
-                    ->sum('paid_amount'),
-
-                'total' => (float) $filtered->sum('paid_amount'),
+                'pending' => 0,
+                'confirmed' => $confirmed,
+                'hold' => 0,
+                'total' => $confirmed,
             ];
         }
 
@@ -121,50 +101,45 @@ class AssociateDashboardService
 
         $teamBookingIds = CustomerBooking::whereIn('associate_id', $downlineIds)->pluck('id');
 
-        $selfPayments = CustomerPayment::whereIn('customer_booking_id', $myBookingIds)->get();
+        $selfPayments = $this->bookedActivePaymentsQuery($myBookingIds)->get();
 
-        $teamPayments = CustomerPayment::whereIn('customer_booking_id', $teamBookingIds)->get();
+        $teamPayments = $this->bookedActivePaymentsQuery($teamBookingIds)->get();
+
+        $selfConfirmed = (float) $selfPayments->sum('paid_amount');
+        $teamConfirmed = (float) $teamPayments->sum('paid_amount');
 
         return [
             'self' => [
-                'pending' => (float) $this->latestPaymentPerBooking($selfPayments)
-                    ->whereIn('payment_status', ['pending', 'paid', 'hold'])
-                    ->sum('due_amount'),
-
-                'confirmed' => (float) $selfPayments
-                    ->whereIn('payment_status', ['paid', 'cleared'])
-                    ->sum('paid_amount'),
-
-                'hold' => (float) $selfPayments
-                    ->where('payment_status', 'hold')
-                    ->sum('paid_amount'),
-
-                'total' => (float) $selfPayments->sum('paid_amount'),
+                'pending' => 0,
+                'confirmed' => $selfConfirmed,
+                'hold' => 0,
+                'total' => $selfConfirmed,
             ],
 
             'team' => [
-                'pending' => (float) $this->latestPaymentPerBooking($teamPayments)
-                    ->whereIn('payment_status', ['pending', 'paid', 'hold'])
-                    ->sum('due_amount'),
-
-                'confirmed' => (float) $teamPayments
-                    ->whereIn('payment_status', ['paid', 'cleared'])
-                    ->sum('paid_amount'),
-
-                'hold' => (float) $teamPayments
-                    ->where('payment_status', 'hold')
-                    ->sum('paid_amount'),
-
-                'total' => (float) $teamPayments->sum('paid_amount'),
+                'pending' => 0,
+                'confirmed' => $teamConfirmed,
+                'hold' => 0,
+                'total' => $teamConfirmed,
             ],
         ];
+    }
+
+    private function bookedActivePaymentsQuery($bookingIds): Builder
+    {
+        return CustomerPayment::whereIn('customer_booking_id', $bookingIds)
+            ->where('booking_status', 'booked')
+            ->whereIn('payment_status', ['paid', 'cleared'])
+            ->whereHas('plotSaleDetail', function ($query) {
+                $query->where('status', 'active');
+            });
     }
 
     private function latestPaymentPerBooking(Collection $payments): Collection
     {
         return $payments
             ->sortByDesc('id')
-            ->unique(fn ($payment) => $payment->customer_booking_id.'-'.$payment->plot_sale_detail_id)
+            ->unique(fn($payment) => $payment->customer_booking_id . '-' . $payment->plot_sale_detail_id)
             ->values();
     }
 

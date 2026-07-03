@@ -72,12 +72,21 @@ class CustomerDetailReportController extends Controller
         $query = CustomerBooking::with([
             'primaryDetail.correspondenceDetail',
             'parentCustomer',
+            'plotSaleDetails' => function ($q) {
+                $q->whereNotNull('booking_code')
+                    ->whereHas('payments', function ($paymentQuery) {
+                        $paymentQuery->where('booking_status', 'booked');
+                    });
+            },
             'plotSaleDetails.project',
             'plotSaleDetails.block',
             'plotSaleDetails.plotDetail',
         ])
             ->whereHas('plotSaleDetails', function ($q) {
-                $q->whereNotNull('booking_code');
+                $q->whereNotNull('booking_code')
+                    ->whereHas('payments', function ($paymentQuery) {
+                        $paymentQuery->where('booking_status', 'booked');
+                    });
             });
 
         if ($request->filled('name')) {

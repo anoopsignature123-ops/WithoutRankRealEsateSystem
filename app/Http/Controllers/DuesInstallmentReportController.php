@@ -91,6 +91,7 @@ class DuesInstallmentReportController extends Controller
             'plotSaleDetail.plotDetail',
         ])
             ->where('plan_type', 'emi_plan')
+            ->where('booking_status', 'booked')
             ->where('transaction_category', 'booking_fee')
             ->whereNotNull('plot_sale_detail_id');
 
@@ -124,7 +125,8 @@ class DuesInstallmentReportController extends Controller
                 $plotSaleIds = $group->pluck('plot_sale_detail_id')->filter()->unique()->values();
 
                 $bookingPayments = $booking?->payments
-                        ?->whereIn('plot_sale_detail_id', $plotSaleIds) ?? collect();
+                        ?->whereIn('plot_sale_detail_id', $plotSaleIds)
+                    ->where('booking_status', 'booked') ?? collect();
 
                 if ($bookingPayments->isEmpty()) {
                     $bookingPayments = $booking?->payments ?? collect();
@@ -138,6 +140,7 @@ class DuesInstallmentReportController extends Controller
 
                 $paidAmount = $bookingPayments
                     ->whereIn('payment_status', ['paid', 'cleared'])
+                    ->where('booking_status', 'booked')
                     ->sum('paid_amount');
 
                 $balanceAmount = max(0, $totalAmount - $paidAmount);

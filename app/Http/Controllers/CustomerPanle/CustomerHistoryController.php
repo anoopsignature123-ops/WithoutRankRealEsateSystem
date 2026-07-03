@@ -18,10 +18,14 @@ class CustomerHistoryController extends Controller
         $customer = auth()->guard('customer')->user();
         $customer->load([
             'primaryDetail.correspondenceDetail',
+            'plotSaleDetails' => fn ($query) => $query->whereHas('payments', function ($paymentQuery) {
+                $paymentQuery->where('booking_status', 'booked');
+            }),
             'plotSaleDetails.project',
             'primaryDocument',
             'plotSaleDetails.block',
             'plotSaleDetails.plotDetail',
+            'payments' => fn ($query) => $query->where('booking_status', 'booked'),
             'payments.plotSaleDetail.plotDetail',
         ]);
         $plots = $customer->plotSaleDetails;
@@ -169,7 +173,15 @@ class CustomerHistoryController extends Controller
         $customer = auth()->guard('customer')->user();
 
         $plots = $customer->plotSaleDetails()
-            ->with(['project', 'block', 'plotDetail', 'payments'])
+            ->with([
+                'project',
+                'block',
+                'plotDetail',
+                'payments' => fn ($query) => $query->where('booking_status', 'booked'),
+            ])
+            ->whereHas('payments', function ($query) {
+                $query->where('booking_status', 'booked');
+            })
             ->whereNotNull('booking_code')
             ->latest()
             ->get();
@@ -228,7 +240,10 @@ class CustomerHistoryController extends Controller
         $customer = auth()->guard('customer')->user();
 
         $payments = $customer->payments()
-            ->with(['plotSaleDetail.project', 'plotSaleDetail.block', 'plotSaleDetail.plotDetail'])->latest()->get();
+            ->with(['plotSaleDetail.project', 'plotSaleDetail.block', 'plotSaleDetail.plotDetail'])
+            ->where('booking_status', 'booked')
+            ->latest()
+            ->get();
 
         $paymentRecords = $payments
             ->groupBy(fn ($payment) => $payment->receipt_number ?: 'payment-'.$payment->id)
@@ -292,6 +307,7 @@ class CustomerHistoryController extends Controller
             'plotSaleDetail.block',
             'plotSaleDetail.plotDetail',
         ])->where('customer_booking_id', auth()->guard('customer')->id())->findOrFail($paymentId);
+        abort_unless($payment->booking_status === 'booked', 404);
         return app(ReceiptPdfService::class)->download($payment);
     }
 
@@ -299,7 +315,15 @@ class CustomerHistoryController extends Controller
     {
         $customer = auth()->guard('customer')->user();
         $plots = $customer->plotSaleDetails()
-            ->with(['project', 'block', 'plotDetail', 'payments'])
+            ->with([
+                'project',
+                'block',
+                'plotDetail',
+                'payments' => fn ($query) => $query->where('booking_status', 'booked'),
+            ])
+            ->whereHas('payments', function ($query) {
+                $query->where('booking_status', 'booked');
+            })
             ->whereNotNull('booking_code')
             ->latest()
             ->get();

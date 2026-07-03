@@ -82,6 +82,7 @@ class EmiDueStatusReportController extends Controller
             'plotSaleDetail.plotDetail',
         ])
             ->where('plan_type', 'emi_plan')
+            ->where('booking_status', 'booked')
             ->where('transaction_category', 'booking_fee')
             ->whereNotNull('plot_sale_detail_id')
             ->when($request->filled('customer_name'), function ($query) use ($request) {
@@ -140,6 +141,7 @@ class EmiDueStatusReportController extends Controller
             ->where('customer_booking_id', $firstPayment->customer_booking_id)
             ->whereIn('plot_sale_detail_id', $plotSaleIds)
             ->where('plan_type', 'emi_plan')
+            ->where('booking_status', 'booked')
             ->orderBy('id')
             ->get();
 

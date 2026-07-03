@@ -220,6 +220,7 @@ class PlotBookingDetailsController extends Controller
 
                         $payment = $payments
                             ->where('transaction_category', 'booking_fee')
+                            ->where('booking_status', 'booked')
                             ->sortBy('id')
                             ->first() ?? $payments->sortBy('id')->first();
 

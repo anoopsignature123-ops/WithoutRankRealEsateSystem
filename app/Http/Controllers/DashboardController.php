@@ -26,7 +26,9 @@ class DashboardController extends Controller
             'monthlyDues' => $this->getMonthlyDues(),
             'totalOutstanding' => $this->calculateOutstanding(),
             // 'totalOverdue' => $this->calculateOverdue(),
-            'confirmedPayment' => CustomerPayment::whereIn('payment_status', ['paid', 'cleared'])->sum('paid_amount'),
+            'confirmedPayment' => CustomerPayment::where('booking_status', 'booked')
+                ->whereIn('payment_status', ['paid', 'cleared'])
+                ->sum('paid_amount'),
             'holdPayment' => CustomerPayment::where('payment_status', 'hold')->sum('paid_amount'),
             'pendingPayment' => $this->calculateOutstanding(),
             'businessConfirmedPayment' => $businessChartData['monthlyPaidAmount'][0] ?? 0,
@@ -62,6 +64,7 @@ class DashboardController extends Controller
             'plotSaleDetail.plotDetail',
         ])
             ->where('plan_type', 'emi_plan')
+            ->where('booking_status', 'booked')
             ->where('transaction_category', 'booking_fee')
             ->whereNotNull('customer_booking_id')
             ->whereNotNull('plot_sale_detail_id')
@@ -90,6 +93,7 @@ class DashboardController extends Controller
             $totalPaidTillCurrentMonth = CustomerPayment::where('customer_booking_id', $emiPlan->customer_booking_id)
                 ->where('plot_sale_detail_id', $emiPlan->plot_sale_detail_id)
                 ->where('transaction_category', 'emi_payment')
+                ->where('booking_status', 'booked')
                 ->whereIn('payment_status', ['paid', 'cleared'])
                 ->whereDate('created_at', '<=', $currentMonthEnd)
                 ->sum('paid_amount');
@@ -159,6 +163,7 @@ class DashboardController extends Controller
                 ->groupBy('customer_booking_id', 'plot_sale_detail_id');
         })
             ->whereIn('payment_status', ['pending', 'paid', 'hold'])
+            ->where('booking_status', 'booked')
             ->where('due_amount', '>', 0)
             ->sum('due_amount');
     }
@@ -173,6 +178,7 @@ class DashboardController extends Controller
         })
             ->where('plan_type', 'emi_plan')
             ->whereIn('payment_status', ['pending', 'paid', 'hold'])
+            ->where('booking_status', 'booked')
             ->where('due_amount', '>', 0)
             ->whereNotNull('emi_date')
             ->whereDate('emi_date', '<', now())
@@ -188,6 +194,7 @@ class DashboardController extends Controller
         $startMonth = now()->startOfMonth();
 
         $emiPlans = CustomerPayment::where('plan_type', 'emi_plan')
+            ->where('booking_status', 'booked')
             ->where('transaction_category', 'booking_fee')
             ->whereNotNull('customer_booking_id')
             ->whereNotNull('plot_sale_detail_id')
@@ -225,6 +232,7 @@ class DashboardController extends Controller
                 $paidThisMonth = CustomerPayment::where('customer_booking_id', $emiPlan->customer_booking_id)
                     ->where('plot_sale_detail_id', $emiPlan->plot_sale_detail_id)
                     ->where('transaction_category', 'emi_payment')
+                    ->where('booking_status', 'booked')
                     ->whereIn('payment_status', ['paid', 'cleared'])
                     ->whereBetween('created_at', [
                         $month->copy()->startOfMonth(),
@@ -235,6 +243,7 @@ class DashboardController extends Controller
                 $totalPaidTillThisMonth = CustomerPayment::where('customer_booking_id', $emiPlan->customer_booking_id)
                     ->where('plot_sale_detail_id', $emiPlan->plot_sale_detail_id)
                     ->where('transaction_category', 'emi_payment')
+                    ->where('booking_status', 'booked')
                     ->whereIn('payment_status', ['paid', 'cleared'])
                     ->whereDate('created_at', '<=', $monthEnd)
                     ->sum('paid_amount');

@@ -18,6 +18,7 @@ class PlotPaymentService
             'plotSaleDetail.block',
             'plotSaleDetail.plotDetail',
         ])
+            ->where('booking_status', 'booked')
             ->whereNotIn('payment_status', ['cleared', 'paid'])
             ->latest()
             ->get();
