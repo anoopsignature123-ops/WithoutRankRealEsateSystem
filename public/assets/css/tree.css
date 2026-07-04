@@ -212,6 +212,38 @@
     margin-top: 4px;
 }
 
+.associate-extra-stats {
+    border-top: 1px solid #f1f5f9;
+    display: grid;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.associate-extra-stats div {
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius: 8px;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    padding: 7px 8px;
+}
+
+.associate-extra-stats span {
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.associate-extra-stats strong {
+    color: #0f172a;
+    font-size: 11px;
+    font-weight: 900;
+    text-align: right;
+}
+
 .vertical-line {
     background: #94a3b8;
     height: 36px;

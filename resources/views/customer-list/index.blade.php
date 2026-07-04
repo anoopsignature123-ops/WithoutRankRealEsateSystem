@@ -125,7 +125,9 @@
                                     </td>
 
                                     <td>
-                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                        <span
+                                            style="display:inline-flex;align-items:center;padding:5px 12px;background:#eef6ff;border:1px solid #b6d4fe;border-radius:50px;font-family:Consolas,monospace;font-size:13px;font-weight:700;color:#0d6efd;">
+                                            <i class="bi bi-key-fill me-1"></i>
                                             {{ $customer?->plain_password ?? 'N/A' }}
                                         </span>
                                     </td>
@@ -136,12 +138,14 @@
                                         </span>
                                         <div class="d-flex flex-wrap gap-1 mt-2">
                                             @if ($bookedPlotCount > 0)
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                                <span
+                                                    class="badge bg-success-subtle text-success border border-success-subtle">
                                                     {{ $bookedPlotCount }} Booked
                                                 </span>
                                             @endif
                                             @if ($holdPlotCount > 0)
-                                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                                <span
+                                                    class="badge bg-warning-subtle text-warning border border-warning-subtle">
                                                     {{ $holdPlotCount }} Hold
                                                 </span>
                                             @endif
@@ -232,7 +236,9 @@
                                         <tbody>
                                             @foreach ($plots as $plotKey => $plot)
                                                 @php
-                                                    $adminBookingStatus = strtolower($plot->admin_booking_status ?? 'N/A');
+                                                    $adminBookingStatus = strtolower(
+                                                        $plot->admin_booking_status ?? 'N/A',
+                                                    );
                                                 @endphp
                                                 <tr>
                                                     <td>{{ $plotKey + 1 }}</td>

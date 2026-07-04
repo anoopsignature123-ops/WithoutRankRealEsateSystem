@@ -6,9 +6,7 @@
 
 @section('content')
     @php
-        $availablePeriods = $periodOptions->where('is_generated', false);
-        $generatedPeriods = $periodOptions->where('is_generated', true);
-        $nextPendingPeriod = $availablePeriods->first();
+        $generatedPeriods = $generatedPeriods ?? collect();
     @endphp
 
     <div class="container-fluid mt-4 transaction-page">
@@ -22,7 +20,7 @@
                         <span class="text-success fw-bold text-uppercase small">Commission Center</span>
                         <h3 class="fw-bold mb-1 text-dark">Generate Commission</h3>
                         <p class="text-muted mb-0 small">
-                            Select a month, preview eligible associate payout, then generate commission.
+                            Select a date, preview eligible self and team payouts, then generate commission.
                         </p>
                     </div>
                 </div>
@@ -44,21 +42,23 @@
         <div class="row g-3 mb-4">
             <div class="col-lg-3 col-md-6">
                 <div class="transaction-summary-box h-100">
-                    <small class="text-muted fw-semibold text-uppercase">Available Months</small>
-                    <h4 class="fw-bold text-success mb-0">{{ $availablePeriods->count() }}</h4>
+                    <small class="text-muted fw-semibold text-uppercase">Eligible From</small>
+                    <h5 class="fw-bold text-success mb-0">
+                        {{ !empty($nextFromDate) ? \Carbon\Carbon::parse($nextFromDate)->format('d M Y') : '-' }}
+                    </h5>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="transaction-summary-box h-100">
-                    <small class="text-muted fw-semibold text-uppercase">Generated Months</small>
+                    <small class="text-muted fw-semibold text-uppercase">Generated Periods</small>
                     <h4 class="fw-bold mb-0">{{ $generatedPeriods->count() }}</h4>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="transaction-summary-box h-100">
-                    <small class="text-muted fw-semibold text-uppercase">Next Pending</small>
+                    <small class="text-muted fw-semibold text-uppercase">Selected Range</small>
                     <h5 class="fw-bold mb-0">
-                        {{ $nextPendingPeriod['label'] ?? 'No Pending Month' }}
+                        {{ $selectedPeriod['range_label'] ?? 'Not selected' }}
                     </h5>
                 </div>
             </div>
@@ -163,6 +163,10 @@
                     <div class="transaction-summary-box h-100 bg-white">
                         <small class="text-muted fw-semibold text-uppercase">Payout Records</small>
                         <h4 class="fw-bold mb-0">{{ $preview['summary']['total_records'] }}</h4>
+                        <small class="text-muted">
+                            {{ $preview['summary']['self_records'] ?? 0 }} Self /
+                            {{ $preview['summary']['team_records'] ?? 0 }} Team
+                        </small>
                     </div>
                 </div>
             </div>
@@ -251,6 +255,54 @@
                                                 class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
                                                 {{ count($item['calculation']['rows']) }}
                                             </span>
+                                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill ms-1"
+                                                data-bs-toggle="collapse" data-bs-target="#commissionRows{{ $key }}">
+                                                Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="collapse" id="commissionRows{{ $key }}">
+                                        <td colspan="10" class="bg-light">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-bordered align-middle mb-0 bg-white">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Type</th>
+                                                            <th>Source Associate</th>
+                                                            <th>Customer / Booking</th>
+                                                            <th>Plot</th>
+                                                            <th class="text-end">Payment</th>
+                                                            <th>Formula</th>
+                                                            <th class="text-end">Commission</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($item['calculation']['rows'] as $row)
+                                                            <tr>
+                                                                <td>
+                                                                    <span class="badge {{ $row['commission_type'] === 'self' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-info-subtle text-info border border-info-subtle' }}">
+                                                                        {{ ucfirst($row['commission_type']) }}
+                                                                    </span>
+                                                                </td>
+                                                                <td>{{ $row['source_associate_label'] ?? '-' }}</td>
+                                                                <td>
+                                                                    <div class="fw-semibold">{{ $row['customer_label'] ?? '-' }}</div>
+                                                                    <small class="text-muted">{{ $row['booking_label'] ?? '-' }}</small>
+                                                                </td>
+                                                                <td>
+                                                                    <div>{{ $row['plot_label'] ?? '-' }}</div>
+                                                                    <small class="text-muted">{{ $row['project_label'] ?? '-' }}</small>
+                                                                </td>
+                                                                <td class="text-end">&#8377;{{ number_format((float) ($row['payment_amount'] ?? 0), 2) }}</td>
+                                                                <td>{{ $row['calculation_label'] ?? '-' }}</td>
+                                                                <td class="text-end fw-bold text-success">
+                                                                    &#8377;{{ number_format((float) ($row['commission_amount'] ?? 0), 2) }}
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -316,7 +368,7 @@
 
                 Swal.fire({
                     title: 'Generate Commission?',
-                    text: 'Commission will be generated for the selected month. This action cannot be reversed.',
+                    text: 'Commission will be generated for the selected period. This action cannot be reversed.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, Generate',

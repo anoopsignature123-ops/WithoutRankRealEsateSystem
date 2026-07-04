@@ -22,7 +22,8 @@ class CommissionPayoutController extends Controller
     public function index(Request $request)
     {
         $lastGeneratedDate = $this->service->getLastGeneratedToDate();
-        $periodOptions = collect();
+        $generatedPeriods = $this->service->getGeneratedPeriodOptions();
+        $nextFromDate = $this->service->getNextGlobalFromDate();
 
         $commissionDate = $request->input('commission_date');
 
@@ -49,7 +50,8 @@ class CommissionPayoutController extends Controller
             'fromDate',
             'toDate',
             'lastGeneratedDate',
-            'periodOptions',
+            'generatedPeriods',
+            'nextFromDate',
             'commissionDate',
             'selectedPeriod',
             'preview',
@@ -162,7 +164,7 @@ class CommissionPayoutController extends Controller
             'Business Amount',
             'Commission %',
             'Commission Amount',
-            'Status',
+            // 'Status',
         ];
     }
 
@@ -202,7 +204,7 @@ class CommissionPayoutController extends Controller
             number_format((float) $row->commission_percent, 2) . '%',
             number_format((float) $row->commission_amount, 2),
 
-            ucfirst($row->status ?? '-'),
+            // ucfirst($row->status ?? '-'),
         ];
     }
 }

@@ -122,8 +122,8 @@ class ModuleSeeder extends Seeder
                 'slug' => 'plot-rates',
                 'parent_slug' => 'master',
                 'route_name' => 'plot-rates.index',
-                'active_routes' => 'plot-rates.*,'.
-                    'plc-rates.*,'.
+                'active_routes' => 'plot-rates.*,' .
+                    'plc-rates.*,' .
                     'developments.*',
                 'icon' => 'bi bi-currency-rupee',
             ],
@@ -197,12 +197,21 @@ class ModuleSeeder extends Seeder
                 'icon' => 'bi bi-diagram-2-fill',
             ],
 
+            // [
+            //     'name' => 'Promotion Report',
+            //     'slug' => 'promotion.report',
+            //     'parent_slug' => 'associate',
+            //     'route_name' => 'promotion.report',
+            //     'active_routes' => 'promotion.report*',
+            //     'icon' => 'bi bi-graph-up-arrow',
+            // ],
+
             [
-                'name' => 'Promotion Report',
-                'slug' => 'promotion.report',
+                'name' => 'Promoted the Business',
+                'slug' => 'promoted',
                 'parent_slug' => 'associate',
-                'route_name' => 'promotion.report',
-                'active_routes' => 'promotion.report*',
+                'route_name' => 'promoted.index',
+                'active_routes' => 'promoted*',
                 'icon' => 'bi bi-graph-up-arrow',
             ],
 
@@ -407,7 +416,7 @@ class ModuleSeeder extends Seeder
                 'active_routes' => 'commission-ledger*',
                 'icon' => 'bi bi-list-ul',
             ],
- 
+
             // Parent Module
             [
                 'name' => 'Report',

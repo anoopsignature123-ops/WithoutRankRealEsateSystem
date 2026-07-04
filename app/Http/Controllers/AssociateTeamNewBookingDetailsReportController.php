@@ -177,6 +177,7 @@ class AssociateTeamNewBookingDetailsReportController extends Controller
                                 ?? 'N/A',
                             'agent_name' => $booking->associate?->associate_name ?? 'N/A',
                             'position' => $booking->associate?->rank?->designation ?? 'N/A',
+                            'commission' => ($booking->associate?->rank?->commission ?? 'N/A') . '%',
                             'customer_code' => $booking->customer_code ?? 'N/A',
                             'customer_name' => $booking->primaryDetail?->name ?? 'N/A',
                             'booking_code' => $bookingCode ?: $booking->booking_code ?? 'N/A',

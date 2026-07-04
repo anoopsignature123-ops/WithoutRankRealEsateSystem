@@ -196,7 +196,7 @@
 
                                         <td>
                                             <span class="badge bg-primary-subtle text-primary border rounded-pill px-3 py-2">
-                                                {{ $report['position'] }}
+                                                {{ $report['position'] . ' - ' . $report['commission'] }}
                                             </span>
                                         </td>
 

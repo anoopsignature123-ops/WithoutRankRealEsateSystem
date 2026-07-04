@@ -26,7 +26,11 @@ class CommissionPayoutService
             return Carbon::parse($lastGeneratedDate)->addDay()->format('Y-m-d');
         }
 
-        return now()->startOfMonth()->format('Y-m-d');
+        $firstPaymentDate = $this->getFirstEligiblePaymentDate();
+
+        return $firstPaymentDate
+            ? Carbon::parse($firstPaymentDate)->format('Y-m-d')
+            : now()->startOfMonth()->format('Y-m-d');
     }
 
     public function resolveCommissionPeriod(string $month): array
@@ -150,6 +154,8 @@ class CommissionPayoutService
             'team_commission' => 0,
             'total_commission' => 0,
             'total_records' => 0,
+            'self_records' => 0,
+            'team_records' => 0,
         ];
 
         foreach ($associates as $associate) {
@@ -177,6 +183,8 @@ class CommissionPayoutService
             $summary['team_commission'] += $calculation['team_commission'];
             $summary['total_commission'] += $calculation['total_commission'];
             $summary['total_records'] += count($calculation['rows']);
+            $summary['self_records'] += collect($calculation['rows'])->where('commission_type', 'self')->count();
+            $summary['team_records'] += collect($calculation['rows'])->where('commission_type', 'team')->count();
         }
 
         return [
@@ -220,7 +228,7 @@ class CommissionPayoutService
                 foreach ($calculation['rows'] as $row) {
                     $row['commission_generation_id'] = $generation->id;
 
-                    CommissionPayout::create($row);
+                    CommissionPayout::create($this->payoutPayload($row));
 
                     $payoutCount++;
                 }
@@ -352,6 +360,8 @@ class CommissionPayoutService
             'self_commission' => round($selfCommission, 2),
             'team_commission' => round($teamCommission, 2),
             'total_commission' => round($selfCommission + $teamCommission, 2),
+            'self_records' => collect($rows)->where('commission_type', 'self')->count(),
+            'team_records' => collect($rows)->where('commission_type', 'team')->count(),
             'rows' => $rows,
         ];
     }
@@ -365,6 +375,8 @@ class CommissionPayoutService
             'team_commission' => 0,
             'total_commission' => 0,
             'rows' => [],
+            'self_records' => 0,
+            'team_records' => 0,
         ];
     }
 
@@ -398,6 +410,14 @@ class CommissionPayoutService
         float $commissionPercent,
         float $commissionAmount
     ): array {
+        $associateRankPercent = (float) ($associate->rank?->commission ?? 0);
+        $sourceRankPercent = (float) ($sourceAssociate->rank?->commission ?? 0);
+        $plotSale = $payment->plotSaleDetail;
+        $plotLabel = trim(
+            ($plotSale?->block?->block ? 'Block '.$plotSale->block->block.' / ' : '').
+            'Plot '.($plotSale?->plotDetail?->plot_number ?? '-')
+        );
+
         return [
             'associate_id' => $associate->id,
             'source_associate_id' => $sourceAssociate->id,
@@ -412,7 +432,44 @@ class CommissionPayoutService
             'commission_amount' => round($commissionAmount, 2),
             'status' => 'pending',
             'generated_date' => now()->toDateString(),
+            'associate_label' => trim(($associate->associate_id ?? '-').' / '.($associate->associate_name ?? '-')),
+            'source_associate_label' => trim(($sourceAssociate->associate_id ?? '-').' / '.($sourceAssociate->associate_name ?? '-')),
+            'customer_label' => $payment->customerBooking?->primaryDetail?->name
+                ?? $payment->customerBooking?->customer_name
+                ?? '-',
+            'booking_label' => $plotSale?->booking_code
+                ?? $payment->customerBooking?->booking_code
+                ?? '-',
+            'plot_label' => $plotLabel,
+            'project_label' => $plotSale?->project?->name ?? '-',
+            'receipt_number' => $payment->receipt_number ?? '-',
+            'payment_mode_label' => strtoupper(str_replace('_', ' / ', $payment->payment_mode ?? '-')),
+            'associate_rank_percent' => round($associateRankPercent, 2),
+            'source_rank_percent' => round($sourceRankPercent, 2),
+            'calculation_label' => $commissionType === 'self'
+                ? number_format($paymentAmount, 2).' x '.number_format($commissionPercent, 2).'%'
+                : number_format($paymentAmount, 2).' x ('.number_format($associateRankPercent, 2).'% - '.number_format($sourceRankPercent, 2).'%)',
         ];
+    }
+
+    private function payoutPayload(array $row): array
+    {
+        return collect($row)->only([
+            'commission_generation_id',
+            'associate_id',
+            'source_associate_id',
+            'customer_booking_id',
+            'plot_sale_detail_id',
+            'customer_payment_id',
+            'commission_type',
+            'payment_amount',
+            'associate_rank_id',
+            'source_rank_id',
+            'commission_percent',
+            'commission_amount',
+            'status',
+            'generated_date',
+        ])->all();
     }
 
     public function getCommissionList($request)
@@ -426,6 +483,8 @@ class CommissionPayoutService
             'plotSaleDetail.plotDetail',
             'payment',
             'generation',
+            'associate.rank',
+            'sourceAssociate.rank',
         ])->latest();
 
         if ($request->associate_id) {

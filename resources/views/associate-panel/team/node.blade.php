@@ -1,3 +1,9 @@
+@php
+    $treeStats = $associate->tree_stats ?? [];
+    $formatTreeAmount = fn ($amount) => 'Rs. '.number_format((float) $amount, 2);
+    $formatTreeArea = fn ($area) => number_format((float) $area, 2).' Sqft';
+@endphp
+
 <div class="org-level">
 
     <div class="node-wrapper">
@@ -26,13 +32,24 @@
 
                 <div class="associate-stats">
                     <div>
-                        <strong>{{ $associate->direct_count ?? 0 }}</strong>
+                        <strong>{{ $treeStats['direct_count'] ?? ($associate->direct_count ?? 0) }}</strong>
                         <span>Direct</span>
                     </div>
 
                     <div>
-                        <strong>{{ $associate->downline_count ?? 0 }}</strong>
+                        <strong>{{ $treeStats['downline_count'] ?? ($associate->downline_count ?? 0) }}</strong>
                         <span>Downline</span>
+                    </div>
+                </div>
+
+                <div class="associate-extra-stats">
+                    <div>
+                        <span>Total Business</span>
+                        <strong>{{ $formatTreeAmount($treeStats['total_business'] ?? 0) }}</strong>
+                    </div>
+                    <div>
+                        <span>Total Area</span>
+                        <strong>{{ $formatTreeArea($treeStats['total_area'] ?? 0) }}</strong>
                     </div>
                 </div>
 
@@ -71,12 +88,42 @@
 
                 <div class="tooltip-item">
                     <span>Direct Team</span>
-                    <strong>{{ $associate->direct_count ?? 0 }}</strong>
+                    <strong>{{ $treeStats['direct_count'] ?? ($associate->direct_count ?? 0) }}</strong>
                 </div>
 
                 <div class="tooltip-item">
                     <span>Total Downline</span>
-                    <strong>{{ $associate->downline_count ?? 0 }}</strong>
+                    <strong>{{ $treeStats['downline_count'] ?? ($associate->downline_count ?? 0) }}</strong>
+                </div>
+
+                <div class="tooltip-item">
+                    <span>Self Plot Area</span>
+                    <strong>{{ $formatTreeArea($treeStats['plot_area'] ?? 0) }}</strong>
+                </div>
+
+                <div class="tooltip-item">
+                    <span>Team Plot Area</span>
+                    <strong>{{ $formatTreeArea($treeStats['team_area'] ?? 0) }}</strong>
+                </div>
+
+                <div class="tooltip-item">
+                    <span>Total Area</span>
+                    <strong>{{ $formatTreeArea($treeStats['total_area'] ?? 0) }}</strong>
+                </div>
+
+                <div class="tooltip-item">
+                    <span>Self Business</span>
+                    <strong>{{ $formatTreeAmount($treeStats['self_business'] ?? 0) }}</strong>
+                </div>
+
+                <div class="tooltip-item">
+                    <span>Team Business</span>
+                    <strong>{{ $formatTreeAmount($treeStats['team_business'] ?? 0) }}</strong>
+                </div>
+
+                <div class="tooltip-item">
+                    <span>Total Business</span>
+                    <strong>{{ $formatTreeAmount($treeStats['total_business'] ?? 0) }}</strong>
                 </div>
 
                 <div class="tooltip-item">

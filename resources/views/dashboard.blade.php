@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @push('title')
-     Admin | Dashboard
+    Admin | Dashboard
 @endpush
 @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/admin_dashborad.css') }}">
@@ -103,7 +103,8 @@
                                     </h1>
                                 </div>
 
-                                <div class="rounded-4 bg-{{ $card['color'] }} bg-opacity-10 text-{{ $card['color'] }} d-flex align-items-center justify-content-center stat-icon-box">
+                                <div
+                                    class="rounded-4 bg-{{ $card['color'] }} bg-opacity-10 text-{{ $card['color'] }} d-flex align-items-center justify-content-center stat-icon-box">
                                     <i class="bi {{ $card['icon'] }} fs-3"></i>
                                 </div>
                             </div>
@@ -125,23 +126,26 @@
                             <div>
                                 <h5 class="fw-bold mb-1">
                                     <i class="bi bi-graph-up-arrow text-success me-2"></i>
-                                    Monthly Collections & Dues
+                                    Monthly EMI Collections & Dues
                                 </h5>
                                 <p class="text-muted small mb-0">
-                                    View month-wise confirmed payment collections and outstanding due amounts.
+                                    View month-wise EMI collections and outstanding due amounts.
                                 </p>
                             </div>
 
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-light btn-sm rounded-circle dashboard-icon-btn" onclick="refreshChart()">
+                                <button type="button" class="btn btn-light btn-sm rounded-circle dashboard-icon-btn"
+                                    onclick="refreshChart()">
                                     <i class="bi bi-arrow-clockwise"></i>
                                 </button>
 
-                                <button type="button" class="btn btn-light btn-sm rounded-circle dashboard-icon-btn" onclick="toggleChartType()">
+                                <button type="button" class="btn btn-light btn-sm rounded-circle dashboard-icon-btn"
+                                    onclick="toggleChartType()">
                                     <i class="bi bi-bar-chart"></i>
                                 </button>
 
-                                <button type="button" class="btn btn-light btn-sm rounded-circle dashboard-icon-btn" onclick="downloadChart()">
+                                <button type="button" class="btn btn-light btn-sm rounded-circle dashboard-icon-btn"
+                                    onclick="downloadChart()">
                                     <i class="bi bi-download"></i>
                                 </button>
                             </div>
@@ -193,7 +197,8 @@
                                 </p>
                             </div>
 
-                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center stat-icon-box">
+                            <div
+                                class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center stat-icon-box">
                                 <i class="bi bi-grid-3x3-gap-fill fs-5"></i>
                             </div>
                         </div>
@@ -262,12 +267,12 @@
                     <div class="card-header border-0 pt-4 px-4 pb-0 d-flex align-items-center flex-wrap gap-2">
                         <h5 class="fw-bold mb-0 text-dark me-auto">
                             <i class="bi bi-calendar-check me-2 text-success"></i>
-                            Current Month's Dues
+                            Current Month's EMI Dues
                         </h5>
 
                         <div class="dashboard-pending-badge px-3 py-1 rounded-pill d-flex align-items-center shadow-sm">
                             <span class="spinner-grow spinner-grow-sm me-2" style="width: 0.5rem; height: 0.5rem;"></span>
-                            {{ $monthlyDues->count() }} Pending Due
+                            {{ $monthlyDues->count() }} Pending EMI
                         </div>
                     </div>
 
@@ -294,10 +299,14 @@
                                     @forelse($monthlyDues as $index => $due)
                                         @php
                                             $plotCount = (int) ($due->group_plot_count ?? 1);
-                                            $projects = $due->group_projects ?: ($due->plotSaleDetail?->project?->name ?? 'N/A');
-                                            $blocks = $due->group_blocks ?: ($due->plotSaleDetail?->block?->block ?? 'N/A');
-                                            $plotNumbers = $due->group_plot_numbers ?: ($due->plotSaleDetail?->plotDetail?->plot_number ?? 'N/A');
-                                            $dueAmount = (float) ($due->group_due_amount ?? $due->due_amount ?? 0);
+                                            $projects =
+                                                $due->group_projects ?: $due->plotSaleDetail?->project?->name ?? 'N/A';
+                                            $blocks =
+                                                $due->group_blocks ?: $due->plotSaleDetail?->block?->block ?? 'N/A';
+                                            $plotNumbers =
+                                                $due->group_plot_numbers ?:
+                                                $due->plotSaleDetail?->plotDetail?->plot_number ?? 'N/A';
+                                            $dueAmount = (float) ($due->group_due_amount ?? ($due->due_amount ?? 0));
                                         @endphp
                                         <tr>
                                             <td>
@@ -331,7 +340,8 @@
                                                     {{ $plotNumbers }}
                                                 </span>
                                                 @if ($plotCount > 1)
-                                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 ms-1">
+                                                    <span
+                                                        class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 ms-1">
                                                         {{ $plotCount }} Plots
                                                     </span>
                                                 @endif
@@ -339,11 +349,13 @@
 
                                             <td>
                                                 @if ($due->plan_type == 'emi_plan')
-                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2">
+                                                    <span
+                                                        class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2">
                                                         EMI Plan
                                                     </span>
                                                 @elseif ($due->plan_type == 'full_payment')
-                                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                                    <span
+                                                        class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
                                                         Full Payment
                                                     </span>
                                                 @else
@@ -424,7 +436,7 @@
                             </small>
                             <h3 class="fw-bold text-success mb-0">
                                 {{-- &#8377; {{ number_format($confirmedPayment + $holdPayment + $pendingPayment, 2) }} --}}
-                                 &#8377; {{ number_format($confirmedPayment, 2) }}
+                                &#8377; {{ number_format($confirmedPayment, 2) }}
                             </h3>
                         </div>
 
@@ -521,8 +533,7 @@
                     type: type,
                     data: {
                         labels: chartData.labels || [],
-                        datasets: [
-                            {
+                        datasets: [{
                                 label: 'Confirmed Amount',
                                 data: chartData.monthlyPaidAmount || [],
                                 backgroundColor: type === 'bar' ? '#20c997' : 'rgba(32, 201, 151, 0.18)',

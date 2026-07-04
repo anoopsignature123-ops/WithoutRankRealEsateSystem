@@ -6,6 +6,8 @@
 @section('content')
     @php
         $generatedPeriods = $generatedPeriods ?? collect();
+        $selfCommission = (float) $commissions->where('commission_type', 'self')->sum('commission_amount');
+        $teamCommission = (float) $commissions->where('commission_type', 'team')->sum('commission_amount');
     @endphp
 
     <div class="container-fluid mt-4 transaction-page">
@@ -67,9 +69,9 @@
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <small class="text-muted">Total Business</small>
-                                <h5 class="fw-bold mb-0">
-                                    &#8377;{{ number_format($commissions->sum('payment_amount'), 2) }}
+                                <small class="text-muted">Self Commission</small>
+                                <h5 class="fw-bold text-success mb-0">
+                                    &#8377;{{ number_format($selfCommission, 2) }}
                                 </h5>
                             </div>
                             <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
@@ -86,9 +88,9 @@
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <small class="text-muted">Total Commission</small>
-                                <h5 class="fw-bold text-success mb-0">
-                                    &#8377;{{ number_format($commissions->sum('commission_amount'), 2) }}
+                                <small class="text-muted">Team Commission</small>
+                                <h5 class="fw-bold text-info mb-0">
+                                    &#8377;{{ number_format($teamCommission, 2) }}
                                 </h5>
                             </div>
                             <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
@@ -105,9 +107,9 @@
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <small class="text-muted">Pending Commission</small>
-                                <h5 class="fw-bold mb-0">
-                                    &#8377;{{ number_format($commissions->where('status', 'pending')->sum('commission_amount'), 2) }}
+                                <small class="text-muted">Total Commission</small>
+                                <h5 class="fw-bold text-success mb-0">
+                                    &#8377;{{ number_format($commissions->sum('commission_amount'), 2) }}
                                 </h5>
                             </div>
                             <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
@@ -150,6 +152,28 @@
                                 </option>
                                 <option value="team" {{ request('commission_type') == 'team' ? 'selected' : '' }}>Team
                                 </option>
+                            </select>
+                        </div>
+
+                        <div class="col-xl-2 col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">Generated Period</label>
+                            <select name="period_month" class="form-select">
+                                <option value="">All Periods</option>
+                                @foreach ($generatedPeriods as $period)
+                                    <option value="{{ $period['value'] }}"
+                                        {{ request('period_month') == $period['value'] ? 'selected' : '' }}>
+                                        {{ $period['label'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-xl-2 col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
                             </select>
                         </div>
 
@@ -215,8 +239,8 @@
                                 <th class="text-end">Business</th>
                                 <th class="text-end">%</th>
                                 <th class="text-end">Commission</th>
-                                <th>Status</th>
-                                <th class="text-center">Download</th>
+                                {{-- <th>Status</th> --}}
+                                {{-- <th class="text-center">Download</th> --}}
                             </tr>
                         </thead>
 
@@ -243,6 +267,12 @@
                                         <small class="text-muted">
                                             {{ $row->associate?->associate_id ?? '-' }}
                                         </small>
+                                        <small class="d-block text-success">
+                                            {{ $row->associate?->rank?->designation ?? '-' }}
+                                            @if ($row->associate?->rank)
+                                                ({{ number_format((float) $row->associate->rank->commission, 2) }}%)
+                                            @endif
+                                        </small>
                                     </td>
 
                                     <td>
@@ -251,6 +281,12 @@
                                         </div>
                                         <small class="text-muted">
                                             {{ $row->sourceAssociate?->associate_id ?? '-' }}
+                                        </small>
+                                        <small class="d-block text-muted">
+                                            {{ $row->sourceAssociate?->rank?->designation ?? '-' }}
+                                            @if ($row->sourceAssociate?->rank)
+                                                ({{ number_format((float) $row->sourceAssociate->rank->commission, 2) }}%)
+                                            @endif
                                         </small>
                                     </td>
 
@@ -298,14 +334,23 @@
                                     </td>
 
                                     <td class="text-end">
-                                        {{ number_format($row->commission_percent, 2) }}%
+                                        <div class="fw-semibold">{{ number_format($row->commission_percent, 2) }}%</div>
+                                        @if ($row->commission_type === 'team')
+                                            <small class="text-muted">
+                                                {{ number_format((float) ($row->associate?->rank?->commission ?? 0), 2) }}%
+                                                -
+                                                {{ number_format((float) ($row->sourceAssociate?->rank?->commission ?? 0), 2) }}%
+                                            </small>
+                                        @else
+                                            <small class="text-muted">Self rank %</small>
+                                        @endif
                                     </td>
 
                                     <td class="text-end fw-bold text-success">
                                         &#8377;{{ number_format($row->commission_amount, 2) }}
                                     </td>
 
-                                    <td>
+                                    {{-- <td>
                                         @if ($row->status == 'paid')
                                             <span class="badge bg-success rounded-pill px-3 py-2">
                                                 Paid
@@ -330,11 +375,11 @@
                                                 <i class="bi bi-file-earmark-pdf"></i>
                                             </a>
                                         </div>
-                                    </td>
+                                    </td> --}}
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="13" class="text-center text-muted py-5">
+                                    <td colspan="12" class="text-center text-muted py-5">
                                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                         No commission records found
                                     </td>
@@ -353,8 +398,6 @@
                                     <th class="text-end text-success">
                                         &#8377;{{ number_format($commissions->sum('commission_amount'), 2) }}
                                     </th>
-                                    <th></th>
-                                    <th></th>
                                 </tr>
                             </tfoot>
                         @endif
@@ -362,7 +405,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 @endsection
 

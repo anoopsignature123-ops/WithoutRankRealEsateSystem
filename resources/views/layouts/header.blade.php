@@ -2,132 +2,193 @@
     .notification-alert {
         display: flex;
         align-items: center;
-        gap: 10px;
-        min-width: 315px;
-        padding: 2px 18px;
-        border-radius: 50px;
-        background: linear-gradient(133deg, #FFF7EB, #FFF0CA);
-        border: 2px solid #f79b24;
+        gap: 9px;
+        min-width: 215px;
+        max-width: 245px;
+        padding: 8px 12px;
+        border-radius: 16px;
+        background: #ffffff;
+        border: 1px solid rgba(15, 23, 42, 0.10);
         text-decoration: none;
-        overflow: hidden;
-        position: relative;
-        animation: borderFlash 1.6s infinite;
-        transition: .3s;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+        transition: all 0.25s ease;
     }
 
     .notification-alert:hover {
-        transform: translateY(-3px) scale(1.02);
+        transform: translateY(-1px);
         text-decoration: none;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
     }
 
     .notify-icon {
-        width: 46px;
-        height: 46px;
-
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
+        color: #ffffff;
+        font-size: 17px;
+    }
 
-        border-radius: 50%;
-
-        background: #ff9800;
-        color: #fff;
-        font-size: 22px;
-
-        animation: iconShake .8s infinite;
+    .notify-content {
+        min-width: 0;
+        flex: 1;
     }
 
     .notify-title {
-        font-size: 14px;
-        font-weight: 700;
-        color: #8a4d00;
+        font-size: 12.5px;
+        font-weight: 800;
+        color: #1f2937;
+        line-height: 1.1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .notify-subtitle {
-        font-size: 12px;
-        color: #555;
+        font-size: 10.5px;
+        color: #6b7280;
+        line-height: 1.2;
+        margin-top: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .notify-count {
+        min-width: 24px;
+        height: 24px;
+        padding: 0 7px;
+        border-radius: 50px;
+        background: #dc3545;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 2px;
+    }
 
-        min-width: 34px;
-        height: 34px;
+    .notification-alert.cheque-alert {
+        border-color: rgba(245, 158, 11, 0.30);
+        background: linear-gradient(135deg, #ffffff, #fff8ed);
+    }
 
-        border-radius: 50%;
+    .notification-alert.cheque-alert .notify-icon {
+        background: #f59e0b;
+    }
+
+    .notification-alert.support-alert {
+        border-color: rgba(13, 110, 253, 0.28);
+        background: linear-gradient(135deg, #ffffff, #eef6ff);
+    }
+
+    .notification-alert.support-alert .notify-icon {
+        background: #0d6efd;
+    }
+
+    @media (max-width: 1400px) {
+        .notification-alert {
+            min-width: 190px;
+            max-width: 205px;
+            padding: 7px 10px;
+        }
+
+        .notify-title {
+            font-size: 12px;
+        }
+
+        .notify-subtitle {
+            font-size: 10px;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .notification-alert {
+            min-width: auto;
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            justify-content: center;
+            border-radius: 14px;
+            position: relative;
+        }
+
+        .notify-content {
+            display: none;
+        }
+
+        .notify-count {
+            position: absolute;
+            top: -7px;
+            right: -7px;
+            min-width: 20px;
+            height: 20px;
+            font-size: 10px;
+            padding: 0 5px;
+        }
+    }
+
+    .header-date-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        height: 54px;
+        padding: 0 16px;
+
+        background: #fff;
+        border: 1px solid #e7edf5;
+        border-radius: 16px;
+
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .05);
+
+        transition: .25s;
+    }
+
+    .header-date-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .08);
+    }
+
+    .date-icon {
+        width: 40px;
+        height: 40px;
+
+        border-radius: 12px;
+
+        background: #28a745;
 
         display: flex;
         align-items: center;
         justify-content: center;
 
-        background: #dc3545;
         color: #fff;
+        font-size: 17px;
 
-        font-weight: bold;
-
-        animation: countPulse 1s infinite;
+        flex-shrink: 0;
     }
 
-    /* Glow */
-
-    @keyframes borderFlash {
-
-        0% {
-            box-shadow: 0 0 0 rgba(255, 152, 0, .3);
-        }
-
-        50% {
-            box-shadow: 0 0 18px rgba(255, 152, 0, .8);
-        }
-
-        100% {
-            box-shadow: 0 0 0 rgba(255, 152, 0, .3);
-        }
-
+    .date-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        line-height: 1.1;
     }
 
-    /* Shake Icon */
-
-    @keyframes iconShake {
-
-        0%,
-        100% {
-            transform: rotate(0deg);
-        }
-
-        20% {
-            transform: rotate(-12deg);
-        }
-
-        40% {
-            transform: rotate(12deg);
-        }
-
-        60% {
-            transform: rotate(-8deg);
-        }
-
-        80% {
-            transform: rotate(8deg);
-        }
-
+    .date-value {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1f2937;
     }
-
-    /* Badge Pulse */
-
-    @keyframes countPulse {
-
-        0% {
-            transform: scale(1);
-        }
-
-        50% {
-            transform: scale(1.25);
-        }
-
-        100% {
-            transform: scale(1);
-        }
-
+    .date-day {
+        margin-top: 3px;
+        font-size: 12px;
+        color: #6c757d;
+        font-weight: 600;
     }
 </style>
 
@@ -214,12 +275,14 @@
             {{-- Date --}}
             <li class="nav-item d-none d-lg-block">
                 <div class="header-date-box">
-                    <div class="fw-bold text-dark">
-                        {{ now()->format('d M Y') }}
+                    <div class="date-icon">
+                        <i class="bi bi-calendar2-week-fill"></i>
                     </div>
-                    <small class="text-muted">
-                        {{ now()->format('l') }}
-                    </small>
+
+                    <div class="date-content">
+                        <div class="date-value">{{ now()->format('d M Y') }}</div>
+                        <div class="date-day">{{ now()->format('l') }}</div>
+                    </div>
                 </div>
             </li>
 
@@ -239,7 +302,7 @@
                 @if ($pendingChequeCount > 0)
                     <li class="nav-item me-2">
 
-                        <a href="{{ $notificationRoute }}" class="notification-alert">
+                        <a href="{{ $notificationRoute }}" class="notification-alert cheque-alert">
 
                             <div class="notify-icon">
                                 <i class="bi bi-exclamation-triangle-fill"></i>
@@ -263,6 +326,40 @@
 
                     </li>
                 @endif
+            @endif
+
+            @php
+                $pendingSupportCount = \App\Models\Support::where('status', 'Pending')->count();
+
+                $supportRoute = Route::has('support.index') ? route('support.index') : '#';
+            @endphp
+
+            @if ($pendingSupportCount > 0)
+                <li class="nav-item me-2">
+
+                    <a href="{{ $supportRoute }}" class="notification-alert support-alert">
+
+                        <div class="notify-icon" style="background:#0d6efd;">
+                            <i class="bi bi-headset"></i>
+                        </div>
+
+                        <div class="notify-content">
+                            <div class="notify-title" style="color:#0d47a1;">
+                                🎧 Customer Support
+                            </div>
+
+                            <div class="notify-subtitle">
+                                {{ $pendingSupportCount }} New Support Request
+                            </div>
+                        </div>
+
+                        <span class="notify-count">
+                            {{ $pendingSupportCount }}
+                        </span>
+
+                    </a>
+
+                </li>
             @endif
 
 
