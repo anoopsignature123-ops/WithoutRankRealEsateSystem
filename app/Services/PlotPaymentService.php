@@ -122,6 +122,10 @@ class PlotPaymentService
                 $updatedPayments->push($groupPayment->fresh());
             }
 
+            if ($updatedPayments->contains(fn (CustomerPayment $payment) => app(AutoPromotionService::class)->isEligiblePayment($payment))) {
+                app(AutoPromotionService::class)->runForBooking((int) $payment->customer_booking_id);
+            }
+
             return $updatedPayments;
         });
     }

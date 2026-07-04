@@ -67,6 +67,7 @@ use App\Http\Controllers\RegisteredPlotDetailsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SourceController;
 use App\Http\Controllers\AssociatePanel\SupportController;
+use App\Http\Controllers\PromotedBusinessController;
 use App\Http\Controllers\UpdateEmiDateController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WithoutRegisteredPlotController;
@@ -437,4 +438,13 @@ Route::middleware(['auth', 'module.permission'])->group(function () {
         Route::get('/commission-ledger/{commission}/export/pdf', 'exportSinglePdf')->name('commission-ledger.single.pdf');
     });
 
+    Route::controller(PromotedBusinessController::class)->group(function () {
+        Route::get('/promoted', 'index')->name('promoted.index');
+        Route::get('promoted-history', 'history')->name('promoted.history');
+        Route::post('/promoted/check/{associate}', 'check')->name('promoted.check');
+        Route::post('/promoted/check-all', 'checkAll')->name('promoted.check-all');
+    });
+
 });
+
+// $this->promotionService->checkPromotion($associate->id);

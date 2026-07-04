@@ -189,7 +189,42 @@ class CommissionPayoutService
 
         return [
             'rows' => $rows,
-            'summary' => array_map(fn ($value) => round($value, 2), $summary),
+            'summary' => array_map(fn($value) => round($value, 2), $summary),
+        ];
+    }
+
+    public function syncPromotionsForCommissionPeriod(string $fromDate, string $toDate): array
+    {
+        $bookingIds = CustomerPayment::query()
+            ->whereBetween('created_at', [
+                Carbon::parse($fromDate)->startOfDay(),
+                Carbon::parse($toDate)->endOfDay(),
+            ])
+            ->where('booking_status', 'booked')
+            ->whereNotNull('customer_booking_id')
+            ->whereNotNull('plot_sale_detail_id')
+            ->where(function ($query) {
+                $query->whereIn('payment_status', ['paid', 'cleared'])
+                    ->orWhere('transaction_category', 'booking_fee');
+            })
+            ->pluck('customer_booking_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $promotedCount = 0;
+        $checkedCount = 0;
+
+        foreach ($bookingIds as $bookingId) {
+            $results = app(AutoPromotionService::class)->runForBooking((int) $bookingId);
+            $checkedCount += $results->count();
+            $promotedCount += $results->where('promoted', true)->count();
+        }
+
+        return [
+            'checked_count' => $checkedCount,
+            'promoted_count' => $promotedCount,
+            'booking_count' => $bookingIds->count(),
         ];
     }
 
@@ -205,6 +240,8 @@ class CommissionPayoutService
             }
 
             $preview = $this->previewAllCommission($fromDate, $toDate);
+
+            $promotionSync = $this->syncPromotionsForCommissionPeriod($fromDate, $toDate);
 
             $generatedCount = 0;
             $payoutCount = 0;
@@ -237,7 +274,9 @@ class CommissionPayoutService
             }
 
             return [
-                'message' => $generatedCount . ' associates commission generated successfully. Total records: ' . $payoutCount,
+                'message' => $generatedCount . ' associates commission generated successfully. Total records: ' . $payoutCount
+                    . '. Promotion sync: ' . $promotionSync['promoted_count'] . ' promoted / '
+                    . $promotionSync['checked_count'] . ' checked.',
             ];
         });
     }
@@ -294,7 +333,7 @@ class CommissionPayoutService
 
             $sourceAssociate = $payment->customerBooking?->associate;
 
-            if (! $sourceAssociate) {
+            if (!$sourceAssociate) {
                 continue;
             }
 
@@ -328,7 +367,7 @@ class CommissionPayoutService
                 continue;
             }
 
-            if (! $this->isSeniorOf($associate, $sourceAssociate)) {
+            if (!$this->isSeniorOf($associate, $sourceAssociate)) {
                 continue;
             }
 
@@ -387,7 +426,7 @@ class CommissionPayoutService
         while ($currentUplineId) {
             $upline = Associate::where('associate_id', $currentUplineId)->first();
 
-            if (! $upline) {
+            if (!$upline) {
                 return false;
             }
 
@@ -414,8 +453,8 @@ class CommissionPayoutService
         $sourceRankPercent = (float) ($sourceAssociate->rank?->commission ?? 0);
         $plotSale = $payment->plotSaleDetail;
         $plotLabel = trim(
-            ($plotSale?->block?->block ? 'Block '.$plotSale->block->block.' / ' : '').
-            'Plot '.($plotSale?->plotDetail?->plot_number ?? '-')
+            ($plotSale?->block?->block ? 'Block ' . $plotSale->block->block . ' / ' : '') .
+            'Plot ' . ($plotSale?->plotDetail?->plot_number ?? '-')
         );
 
         return [
@@ -432,8 +471,8 @@ class CommissionPayoutService
             'commission_amount' => round($commissionAmount, 2),
             'status' => 'pending',
             'generated_date' => now()->toDateString(),
-            'associate_label' => trim(($associate->associate_id ?? '-').' / '.($associate->associate_name ?? '-')),
-            'source_associate_label' => trim(($sourceAssociate->associate_id ?? '-').' / '.($sourceAssociate->associate_name ?? '-')),
+            'associate_label' => trim(($associate->associate_id ?? '-') . ' / ' . ($associate->associate_name ?? '-')),
+            'source_associate_label' => trim(($sourceAssociate->associate_id ?? '-') . ' / ' . ($sourceAssociate->associate_name ?? '-')),
             'customer_label' => $payment->customerBooking?->primaryDetail?->name
                 ?? $payment->customerBooking?->customer_name
                 ?? '-',
@@ -447,8 +486,8 @@ class CommissionPayoutService
             'associate_rank_percent' => round($associateRankPercent, 2),
             'source_rank_percent' => round($sourceRankPercent, 2),
             'calculation_label' => $commissionType === 'self'
-                ? number_format($paymentAmount, 2).' x '.number_format($commissionPercent, 2).'%'
-                : number_format($paymentAmount, 2).' x ('.number_format($associateRankPercent, 2).'% - '.number_format($sourceRankPercent, 2).'%)',
+                ? number_format($paymentAmount, 2) . ' x ' . number_format($commissionPercent, 2) . '%'
+                : number_format($paymentAmount, 2) . ' x (' . number_format($associateRankPercent, 2) . '% - ' . number_format($sourceRankPercent, 2) . '%)',
         ];
     }
 

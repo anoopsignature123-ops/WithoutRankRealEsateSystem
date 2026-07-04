@@ -35,6 +35,25 @@
         @enderror
     </div>
 
+    {{-- Priority --}}
+    <div class="col-md-6">
+        <label class="form-label fw-semibold text-secondary mb-2">Priority <span class="text-danger">*</span></label>
+        <div class="d-flex align-items-stretch">
+            <span class="input-group-text bg-light text-muted px-3 border-end-0 rounded-start rounded-0"
+                style="border: 1px solid #ced4da;">
+                <i class="bi bi-sort-numeric-down"></i>
+            </span>
+            <input type="number" name="priority" placeholder="Enter priority order"
+                class="form-control rounded-start-0 @error('priority') is-invalid @enderror"
+                value="{{ old('priority', $designationRank->priority ?? $designationRank->rank_number ?? '') }}"
+                style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+        </div>
+        <small class="text-muted d-block mt-1">Lower priority comes first in rank and promotion order.</small>
+        @error('priority')
+            <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
+        @enderror
+    </div>
+
     {{-- Commission --}}
     <div class="col-md-6">
         <label class="form-label fw-semibold text-secondary mb-2">Commission (%) <span

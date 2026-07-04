@@ -358,6 +358,8 @@ class PlotTransferService
                     'customer_booking_id' => $newBooking->id,
                 ]);
 
+            app(AutoPromotionService::class)->runForBooking($newBooking);
+
             return true;
         });
     }

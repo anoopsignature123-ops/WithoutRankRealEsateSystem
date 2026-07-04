@@ -107,6 +107,10 @@ class EmiPaymentService
                 ])));
             }
 
+            if ($createdPayments->contains(fn (CustomerPayment $payment) => app(AutoPromotionService::class)->isEligiblePayment($payment))) {
+                app(AutoPromotionService::class)->runForBooking((int) $data['customer_booking_id']);
+            }
+
             return $createdPayments;
         });
     }

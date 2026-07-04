@@ -5,13 +5,25 @@
 @endpush
 @section('content')
     <div class="container-fluid mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold mb-1">Add Company</h3>
-                <small class="text-muted">Add a new company to the system</small>
+        <div class="transaction-hero mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="transaction-icon">
+                        <i class="bi bi-plus-circle text-success"></i>
+                    </span>
+                    <div>
+                        <span class="text-success fw-bold text-uppercase small">Company Setup</span>
+                        <h3 class="fw-bold text-dark mb-1">Add Company</h3>
+                        <p class="text-muted small mb-0">Add a new company profile to the system.</p>
+                    </div>
+                </div>
+
+                <a href="{{ route('company.index') }}" class="btn btn-outline-success rounded-pill px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </a>
             </div>
-            <a href="{{ route('company.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>BacK</a>
         </div>
+
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-body p-4">
                 <form method="POST" action="{{ route('company.store') }}" enctype="multipart/form-data">

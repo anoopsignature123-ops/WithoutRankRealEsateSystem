@@ -356,6 +356,8 @@ class PaymentTransferService
                 ]);
             }
 
+            app(AutoPromotionService::class)->runForBooking($newBooking);
+
             return true;
         });
     }

@@ -5,16 +5,25 @@
 @endpush
 @section('content')
     <div class="container-fluid mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold mb-1">Company Profile</h3>
-                <small class="text-muted">Manage company details and activation state</small>
+        <div class="transaction-hero mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="transaction-icon">
+                        <i class="bi bi-building text-success"></i>
+                    </span>
+                    <div>
+                        <span class="text-success fw-bold text-uppercase small">Company Setup</span>
+                        <h3 class="fw-bold text-dark mb-1">Company Profile</h3>
+                        <p class="text-muted small mb-0">Manage company details and activation state.</p>
+                    </div>
+                </div>
+
+                @can('company-profile-modify')
+                    <a href="{{ route('company.create') }}" class="btn btn-success rounded-pill px-4">
+                        <i class="bi bi-plus-circle me-1"></i> Add Company
+                    </a>
+                @endcan
             </div>
-            @can('company-profile-modify')
-                <a href="{{ route('company.create') }}" class="btn btn-success shadow-sm">
-                    <i class="bi bi-plus-circle me-1"></i> Add Company
-                </a>
-            @endcan
         </div>
 
         <div class="card shadow-sm border-0">

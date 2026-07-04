@@ -15,7 +15,8 @@ class DesignationRankRequest extends FormRequest
     {
         return [
             'designation' => 'required|string|max:255',
-            'rank_number' => 'required',
+            'rank_number' => 'required|integer|min:1',
+            'priority' => 'required|integer|min:1',
             'commission' => 'required|numeric',
             'target_from' => ['required', 'numeric', 'min:0'],
             'target_to' => ['required', 'numeric', 'gt:target_from'],
@@ -27,6 +28,7 @@ class DesignationRankRequest extends FormRequest
         return [
             'designation.required' => 'Designation is required.',
             'rank_number.required' => 'Rank number is required.',
+            'priority.required' => 'Priority is required.',
             'commission.required' => 'Commission is required.',
         ];
     }

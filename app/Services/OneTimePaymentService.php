@@ -104,6 +104,10 @@ class OneTimePaymentService
                 ]));
             }
 
+            if ($createdPayments->contains(fn (CustomerPayment $payment) => app(AutoPromotionService::class)->isEligiblePayment($payment))) {
+                app(AutoPromotionService::class)->runForBooking($booking);
+            }
+
             return $createdPayments;
         });
     }

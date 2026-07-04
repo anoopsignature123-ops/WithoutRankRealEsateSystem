@@ -8,7 +8,8 @@ class DesignationRankService
 {
     public function getAll()
     {
-        return DesignationRank::get();
+        return DesignationRank::orderByRaw('CAST(COALESCE(NULLIF(priority, 0), rank_number) AS UNSIGNED) ASC')
+            ->get();
     }
 
     public function create(array $data)

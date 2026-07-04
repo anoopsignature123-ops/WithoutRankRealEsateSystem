@@ -72,13 +72,16 @@
             </div>
         </div>
 
-        <div class="transaction-card mb-4">
-            <div class="transaction-card-body">
-                <div class="transaction-section-title">
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
                     <div class="d-flex align-items-center gap-3">
-                        <span class="transaction-section-title-icon">
-                            <i class="bi bi-calendar2-check"></i>
-                        </span>
+                        <div class="bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center"
+                            style="width:46px;height:46px;">
+                            <i class="bi bi-calendar2-check fs-5"></i>
+                        </div>
+
                         <div>
                             <h5 class="fw-bold mb-1">Select Commission Date</h5>
                             <small class="text-muted">
@@ -86,11 +89,19 @@
                             </small>
                         </div>
                     </div>
+
+                    @if (!empty($lastGeneratedDate))
+                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+                            Last Generated:
+                            {{ \Carbon\Carbon::parse($lastGeneratedDate)->format('d M Y') }}
+                        </span>
+                    @endif
                 </div>
 
                 <form method="GET" action="{{ route('generate-commission.index') }}">
                     <div class="row g-3 align-items-end">
-                        <div class="col-lg-5 col-md-6">
+
+                        <div class="col-xl-4 col-lg-5 col-md-6">
                             <label class="form-label fw-semibold">
                                 Commission Date <span class="text-danger">*</span>
                             </label>
@@ -104,39 +115,50 @@
                             @error('commission_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-
-                            <small class="text-muted d-block mt-1">
-                                Commission will be calculated after last generated date up to selected date.
-                            </small>
                         </div>
 
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-xl-5 col-lg-4 col-md-6">
                             <label class="form-label fw-semibold">Commission Date Range</label>
+
                             <div class="input-group">
-                                <span class="input-group-text bg-light">
-                                    <i class="bi bi-lock text-muted"></i>
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-calendar-range text-success"></i>
                                 </span>
-                                <input type="text" class="form-control bg-light"
+
+                                <input type="text" class="form-control bg-light border-start-0"
                                     value="{{ $selectedPeriod['range_label'] ?? 'Select commission date to preview' }}"
                                     readonly>
                             </div>
                         </div>
 
-                        <div class="col-lg-3">
+                        <div class="col-xl-3 col-lg-3 col-md-12">
+                            <label class="form-label d-none d-lg-block">&nbsp;</label>
+
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-success flex-fill">
-                                    <i class="bi bi-eye me-1"></i> Preview
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview
                                 </button>
-                                <a href="{{ route('generate-commission.index') }}" class="btn btn-light border flex-fill">
-                                    <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+
+                                <a href="{{ route('generate-commission.index') }}"
+                                    class="btn btn-outline-secondary flex-fill">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>
+                                    Reset
                                 </a>
                             </div>
                         </div>
+
+                        <div class="col-12">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Commission will be calculated after last generated date up to selected date.
+                            </small>
+                        </div>
+
                     </div>
                 </form>
             </div>
         </div>
-
         @if ($preview)
             <div class="row g-3 mb-4">
                 <div class="col-xl-3 col-md-6">
@@ -255,8 +277,10 @@
                                                 class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
                                                 {{ count($item['calculation']['rows']) }}
                                             </span>
-                                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill ms-1"
-                                                data-bs-toggle="collapse" data-bs-target="#commissionRows{{ $key }}">
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-success rounded-pill ms-1"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#commissionRows{{ $key }}">
                                                 Details
                                             </button>
                                         </td>
@@ -280,20 +304,26 @@
                                                         @foreach ($item['calculation']['rows'] as $row)
                                                             <tr>
                                                                 <td>
-                                                                    <span class="badge {{ $row['commission_type'] === 'self' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-info-subtle text-info border border-info-subtle' }}">
+                                                                    <span
+                                                                        class="badge {{ $row['commission_type'] === 'self' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-info-subtle text-info border border-info-subtle' }}">
                                                                         {{ ucfirst($row['commission_type']) }}
                                                                     </span>
                                                                 </td>
                                                                 <td>{{ $row['source_associate_label'] ?? '-' }}</td>
                                                                 <td>
-                                                                    <div class="fw-semibold">{{ $row['customer_label'] ?? '-' }}</div>
-                                                                    <small class="text-muted">{{ $row['booking_label'] ?? '-' }}</small>
+                                                                    <div class="fw-semibold">
+                                                                        {{ $row['customer_label'] ?? '-' }}</div>
+                                                                    <small
+                                                                        class="text-muted">{{ $row['booking_label'] ?? '-' }}</small>
                                                                 </td>
                                                                 <td>
                                                                     <div>{{ $row['plot_label'] ?? '-' }}</div>
-                                                                    <small class="text-muted">{{ $row['project_label'] ?? '-' }}</small>
+                                                                    <small
+                                                                        class="text-muted">{{ $row['project_label'] ?? '-' }}</small>
                                                                 </td>
-                                                                <td class="text-end">&#8377;{{ number_format((float) ($row['payment_amount'] ?? 0), 2) }}</td>
+                                                                <td class="text-end">
+                                                                    &#8377;{{ number_format((float) ($row['payment_amount'] ?? 0), 2) }}
+                                                                </td>
                                                                 <td>{{ $row['calculation_label'] ?? '-' }}</td>
                                                                 <td class="text-end fw-bold text-success">
                                                                     &#8377;{{ number_format((float) ($row['commission_amount'] ?? 0), 2) }}

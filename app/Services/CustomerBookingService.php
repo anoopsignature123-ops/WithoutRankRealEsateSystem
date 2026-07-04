@@ -472,6 +472,10 @@ class CustomerBookingService
             'current_step' => 5,
             'status' => $isInstantPayment ? 'completed' : 'pending',
         ]);
+
+        if ($isInstantPayment) {
+            app(AutoPromotionService::class)->runForBooking($booking);
+        }
     }
 
     private function makePlotBookingCode(int $customerId): string

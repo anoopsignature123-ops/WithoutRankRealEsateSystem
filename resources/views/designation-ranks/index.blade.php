@@ -33,6 +33,7 @@
                                 <th>#</th>
                                 <th>Designation Name</th>
                                 <th>Rank Number</th>
+                                <th>Priority</th>
                                 <th>Commission (%)</th>
                                 <th>Target From</th>
                                 <th>Target To</th>
@@ -47,6 +48,11 @@
                                     <td>{{ $key + 1 }}</td>
                                     <td>{{ $designation->designation }}</td>
                                     <td>{{ $designation->rank_number }}</td>
+                                    <td>
+                                        <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
+                                            {{ $designation->priority ?: $designation->rank_number }}
+                                        </span>
+                                    </td>
                                     <td>{{ number_format($designation->commission, 2) }} %</td>
                                     <td>₹{{ number_format($designation->target_from) }}</td>
                                     <td>₹{{ number_format($designation->target_to) }}</td>
@@ -69,7 +75,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">No designation records found</td>
+                                    <td colspan="{{ auth()->user()->can('rank-designation-modify') ? 8 : 7 }}"
+                                        class="text-center text-muted py-4">No designation records found</td>
                                 </tr>
                             @endforelse
                         </tbody>

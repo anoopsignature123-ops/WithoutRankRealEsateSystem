@@ -40,6 +40,7 @@ class CommissionPayoutController extends Controller
                 $fromDate = $selectedPeriod['from_date'];
                 $toDate = $selectedPeriod['to_date'];
 
+                $this->service->syncPromotionsForCommissionPeriod($fromDate, $toDate);
                 $preview = $this->service->previewAllCommission($fromDate, $toDate);
             } catch (\Throwable $e) {
                 $warning = $e->getMessage();
