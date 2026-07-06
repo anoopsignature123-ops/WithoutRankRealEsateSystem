@@ -3,9 +3,10 @@
 namespace App\Services;
 
 use App\Models\Associate;
-use App\Models\CustomerBooking;
+use App\Models\CustomerPayment;
 use App\Models\DesignationRank;
 use App\Models\PromotionHistory;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AssociatePromotionService
@@ -30,7 +31,7 @@ class AssociatePromotionService
                     'promoted' => false,
                     'type' => 'warning',
                     'title' => 'Rank Not Assigned',
-                    'message' => 'This associate does not have a current rank. Please assign a rank first.',
+                    'message' => 'This associate does not have a current rank.',
                     'preview' => $this->getPromotionPreview($associate->id),
                 ];
             }
@@ -55,8 +56,8 @@ class AssociatePromotionService
                     'type' => $preview['next_rank'] ? 'info' : 'warning',
                     'title' => $preview['next_rank'] ? 'Promotion Target Pending' : 'Highest Rank Reached',
                     'message' => $preview['next_rank']
-                        ? 'More business is required for the next rank. Remaining target: Rs. '.number_format($preview['remaining_target'], 2).'.'
-                        : 'No higher rank is available after the current rank.',
+                        ? 'Remaining target: Rs. ' . number_format($preview['remaining_target'], 2)
+                        : 'No higher rank is available.',
                     'preview' => $preview,
                 ];
             }
@@ -117,6 +118,7 @@ class AssociatePromotionService
 
         $targetFrom = (float) ($nextRank?->target_from ?? 0);
         $targetTo = (float) ($nextRank?->target_to ?? 0);
+
         $progressPercent = $nextRank && $targetFrom > 0
             ? min(100, round(($totalBusiness / $targetFrom) * 100, 2))
             : ($nextRank ? 0 : 100);
@@ -129,9 +131,7 @@ class AssociatePromotionService
             'self_business' => $selfBusiness,
             'team_business' => $teamBusiness,
             'total_business' => $totalBusiness,
-            'remaining_target' => $nextRank
-                ? max(0, (float) $nextRank->target_from - $totalBusiness)
-                : 0,
+            'remaining_target' => $nextRank ? max(0, $targetFrom - $totalBusiness) : 0,
             'next_target_from' => $targetFrom,
             'next_target_to' => $targetTo,
             'progress_percent' => $progressPercent,
@@ -139,34 +139,12 @@ class AssociatePromotionService
         ];
     }
 
-    public function getSelfBusiness(int $associateId): float
+    public function getSelfBusiness(int $associateId, Carbon|string|null $asOfDate = null): float
     {
-        return (float) CustomerBooking::where('associate_id', $associateId)
-            ->whereHas('plotSaleDetails', function ($q) {
-                $q->where('status', 'active')
-                    ->whereHas('payments', function ($p) {
-                        $p->where('booking_status', 'booked')
-                            ->whereIn('payment_status', ['paid', 'cleared']);
-                    });
-            })
-            ->with(['plotSaleDetails.payments'])
-            ->get()
-            ->sum(function ($booking) {
-                return $booking->plotSaleDetails
-                    ->filter(function ($plotSale) {
-                        return $plotSale->status === 'active'
-                            && $plotSale->payments->contains(function ($payment) {
-                                return $payment->booking_status === 'booked'
-                                    && in_array($payment->payment_status, ['paid', 'cleared']);
-                            });
-                    })
-                    ->sum(function ($plotSale) {
-                        return (float) ($plotSale->total_plot_cost ?? 0);
-                    });
-            });
+        return $this->paidBookedBusinessForAssociateIds([$associateId], $asOfDate);
     }
 
-    public function getTeamBusiness(Associate $associate): float
+    public function getTeamBusiness(Associate $associate, Carbon|string|null $asOfDate = null): float
     {
         $teamIds = collect(
             method_exists($associate, 'getDownlineIds')
@@ -174,6 +152,8 @@ class AssociatePromotionService
                 : []
         )
             ->filter()
+            ->map(fn($id) => (int) $id)
+            ->reject(fn($id) => $id === (int) $associate->id)
             ->unique()
             ->values();
 
@@ -181,39 +161,68 @@ class AssociatePromotionService
             return 0;
         }
 
-        return (float) CustomerBooking::whereIn('associate_id', $teamIds)
-            ->whereHas('plotSaleDetails', function ($q) {
-                $q->where('status', 'active')
-                    ->whereHas('payments', function ($p) {
-                        $p->where('booking_status', 'booked')
-                            ->whereIn('payment_status', ['paid', 'cleared']);
-                    });
+        return $this->paidBookedBusinessForAssociateIds($teamIds->all(), $asOfDate);
+    }
+
+    public function getBusinessSnapshot(Associate $associate, Carbon|string|null $asOfDate = null): array
+    {
+        $selfBusiness = $this->getSelfBusiness($associate->id, $asOfDate);
+        $teamBusiness = $this->getTeamBusiness($associate, $asOfDate);
+
+        return [
+            'self_business' => $selfBusiness,
+            'team_business' => $teamBusiness,
+            'total_business' => $selfBusiness + $teamBusiness,
+        ];
+    }
+
+    private function paidBookedBusinessForAssociateIds(array $associateIds, Carbon|string|null $asOfDate = null): float
+    {
+        $associateIds = collect($associateIds)
+            ->filter()
+            ->map(fn($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($associateIds)) {
+            return 0;
+        }
+
+        $query = CustomerPayment::query()
+            ->where('booking_status', 'booked')
+            ->whereIn('payment_status', ['paid', 'cleared'])
+            ->where('paid_amount', '>', 0)
+            ->whereHas('customerBooking', function ($q) use ($associateIds) {
+                $q->whereIn('associate_id', $associateIds);
             })
-            ->with(['plotSaleDetails.payments'])
-            ->get()
-            ->sum(function ($booking) {
-                return $booking->plotSaleDetails
-                    ->filter(function ($plotSale) {
-                        return $plotSale->status === 'active'
-                            && $plotSale->payments->contains(function ($payment) {
-                                return $payment->booking_status === 'booked'
-                                    && in_array($payment->payment_status, ['paid', 'cleared']);
-                            });
-                    })
-                    ->sum(function ($plotSale) {
-                        return (float) ($plotSale->total_plot_cost ?? 0);
-                    });
+            ->whereHas('plotSaleDetail', function ($q) {
+                $q->where('status', 'active');
             });
+
+        if ($asOfDate) {
+            $asOfDate = Carbon::parse($asOfDate)->endOfDay();
+
+            $query->where(function ($dateQuery) use ($asOfDate) {
+                $dateQuery->where(function ($clearedQuery) use ($asOfDate) {
+                    $clearedQuery->whereNotNull('cheque_clearance_date')
+                        ->where('cheque_clearance_date', '<=', $asOfDate);
+                })->orWhere(function ($paidQuery) use ($asOfDate) {
+                    $paidQuery->whereNull('cheque_clearance_date')
+                        ->where('created_at', '<=', $asOfDate);
+                });
+            });
+        }
+
+        return (float) $query->sum('paid_amount');
     }
 
     private function rankOrder($rank): int
     {
         $priority = (int) ($rank->priority ?? 0);
 
-        if ($priority > 0) {
-            return $priority;
-        }
-
-        return (int) ($rank->rank_number ?? 0);
+        return $priority > 0
+            ? $priority
+            : (int) ($rank->rank_number ?? 0);
     }
 }

@@ -27,7 +27,7 @@
                         </h3>
 
                         <p class="text-muted small mb-0">
-                            Track all associate rank upgrades with self business, team business and promotion records.
+                            Track rank upgrades with paid/booked self and team business.
                         </p>
                     </div>
 
@@ -120,7 +120,7 @@
                         <h5 class="fw-bold mb-1">
                             <i class="bi bi-table text-success me-2"></i> Promotion Records
                         </h5>
-                        <small class="text-muted">Old rank to new rank upgrade details.</small>
+                        <small class="text-muted">Business values are recalculated from paid amount where booking status is booked.</small>
                     </div>
 
                     <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
@@ -165,12 +165,12 @@
                                             </span>
                                         </td>
 
-                                        <td class="text-end">&#8377;{{ number_format($history->self_business ?? 0, 2) }}
+                                        <td class="text-end">&#8377;{{ number_format($history->display_self_business ?? 0, 2) }}
                                         </td>
-                                        <td class="text-end">&#8377;{{ number_format($history->team_business ?? 0, 2) }}
+                                        <td class="text-end">&#8377;{{ number_format($history->display_team_business ?? 0, 2) }}
                                         </td>
                                         <td class="text-end fw-bold text-success">
-                                            &#8377;{{ number_format($history->total_business ?? 0, 2) }}
+                                            &#8377;{{ number_format($history->display_total_business ?? 0, 2) }}
                                         </td>
 
                                         <td>

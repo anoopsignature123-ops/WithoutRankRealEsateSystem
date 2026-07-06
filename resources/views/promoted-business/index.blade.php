@@ -89,7 +89,7 @@
                     <div>
                         <h5 class="fw-bold mb-1"><i class="bi bi-table text-success me-2"></i>Promotion Projection</h5>
                         <small class="text-muted">
-                            Rank upgrade is calculated from booked and cleared/paid plot business.
+                            Rank upgrade is calculated from paid amount only where booking status is booked.
                         </small>
                     </div>
                     <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">

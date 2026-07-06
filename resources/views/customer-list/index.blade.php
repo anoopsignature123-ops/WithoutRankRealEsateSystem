@@ -133,19 +133,25 @@
                                     </td>
 
                                     <td>
-                                        <span class="badge bg-light text-dark border">
-                                            {{ $plots->count() }} {{ $plots->count() === 1 ? 'Plot' : 'Plots' }}
-                                        </span>
-                                        <div class="d-flex flex-wrap gap-1 mt-2">
+                                        <div class="d-flex align-items-center flex-wrap gap-2">
+                                            <span
+                                                class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2">
+                                                <i class="bi bi-grid-3x3-gap me-1"></i>
+                                                {{ $plots->count() }} {{ $plots->count() === 1 ? 'Plot' : 'Plots' }}
+                                            </span>
+
                                             @if ($bookedPlotCount > 0)
                                                 <span
-                                                    class="badge bg-success-subtle text-success border border-success-subtle">
+                                                    class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                                    <i class="bi bi-check-circle me-1"></i>
                                                     {{ $bookedPlotCount }} Booked
                                                 </span>
                                             @endif
+
                                             @if ($holdPlotCount > 0)
                                                 <span
-                                                    class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                                    class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-2">
+                                                    <i class="bi bi-clock me-1"></i>
                                                     {{ $holdPlotCount }} Hold
                                                 </span>
                                             @endif

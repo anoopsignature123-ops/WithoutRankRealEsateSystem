@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Associate;
+use App\Models\CustomerPayment;
 use App\Models\PromotionHistory;
 use App\Services\AssociatePromotionService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PromotedBusinessController extends Controller
@@ -32,13 +34,20 @@ class PromotedBusinessController extends Controller
         });
 
         $histories = PromotionHistory::latest()->get();
+
+        $globalBusiness = $this->getGlobalConfirmedBusiness();
+
         $summary = [
             'total_associates' => $reports->count(),
             'eligible' => $reports->where('can_promote', true)->count(),
             'not_eligible' => $reports->where('can_promote', false)->count(),
+
             'total_self_business' => $reports->sum('self_business'),
             'total_team_business' => $reports->sum('team_business'),
-            'total_business' => $reports->sum('total_business'),
+
+            // Dashboard se match karne ke liye unique/global paid booked business.
+            'total_business' => $globalBusiness,
+
             'history_count' => $histories->count(),
         ];
 
@@ -75,11 +84,40 @@ class PromotedBusinessController extends Controller
 
         $histories = $query->latest()->get();
 
+        $businessSnapshots = [];
+
+        $histories->each(function (PromotionHistory $history) use (&$businessSnapshots) {
+            if (!$history->associate) {
+                $history->setAttribute('display_self_business', (float) $history->self_business);
+                $history->setAttribute('display_team_business', (float) $history->team_business);
+                $history->setAttribute('display_total_business', (float) $history->total_business);
+
+                return;
+            }
+
+            $associateId = (int) $history->associate->id;
+
+            $asOfDate = $history->promotion_date
+                ? Carbon::parse($history->promotion_date)
+                : $history->created_at;
+
+            $snapshotKey = $associateId . '|' . ($asOfDate ? Carbon::parse($asOfDate)->format('Y-m-d') : 'current');
+
+            if (!isset($businessSnapshots[$snapshotKey])) {
+                $businessSnapshots[$snapshotKey] = $this->promotionService
+                    ->getBusinessSnapshot($history->associate, $asOfDate);
+            }
+
+            $history->setAttribute('display_self_business', $businessSnapshots[$snapshotKey]['self_business']);
+            $history->setAttribute('display_team_business', $businessSnapshots[$snapshotKey]['team_business']);
+            $history->setAttribute('display_total_business', $businessSnapshots[$snapshotKey]['total_business']);
+        });
+
         $summary = [
             'total_promotions' => $histories->count(),
-            'total_self_business' => $histories->sum('self_business'),
-            'total_team_business' => $histories->sum('team_business'),
-            'total_business' => $histories->sum('total_business'),
+            'total_self_business' => $histories->sum('display_self_business'),
+            'total_team_business' => $histories->sum('display_team_business'),
+            'total_business' => $histories->sum('display_total_business'),
         ];
 
         return view('promoted-business.history', compact('histories', 'summary'));
@@ -116,5 +154,17 @@ class PromotedBusinessController extends Controller
             'title' => $promotedCount > 0 ? 'Promotion Check Completed' : 'No Promotion Available',
             'message' => $promotedCount.' of '.$checkedCount.' associate(s) promoted after checking current business targets.',
         ]);
+    }
+
+    private function getGlobalConfirmedBusiness(): float
+    {
+        return (float) CustomerPayment::query()
+            ->where('booking_status', 'booked')
+            ->whereIn('payment_status', ['paid', 'cleared'])
+            ->where('paid_amount', '>', 0)
+            ->whereHas('plotSaleDetail', function ($q) {
+                $q->where('status', 'active');
+            })
+            ->sum('paid_amount');
     }
 }
