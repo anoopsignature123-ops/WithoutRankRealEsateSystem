@@ -23,7 +23,7 @@ class CustomerBookingStepFourRequest extends FormRequest
 
             'block_id' => 'required|exists:blocks,id',
 
-            'plot_detail_ids' => 'required|array|min:1',
+            'plot_detail_ids' => 'required|array|size:1',
             'plot_detail_ids.*' => 'exists:plot_details,id|distinct',
             'plot_details' => 'nullable|array',
 
@@ -69,8 +69,9 @@ class CustomerBookingStepFourRequest extends FormRequest
             'block_id.required' => 'Please select block.',
             'block_id.exists' => 'Selected block is invalid.',
 
-            'plot_detail_id.required' => 'Please select plot.',
-            'plot_detail_id.exists' => 'Selected plot is invalid.',
+            'plot_detail_ids.required' => 'Please select plot.',
+            'plot_detail_ids.size' => 'Only one plot can be selected for a booking.',
+            'plot_detail_ids.*.exists' => 'Selected plot is invalid.',
 
             'plot_number.required' => 'Plot number is required.',
 

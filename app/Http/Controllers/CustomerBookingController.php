@@ -97,14 +97,14 @@ class CustomerBookingController extends Controller
 
         if ($step == 5) {
             if ($plotSale) {
-                $selectedPlotSales = $activePlotSales;
+                $selectedPlotSales = collect([$plotSale]);
             } else {
                 $unpaidGroup = $plotSales
                     ->filter(fn ($sale) => ! $sale->payments->where('transaction_category', 'booking_fee')->count())
                     ->groupBy(fn ($sale) => $sale->booking_code ?: 'plot-'.$sale->id)
                     ->last();
 
-                $selectedPlotSales = $unpaidGroup ? $unpaidGroup->values() : collect();
+                $selectedPlotSales = $unpaidGroup ? collect([$unpaidGroup->first()]) : collect();
                 $plotSale = $selectedPlotSales->first();
                 $activePlotSales = $selectedPlotSales;
             }
@@ -175,7 +175,13 @@ class CustomerBookingController extends Controller
         }
         if ($step == 5) {
             $validated = app(CustomerBookingStepFiveRequest::class)->validated();
-            $this->customerBookingService->storeStepFive($id, $validated);
+            try {
+                $this->customerBookingService->storeStepFive($id, $validated);
+            } catch (\Throwable $e) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['plot_sale_detail_id' => $e->getMessage()]);
+            }
 
             return redirect()->route('customer-booking.index')
                 ->with('success', 'Customer booking completed successfully.');

@@ -230,6 +230,10 @@ class CustomerBookingService
             ->unique()
             ->values();
 
+        if ($plotIds->count() > 1) {
+            throw new \Exception('Only one plot can be selected for a booking.');
+        }
+
         $bookingCode = null;
         if ($editBookingCode) {
             $bookingCode = $editBookingCode;
@@ -397,6 +401,10 @@ class CustomerBookingService
             ->filter()
             ->unique()
             ->values();
+
+        if ($plotSaleIds->count() > 1) {
+            throw new \Exception('Payment can be saved for one plot booking only.');
+        }
         $transactionNumber = $data['transaction_number'] ?? strtoupper($paymentMode ?: 'PAY') . '-' . time();
         $receiptNumber = $data['receipt_number'] ?? 'REC-' . Str::upper(Str::random(8));
         $isInstantPayment = in_array($paymentMode, ['cash', 'card', 'neft_rtgs'], true);

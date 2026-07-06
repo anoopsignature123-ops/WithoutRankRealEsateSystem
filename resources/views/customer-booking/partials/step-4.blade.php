@@ -352,7 +352,7 @@
                                                 Available Plots
                                             </h6>
                                             <small class="text-muted">
-                                                Click any plot card to select for booking.
+                                                Click any plot card to select it for this booking.
                                             </small>
                                         </div>
 
@@ -455,23 +455,60 @@
 
                     let key = String(id);
                     if (selectedPlots[key]) {
-                        delete selectedPlots[key];
-                    } else {
-                        selectedPlots[key] = {
-                            saleId: existingPlotSales[key]?.saleId || null,
-                            id,
-                            number,
-                            rate: rate.toFixed(2),
-                            area: area.toFixed(2),
-                            plc: plc.toFixed(2),
-                            plotCost: plotCost.toFixed(2),
-                            bookingCode: $('#editBookingCode').val() || '',
-                            bookingDate: $('input[name="booking_date"]')?.val() || '',
-                            remark: $('textarea[name="remark"]')?.val() || '',
-                        };
-                    }
+                        Swal.fire({
+                            icon: 'question',
+                            title: `Remove Plot ${number}?`,
+                            text: 'This plot will be removed from the current booking selection.',
+                            showCancelButton: true,
+                            confirmButtonText: 'Yes, remove',
+                            cancelButtonText: 'Cancel',
+                            confirmButtonColor: '#198754',
+                            cancelButtonColor: '#6c757d',
+                        }).then(function(result) {
+                            if (!result.isConfirmed) {
+                                return;
+                            }
 
-                    renderSelectedPlots();
+                            delete selectedPlots[key];
+                            renderSelectedPlots();
+                        });
+                    } else {
+                        let existingSelection = Object.values(selectedPlots)[0];
+                        let confirmText = existingSelection
+                            ? `Plot ${existingSelection.number} is already selected. It will be replaced with Plot ${number}.`
+                            : `Plot ${number} will be selected for this booking.`;
+
+                        Swal.fire({
+                            icon: 'question',
+                            title: `Select Plot ${number}?`,
+                            text: confirmText,
+                            showCancelButton: true,
+                            confirmButtonText: 'Yes, select',
+                            cancelButtonText: 'Cancel',
+                            confirmButtonColor: '#198754',
+                            cancelButtonColor: '#6c757d',
+                        }).then(function(result) {
+                            if (!result.isConfirmed) {
+                                return;
+                            }
+
+                            selectedPlots = {};
+                            selectedPlots[key] = {
+                                saleId: existingPlotSales[key]?.saleId || null,
+                                id,
+                                number,
+                                rate: rate.toFixed(2),
+                                area: area.toFixed(2),
+                                plc: plc.toFixed(2),
+                                plotCost: plotCost.toFixed(2),
+                                bookingCode: $('#editBookingCode').val() || '',
+                                bookingDate: $('input[name="booking_date"]')?.val() || '',
+                                remark: $('textarea[name="remark"]')?.val() || '',
+                            };
+
+                            renderSelectedPlots();
+                        });
+                    }
                 });
 
                 $(document).on('click', '.plot-add-more-btn', function() {
@@ -486,8 +523,8 @@
 
                     Swal.fire({
                         icon: 'info',
-                        title: 'Booking Batch Selected',
-                        text: 'Existing batch loaded. Add more plots or update batch details as needed.'
+                        title: 'Booking Selected',
+                        text: 'Existing plot booking loaded. Update plot details as needed.'
                     });
                 });
 
@@ -647,6 +684,16 @@
                             icon: 'warning',
                             title: 'Plot Required',
                             text: 'Please select at least one plot for booking.'
+                        });
+                        return;
+                    }
+
+                    if (Object.keys(selectedPlots).length > 1) {
+                        event.preventDefault();
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Only One Plot Allowed',
+                            text: 'Please select only one plot for this booking.'
                         });
                     }
                 });

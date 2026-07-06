@@ -4,6 +4,7 @@
     if ($selectedPlotSales->isEmpty() && isset($plotSale) && $plotSale) {
         $selectedPlotSales = collect([$plotSale]);
     }
+    $selectedPlotSales = $selectedPlotSales->take(1)->values();
     $totalBookingPayable = (float) $selectedPlotSales->sum('total_plot_cost');
     $totalBookingArea = (float) $selectedPlotSales->sum('plot_area');
     $selectedBookingCode = $selectedPlotSales->first()?->booking_code ?? '-';
@@ -38,7 +39,7 @@
                         <small>
                             Booking Code:
                             <strong>{{ $selectedBookingCode }}</strong>
-                            | Payment will be collected only for this group.
+                            | Payment will be collected for this selected plot only.
                         </small>
                     </div>
                 </div>
@@ -46,8 +47,8 @@
                 <div class="d-flex align-items-center flex-wrap gap-2">
                     @if ($selectedPlotSales->count() > 0)
                         <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3"
-                            data-bs-toggle="modal" data-bs-target="#viewPaymentGroupModal">
-                            <i class="bi bi-eye me-1"></i>View Group Details
+                            data-bs-toggle="modal" data-bs-target="#viewPaymentPlotModal">
+                            <i class="bi bi-eye me-1"></i>View Plot Details
                         </button>
                     @endif
                     <div class="fs-5 fw-bold">
@@ -56,6 +57,18 @@
                 </div>
             </div>
         </div>
+
+        @if ($selectedPlotSales->isEmpty())
+            <div class="alert alert-warning rounded-4 mb-0">
+                <div class="d-flex align-items-start gap-3">
+                    <i class="bi bi-exclamation-triangle fs-4"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Plot selection required</h6>
+                        <small>Please complete plot sale details before saving payment.</small>
+                    </div>
+                </div>
+            </div>
+        @else
 
         @if ($selectedPlotSales->count() > 0)
             <div class="card border rounded-4 mb-4 overflow-hidden">
@@ -66,13 +79,13 @@
                             Selected Plot Details
                         </h6>
                         <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
-                            {{ $selectedPlotSales->count() }} Plots
+                            {{ $selectedPlotSales->count() }} {{ $selectedPlotSales->count() === 1 ? 'Plot' : 'Plots' }}
                         </span>
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col-md-4">
                             <div class="border rounded-3 bg-white p-3 h-100">
-                                <small class="text-muted fw-semibold">Booking Group</small>
+                                <small class="text-muted fw-semibold">Booking Code</small>
                                 <div class="fw-bold">{{ $selectedBookingCode }}</div>
                             </div>
                         </div>
@@ -120,17 +133,17 @@
             </div>
         @endif
 
-        <div class="modal fade" id="viewPaymentGroupModal" tabindex="-1" aria-labelledby="viewPaymentGroupModalLabel" aria-hidden="true">
+        <div class="modal fade" id="viewPaymentPlotModal" tabindex="-1" aria-labelledby="viewPaymentPlotModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="viewPaymentGroupModalLabel">Selected Booking Group Details</h5>
+                        <h5 class="modal-title" id="viewPaymentPlotModalLabel">Selected Plot Details</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
                             <span class="badge bg-success rounded-pill">{{ $selectedBookingCode }}</span>
-                            <small class="text-muted d-block mt-2">Review plot details and payment group totals before saving.</small>
+                            <small class="text-muted d-block mt-2">Review selected plot details before saving payment.</small>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-borderless align-middle mb-0">
@@ -168,7 +181,7 @@
                         </div>
                         <div class="d-flex justify-content-end mt-4">
                             <div class="text-end">
-                                <div class="text-muted small">Group Total</div>
+                                <div class="text-muted small">Total Payable</div>
                                 <div class="fw-bold fs-5">&#8377; {{ number_format($totalBookingPayable, 2) }}</div>
                             </div>
                         </div>
@@ -474,6 +487,7 @@
         <div id="paymentSummary" class="card border-0 shadow-sm mt-4 d-none rounded-4">
             <div class="card-body p-3" id="paymentSummaryBody"></div>
         </div>
+        @endif
 
     </div>
 </div>

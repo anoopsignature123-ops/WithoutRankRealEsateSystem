@@ -39,7 +39,7 @@ class CustomerBookingStepFiveRequest extends FormRequest
 
             'remark' => 'nullable|string|max:500',
             'plot_sale_detail_id' => 'nullable|required_without:plot_sale_detail_ids|exists:plot_sale_details,id',
-            'plot_sale_detail_ids' => 'nullable|array|min:1',
+            'plot_sale_detail_ids' => 'nullable|array|size:1',
             'plot_sale_detail_ids.*' => 'exists:plot_sale_details,id|distinct',
         ];
     }
@@ -72,6 +72,7 @@ class CustomerBookingStepFiveRequest extends FormRequest
 
             'plot_sale_detail_id.required' => 'Plot sale detail is required.',
             'plot_sale_detail_id.exists' => 'Selected plot sale detail is invalid.',
+            'plot_sale_detail_ids.size' => 'Payment can be saved for one plot booking only.',
         ];
     }
 }
