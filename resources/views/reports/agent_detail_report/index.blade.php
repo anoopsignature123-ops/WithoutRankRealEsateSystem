@@ -24,7 +24,7 @@
                         </span>
                         <h3 class="fw-bold text-dark mb-1">Associate Detail Report</h3>
                         <p class="text-muted small mb-0">
-                            Search and export associate/agent profile records.
+                            Search and export associate profile records.
                         </p>
                     </div>
                 </div>
@@ -38,7 +38,7 @@
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-4 col-md-6">
                 <div class="card border-0 shadow-sm rounded-4 h-100">
                     <div class="card-body">
                         <small class="text-muted fw-semibold">Total Associates</small>
@@ -47,32 +47,32 @@
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-4 col-md-6">
                 <div class="card border border-primary-subtle shadow-sm rounded-4 h-100">
                     <div class="card-body">
-                        <small class="text-muted fw-semibold">With Sponsor</small>
-                        <h4 class="fw-bold text-primary mb-0">{{ $summary['with_sponsor'] }}</h4>
+                        <small class="text-muted fw-semibold">Left Associates</small>
+                        <h4 class="fw-bold text-primary mb-0">{{ $summary['left_associates'] }}</h4>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-4 col-md-6">
                 <div class="card border border-warning-subtle shadow-sm rounded-4 h-100">
                     <div class="card-body">
-                        <small class="text-muted fw-semibold">Self Associates</small>
-                        <h4 class="fw-bold text-warning mb-0">{{ $summary['self_agents'] }}</h4>
+                        <small class="text-muted fw-semibold">Right Associates</small>
+                        <h4 class="fw-bold text-warning mb-0">{{ $summary['right_associates'] }}</h4>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6">
+            {{-- <div class="col-xl-3 col-md-6">
                 <div class="card border border-success-subtle shadow-sm rounded-4 h-100">
                     <div class="card-body">
                         <small class="text-muted fw-semibold">Active Associates</small>
                         <h4 class="fw-bold text-success mb-0">{{ $summary['active_agents'] }}</h4>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
         <div class="card border-0 shadow-sm rounded-4 mb-4">
@@ -86,7 +86,7 @@
                     <div>
                         <h5 class="fw-bold mb-1">Filter Report</h5>
                         <small class="text-muted">
-                            Filter associates by ID, name, mobile and joining date.
+                            Filter associates by ID, direction, name, mobile and joining date.
                         </small>
                     </div>
                 </div>
@@ -107,6 +107,15 @@
                         </div>
 
                         <div class="col-xl-2 col-md-6">
+                            <label class="form-label fw-semibold">Direction</label>
+                            <select name="direction" class="form-select">
+                                <option value="">All</option>
+                                <option value="left" {{ request('direction') == 'left' ? 'selected' : '' }}>Left</option>
+                                <option value="right" {{ request('direction') == 'right' ? 'selected' : '' }}>Right</option>
+                            </select>
+                        </div>
+
+                        <div class="col-xl-2 col-md-6">
                             <label class="form-label fw-semibold">Name</label>
                             <input type="text" name="name" value="{{ request('name') }}"
                                 class="form-control" placeholder="Enter name">
@@ -118,14 +127,14 @@
                                 class="form-control" placeholder="Enter mobile">
                         </div>
 
-                        <div class="col-xl-2 col-md-6">
-                            <label class="form-label fw-semibold">From Date</label>
+                        <div class="col-xl-1 col-md-6">
+                            <label class="form-label fw-semibold">From</label>
                             <input type="date" name="from_date" value="{{ request('from_date') }}"
                                 class="form-control">
                         </div>
 
-                        <div class="col-xl-2 col-md-6">
-                            <label class="form-label fw-semibold">To Date</label>
+                        <div class="col-xl-1 col-md-6">
+                            <label class="form-label fw-semibold">To</label>
                             <input type="date" name="to_date" value="{{ request('to_date') }}"
                                 class="form-control">
                         </div>
@@ -169,11 +178,11 @@
                             <tr>
                                 <th>Sr.No</th>
                                 <th>Sponsor ID</th>
-                                <th>Agent ID</th>
-                                <th>Associate / Agent Name</th>
+                                <th>Associate ID</th>
+                                <th>Associate Name</th>
                                 <th>Mobile Number</th>
-                                <th>Rank</th>
-                                <th>Status</th>
+                                <th>Direction</th>
+                                {{-- <th>Status</th> --}}
                                 <th>Joining Date</th>
                             </tr>
                         </thead>
@@ -215,16 +224,26 @@
                                     </td>
 
                                     <td>
-                                        <span class="badge bg-primary-subtle text-primary border rounded-pill px-3 py-2">
-                                            {{ $agent->rank?->designation ?? 'N/A' }}
-                                        </span>
+                                        @if ($agent->direction == 'left')
+                                            <span class="badge bg-primary-subtle text-primary border rounded-pill px-3 py-2">
+                                                Left
+                                            </span>
+                                        @elseif ($agent->direction == 'right')
+                                            <span class="badge bg-warning-subtle text-warning border rounded-pill px-3 py-2">
+                                                Right
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-3 py-2">
+                                                N/A
+                                            </span>
+                                        @endif
                                     </td>
 
-                                    <td>
+                                    {{-- <td>
                                         <span class="badge {{ $statusClass }} rounded-pill px-3 py-2">
                                             {{ ucfirst($agent->status ?? 'Active') }}
                                         </span>
-                                    </td>
+                                    </td> --}}
 
                                     <td>
                                         {{ $agent->created_at ? $agent->created_at->format('d-M-Y') : 'N/A' }}

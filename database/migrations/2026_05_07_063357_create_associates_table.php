@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('associate_id')->unique();
             $table->string('sponsor_id')->nullable();
+            $table->string('direction')->nullable();
             $table->string('under_place_id')->nullable();
             $table->foreignId('rank_id')->nullable()->constrained('designation_ranks')->nullOnDelete();
             $table->string('associate_name');

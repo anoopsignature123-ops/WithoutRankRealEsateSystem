@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Associate;
 use App\Models\CustomerBooking;
-use App\Models\DesignationRank;
 use App\Services\ExcelExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -20,12 +19,12 @@ class AgentSummaryDetailsReportController extends Controller
 
     public function index(Request $request)
     {
-        $levels = DesignationRank::select('id', 'designation', 'commission')->get();
-
         $reports = $this->buildReports($request);
 
         $summary = [
             'total_agents' => $reports->count(),
+            'left_team_count' => $reports->where('direction', 'left')->count(),
+            'right_team_count' => $reports->where('direction', 'right')->count(),
             'total_direct_business' => $reports->sum('direct_business'),
             'total_team_business' => $reports->sum('team_business'),
             'grand_total' => $reports->sum('total'),
@@ -33,7 +32,7 @@ class AgentSummaryDetailsReportController extends Controller
 
         return view(
             'reports.agent-summary-details-report.index',
-            compact('levels', 'reports', 'summary')
+            compact('reports', 'summary')
         );
     }
 
@@ -47,9 +46,9 @@ class AgentSummaryDetailsReportController extends Controller
             [
                 'Associate ID',
                 'Associate Name',
-                'Position',
-                'Commission %',
+                'Direction',
                 'Direct Team',
+                'Team Count',
                 'Direct Business',
                 'Team Business',
                 'Total Business',
@@ -58,9 +57,9 @@ class AgentSummaryDetailsReportController extends Controller
                 return [
                     $report['associate_code'],
                     $report['associate_name'],
-                    $report['position'],
-                    $report['commission'],
+                    ucfirst($report['direction'] ?? '-'),
                     $report['direct_team_count'],
+                    $report['team_count'],
                     number_format($report['direct_business'], 2, '.', ''),
                     number_format($report['team_business'], 2, '.', ''),
                     number_format($report['total'], 2, '.', ''),
@@ -71,16 +70,17 @@ class AgentSummaryDetailsReportController extends Controller
 
     private function buildReports(Request $request): Collection
     {
-        $associatesQuery = Associate::with(['rank', 'children.children']);
+        $associatesQuery = Associate::with(['children.children']);
 
-        if ($request->filled('level')) {
-            $associatesQuery->where('rank_id', $request->level);
+        if ($request->filled('direction')) {
+            $associatesQuery->where('direction', $request->direction);
         }
 
         return $associatesQuery->get()->map(function ($associate) use ($request) {
             $directBusiness = $this->calculateBusiness([$associate->id], $request);
 
             $teamIds = $this->getAllChildrenIds($associate);
+
             $teamBusiness = !empty($teamIds)
                 ? $this->calculateBusiness($teamIds, $request)
                 : 0;
@@ -88,8 +88,7 @@ class AgentSummaryDetailsReportController extends Controller
             return [
                 'associate_code' => $associate->associate_code ?? $associate->associate_id ?? 'N/A',
                 'associate_name' => $associate->associate_name ?? 'N/A',
-                'position' => $associate->rank?->designation ?? 'N/A',
-                'commission' => $associate->rank?->commission ?? 0,
+                'direction' => strtolower($associate->direction ?? ''),
                 'direct_team_count' => $associate->children->count(),
                 'team_count' => count($teamIds),
                 'direct_business' => $directBusiness,

@@ -43,19 +43,19 @@
 
             <form method="GET" class="mt-3">
                 <div class="row g-3 align-items-end">
-                    <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="col-xl-4 col-lg-4 col-md-6">
                         <label class="form-label">Joining Date</label>
                         <input type="date" name="joining_date" value="{{ request('joining_date') }}"
                             class="form-control">
                     </div>
 
-                    <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="col-xl-4 col-lg-4 col-md-6">
                         <label class="form-label">Associate Name</label>
                         <input type="text" name="associate_name" value="{{ request('associate_name') }}"
                             class="form-control" placeholder="Enter associate name">
                     </div>
 
-                    <div class="col-xl-3 col-lg-4 col-md-6">
+                    {{-- <div class="col-xl-3 col-lg-4 col-md-6">
                         <label class="form-label">Level</label>
                         <select name="rank_id" class="form-select">
                             <option value="">Select Level</option>
@@ -66,7 +66,7 @@
                                 </option>
                             @endforeach
                         </select>
-                    </div>
+                    </div> --}}
 
                     <div class="col-xl-3 col-lg-12">
                         <div class="associate-management-filter-actions">
@@ -114,7 +114,8 @@
                                 <th>Under Place ID</th>
                                 <th>Associate Name</th>
                                 <th>Mobile</th>
-                                <th>Percentage / Level</th>
+                                <th>Direction</th>
+                                {{-- <th>Percentage / Level</th> --}}
                                 <th>Password</th>
                                 <th>Joining Date</th>
                                 <th class="text-center" width="170">Action</th>
@@ -158,7 +159,7 @@
                                         </span>
                                     </td>
 
-                                    <td>
+                                    {{-- <td>
                                         <div class="fw-semibold text-dark">
                                             {{ number_format($associate->rank?->commission ?? 0, 2) }}%
                                         </div>
@@ -166,6 +167,11 @@
                                         <small class="text-muted">
                                             {{ $associate->rank?->designation ?? '-' }}
                                         </small>
+                                    </td> --}}
+                                     <td>
+                                        <div class="fw-semibold text-dark">
+                                            {{ ucfirst($associate->direction ?? '-') }}
+                                        </div>
                                     </td>
 
                                     <td>

@@ -52,8 +52,9 @@ class AssociateService
             $associate = Associate::create([
                 'associate_id' => $associateCode,
                 'sponsor_id' => $data['sponsor_id'] ?? null,
+                'direction' => $data['direction'] ?? null,
                 'under_place_id' => $data['under_place_id'] ?? null,
-                'rank_id' => $data['rank_id'] ?? null,
+                // 'rank_id' => $data['rank_id'] ?? null,
                 'associate_name' => $data['associate_name'],
                 'gender' => $data['gender'] ?? null,
                 'title' => $data['title'] ?? null,
@@ -128,7 +129,8 @@ class AssociateService
             $associate->update([
                 'sponsor_id' => $data['sponsor_id'] ?? null,
                 'under_place_id' => $data['under_place_id'] ?? null,
-                'rank_id' => $data['rank_id'] ?? null,
+                'direction' => $data['direction'] ?? null,
+                // 'rank_id' => $data['rank_id'] ?? null,
                 'associate_name' => $data['associate_name'],
                 'gender' => $data['gender'] ?? null,
                 'title' => $data['title'] ?? null,

@@ -18,7 +18,11 @@ class DirectAssociateController extends Controller
     private function applyFilters($query, Request $request)
     {
         if ($request->filled('associate_id')) {
-            $query->where('sponsor_id', trim($request->associate_id));
+            $query->where('sponsor_id', 'like', '%' . trim($request->associate_id) . '%');
+        }
+
+        if ($request->filled('direction')) {
+            $query->where('direction', $request->direction);
         }
 
         if ($request->filled('from_date')) {
@@ -32,65 +36,110 @@ class DirectAssociateController extends Controller
         return $query;
     }
 
+    private function getDirectPageTitle(?string $direction): string
+    {
+        return match ($direction) {
+            'left' => 'Left Direct Associates',
+            'right' => 'Right Direct Associates',
+            default => 'All Direct Associates',
+        };
+    }
+
+    private function getDownlinePageTitle(?string $direction): string
+    {
+        return match ($direction) {
+            'left' => 'Left Team Downline',
+            'right' => 'Right Team Downline',
+            default => 'All Team Downline',
+        };
+    }
+
     public function index(Request $request)
     {
+        $direction = $request->direction;
+        $pageTitle = $this->getDirectPageTitle($direction);
 
-        $rootAssociateIds = Associate::whereNull('under_place_id')->pluck('associate_id');
-        $query = Associate::with(['sponsor'])->whereIn('sponsor_id', $rootAssociateIds);
+        $rootAssociateIds = Associate::whereNull('under_place_id')
+            ->pluck('associate_id');
+
+        $query = Associate::with(['sponsor'])
+            ->whereIn('sponsor_id', $rootAssociateIds);
+
         $this->applyFilters($query, $request);
+
         $directAssociates = $query->latest()->get();
 
-        return view('direct-associate.index', compact('directAssociates'));
+        return view('direct-associate.index', compact('directAssociates', 'pageTitle'));
     }
 
     public function associateDownline(Request $request)
     {
-        $query = Associate::with(['sponsor'])->whereNotNull('under_place_id');
+        $direction = $request->direction;
+        $pageTitle = $this->getDownlinePageTitle($direction);
+
+        $query = Associate::with(['sponsor'])
+            ->whereNotNull('under_place_id');
+
         $this->applyFilters($query, $request);
+
         $associates = $query->orderBy('id')->get();
 
-        return view('associate-downline.index', compact('associates'));
+        return view('associate-downline.index', compact('associates', 'pageTitle'));
     }
 
     public function export(Request $request)
     {
-        $query = Associate::with(['sponsor']);
+        $rootAssociateIds = Associate::whereNull('under_place_id')
+            ->pluck('associate_id');
+
+        $query = Associate::with(['sponsor'])
+            ->whereIn('sponsor_id', $rootAssociateIds);
+
         $this->applyFilters($query, $request);
+
         $data = $query->latest()->get();
+
         $headers = [
             'SR No',
             'Associate Id',
             'Associate Name',
+            'Direction',
             'Sponsor Id',
             'Sponsor Name',
             'Mobile No',
             'Registration Date',
         ];
+
         $count = 1;
 
-        return $this->excelExportService->export($data, 'direct-associate-list', $headers, function ($item) use (&$count) {
+        return $this->excelExportService->export($data, 'placement-direct-associate-list', $headers, function ($item) use (&$count) {
             return [
                 $count++,
                 $item->associate_id,
                 $item->associate_name,
+                ucfirst($item->direction ?? '-'),
                 $item->sponsor_id,
                 $item->sponsor?->associate_name,
                 $item->mobile_number,
                 $item->created_at?->format('d-m-Y'),
             ];
-        }
-        );
+        });
     }
 
     public function exportDownline(Request $request)
     {
-        $query = Associate::with(['sponsor']);
+        $query = Associate::with(['sponsor'])
+            ->whereNotNull('under_place_id');
+
         $this->applyFilters($query, $request);
+
         $data = $query->orderBy('id')->get();
+
         $headers = [
             'SR No',
             'Associate Id',
             'Associate Name',
+            'Direction',
             'Sponsor Id',
             'Sponsor Name',
             'Mobile No',
@@ -104,12 +153,12 @@ class DirectAssociateController extends Controller
                 $count++,
                 $item->associate_id,
                 $item->associate_name,
+                ucfirst($item->direction ?? '-'),
                 $item->sponsor_id,
                 $item->sponsor?->associate_name,
                 $item->mobile_number,
                 $item->created_at?->format('d-m-Y'),
             ];
-        }
-        );
+        });
     }
 }

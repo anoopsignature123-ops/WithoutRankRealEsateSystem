@@ -47,6 +47,7 @@
         </div>
 
         {{-- Cards Section --}}
+        {{-- Cards Section --}}
         <div class="row g-4 mb-4">
             @php
                 $cards = [
@@ -77,6 +78,48 @@
                         'icon' => 'bi-person-badge-fill',
                         'color' => 'warning',
                         'route' => route('associate.index'),
+                    ],
+                    [
+                        'title' => 'All Direct Associates',
+                        'value' => $allDirectAssociate ?? 0,
+                        'icon' => 'bi-person-lines-fill',
+                        'color' => 'success',
+                        'route' => route('direct-associate'),
+                    ],
+                    [
+                        'title' => 'Left Direct Associates',
+                        'value' => $leftDirectAssociate ?? 0,
+                        'icon' => 'bi-arrow-left-circle-fill',
+                        'color' => 'primary',
+                        'route' => route('direct-associate', ['direction' => 'left']),
+                    ],
+                    [
+                        'title' => 'Right Direct Associates',
+                        'value' => $rightDirectAssociate ?? 0,
+                        'icon' => 'bi-arrow-right-circle-fill',
+                        'color' => 'warning',
+                        'route' => route('direct-associate', ['direction' => 'right']),
+                    ],
+                    [
+                        'title' => 'All Team Downline',
+                        'value' => $allTeamCount ?? 0,
+                        'icon' => 'bi-diagram-3-fill',
+                        'color' => 'info',
+                        'route' => route('associate-downline'),
+                    ],
+                    [
+                        'title' => 'Left Team Count',
+                        'value' => $leftTeamCount ?? 0,
+                        'icon' => 'bi-diagram-2-fill',
+                        'color' => 'primary',
+                        'route' => route('associate-downline', ['direction' => 'left']),
+                    ],
+                    [
+                        'title' => 'Right Team Count',
+                        'value' => $rightTeamCount ?? 0,
+                        'icon' => 'bi-diagram-2-fill',
+                        'color' => 'warning',
+                        'route' => route('associate-downline', ['direction' => 'right']),
                     ],
                 ];
             @endphp

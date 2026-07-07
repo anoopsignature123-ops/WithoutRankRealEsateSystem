@@ -19,7 +19,8 @@ class AssociateRequest extends FormRequest
         return [
             'sponsor_id' => ['required', 'string', 'max:50'],
             'under_place_id' => ['required', 'string', 'max:50'],
-            'rank_id' => ['required', 'exists:designation_ranks,id'],
+            'direction' => ['required', 'in:left,right'],
+            // 'rank_id' => ['required', 'exists:designation_ranks,id'],
             'associate_name' => ['required', 'string', 'min:3', 'max:100'],
             'gender' => ['required', 'in:male,female'],
             'title' => ['required', 'string', 'max:20'],
@@ -67,9 +68,9 @@ class AssociateRequest extends FormRequest
             'sponsor_id.required' => 'Please select sponsor.',
 
             'under_place_id.required' => 'Under place ID is required.',
-
-            'rank_id.required' => 'Please select rank.',
-            'rank_id.exists' => 'Selected rank is invalid.',
+            'direction.required' => 'Please select direction.',
+            // 'rank_id.required' => 'Please select rank.',
+            // 'rank_id.exists' => 'Selected rank is invalid.',
 
             'associate_name.required' => 'Associate name is required.',
 

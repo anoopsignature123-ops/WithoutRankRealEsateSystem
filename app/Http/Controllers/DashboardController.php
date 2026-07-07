@@ -16,24 +16,44 @@ class DashboardController extends Controller
     public function index()
     {
         $businessChartData = $this->getVisitorsData();
+
+        $rootAssociateIds = Associate::whereNull('under_place_id')->pluck('associate_id');
+
         $data = [
             'projectCount' => Project::count(),
             'totalPlot' => PlotDetail::count(),
             'totalCustomer' => CustomerBooking::whereNotNull('customer_code')->count(),
             'totalAssociate' => Associate::count(),
+
+            'allDirectAssociate' => Associate::whereIn('sponsor_id', $rootAssociateIds)->count(),
+            'leftDirectAssociate' => Associate::whereIn('sponsor_id', $rootAssociateIds)
+                ->where('direction', 'left')
+                ->count(),
+            'rightDirectAssociate' => Associate::whereIn('sponsor_id', $rootAssociateIds)
+                ->where('direction', 'right')
+                ->count(),
+
+            'allTeamCount' => Associate::whereNotNull('under_place_id')->count(),
+            'leftTeamCount' => Associate::whereNotNull('under_place_id')
+                ->where('direction', 'left')
+                ->count(),
+            'rightTeamCount' => Associate::whereNotNull('under_place_id')
+                ->where('direction', 'right')
+                ->count(),
+
             'plotStats' => $this->getPlotStats(),
             'visitorsData' => $this->getVisitorsData(),
             'monthlyDues' => $this->getMonthlyDues(),
             'totalOutstanding' => $this->calculateOutstanding(),
-            // 'totalOverdue' => $this->calculateOverdue(),
+
             'confirmedPayment' => CustomerPayment::where('booking_status', 'booked')
                 ->whereIn('payment_status', ['paid', 'cleared'])
                 ->sum('paid_amount'),
+
             'holdPayment' => CustomerPayment::where('payment_status', 'hold')->sum('paid_amount'),
             'pendingPayment' => $this->calculateOutstanding(),
             'businessConfirmedPayment' => $businessChartData['monthlyPaidAmount'][0] ?? 0,
             'businesspendingPayment' => $businessChartData['monthlyDueAmount'][0] ?? 0,
-
         ];
 
         return view('dashboard', array_merge($data, $data['plotStats']));

@@ -21,22 +21,26 @@
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label class="mb-2">Rank</label>
-                    <select name="rank_id" id="rank_id" class="form-control">
-                        <option value="">Select Rank</option>
-                        @if (isset($ranks))
-                            @foreach ($ranks as $rank)
-                                <option value="{{ $rank->id }}"
-                                    {{ old('rank_id', $associate->rank_id ?? '') == $rank->id ? 'selected' : '' }}>
-                                    {{ $rank->designation }} / {{ $rank->commission }}
-                                </option>
-                            @endforeach
-                        @endif
+                    <label class="mb-2">Direction</label>
+                    <select name="direction" id="direction" class="form-control">
+                        <option value="">Select Direction</option>
+
+                        <option value="left"
+                            {{ old('direction', $associate->direction ?? '') == 'left' ? 'selected' : '' }}>
+                            Left
+                        </option>
+
+                        <option value="right"
+                            {{ old('direction', $associate->direction ?? '') == 'right' ? 'selected' : '' }}>
+                            Right
+                        </option>
                     </select>
-                    @error('rank_id')
+
+                    @error('direction')
                         <small class="text-danger d-block">{{ $message }}</small>
                     @enderror
                 </div>
+
                 <div class="col-md-4 mb-3">
                     <label class="mb-2">Under Place Id</label>
                     <input type="text" name="under_place_id" id="under_place_id"
@@ -147,7 +151,7 @@
                         <small class="text-danger d-block">{{ $message }}</small>
                     @enderror
                 </div> --}}
-               
+
                 @include('state-city', [
                     'states' => $states,
                     'selectedState' => old('state', $associate->state ?? ''),

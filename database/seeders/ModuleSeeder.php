@@ -137,14 +137,14 @@ class ModuleSeeder extends Seeder
                 'icon' => 'bi bi-sliders',
             ],
 
-            [
-                'name' => 'Rank / Designation',
-                'slug' => 'designations',
-                'parent_slug' => 'master',
-                'route_name' => 'designations.index',
-                'active_routes' => 'designations.*',
-                'icon' => 'bi bi-award',
-            ],
+            // [
+            //     'name' => 'Rank / Designation',
+            //     'slug' => 'designations',
+            //     'parent_slug' => 'master',
+            //     'route_name' => 'designations.index',
+            //     'active_routes' => 'designations.*',
+            //     'icon' => 'bi bi-award',
+            // ],
 
             [
                 'name' => 'Associate',
@@ -180,7 +180,7 @@ class ModuleSeeder extends Seeder
             ],
 
             [
-                'name' => 'Direct Associate',
+                'name' => 'All Direct Associate',
                 'slug' => 'direct-associate',
                 'parent_slug' => 'associate',
                 'route_name' => 'direct-associate',
@@ -189,7 +189,7 @@ class ModuleSeeder extends Seeder
             ],
 
             [
-                'name' => 'Downline Associate',
+                'name' => 'All Team Associate',
                 'slug' => 'associate-downline',
                 'parent_slug' => 'associate',
                 'route_name' => 'associate-downline',
@@ -206,14 +206,14 @@ class ModuleSeeder extends Seeder
             //     'icon' => 'bi bi-graph-up-arrow',
             // ],
 
-            [
-                'name' => 'Promoted the Business',
-                'slug' => 'promoted',
-                'parent_slug' => 'associate',
-                'route_name' => 'promoted.index',
-                'active_routes' => 'promoted*',
-                'icon' => 'bi bi-graph-up-arrow',
-            ],
+            // [
+            //     'name' => 'Promoted the Business',
+            //     'slug' => 'promoted',
+            //     'parent_slug' => 'associate',
+            //     'route_name' => 'promoted.index',
+            //     'active_routes' => 'promoted*',
+            //     'icon' => 'bi bi-graph-up-arrow',
+            // ],
 
             [
                 'name' => 'Plot Booking / Sales',
@@ -393,29 +393,29 @@ class ModuleSeeder extends Seeder
             ],
 
             // Commission Payout Module
-            [
-                'name' => 'Commission Payout',
-                'slug' => 'commission-payout',
-                'icon' => 'bi bi-cash-stack',
-            ],
+            // [
+            //     'name' => 'Commission Payout',
+            //     'slug' => 'commission-payout',
+            //     'icon' => 'bi bi-cash-stack',
+            // ],
 
-            [
-                'name' => 'Generate Commission',
-                'slug' => 'generate-commission',
-                'parent_slug' => 'commission-payout',
-                'route_name' => 'generate-commission.index',
-                'active_routes' => 'generate-commission*',
-                'icon' => 'bi bi-calculator',
-            ],
+            // [
+            //     'name' => 'Generate Commission',
+            //     'slug' => 'generate-commission',
+            //     'parent_slug' => 'commission-payout',
+            //     'route_name' => 'generate-commission.index',
+            //     'active_routes' => 'generate-commission*',
+            //     'icon' => 'bi bi-calculator',
+            // ],
 
-            [
-                'name' => 'Commission Ledger',
-                'slug' => 'commission-ledger',
-                'parent_slug' => 'commission-payout',
-                'route_name' => 'commission-ledger.index',
-                'active_routes' => 'commission-ledger*',
-                'icon' => 'bi bi-list-ul',
-            ],
+            // [
+            //     'name' => 'Commission Ledger',
+            //     'slug' => 'commission-ledger',
+            //     'parent_slug' => 'commission-payout',
+            //     'route_name' => 'commission-ledger.index',
+            //     'active_routes' => 'commission-ledger*',
+            //     'icon' => 'bi bi-list-ul',
+            // ],
 
             // Parent Module
             [

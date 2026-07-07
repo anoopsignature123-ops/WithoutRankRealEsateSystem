@@ -20,13 +20,13 @@
 
                     <div>
                         <span class="text-success fw-bold text-uppercase small">
-                            Agent Summary Details
+                            Associate Summary Details
                         </span>
                         <h3 class="fw-bold text-dark mb-1">
-                            Agent Summary Details Report
+                            Associate Summary Details Report
                         </h3>
                         <p class="text-muted small mb-0">
-                            Agent direct business, team business and total business summary.
+                            Associate direct business, team business and total business summary.
                         </p>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
             <div class="col-xl-3 col-md-6">
                 <div class="card border-0 shadow-sm rounded-4 h-100">
                     <div class="card-body">
-                        <small class="text-muted fw-semibold">Total Agents</small>
+                        <small class="text-muted fw-semibold">Total Associates</small>
                         <h4 class="fw-bold mb-0">{{ $summary['total_agents'] }}</h4>
                     </div>
                 </div>
@@ -52,21 +52,17 @@
             <div class="col-xl-3 col-md-6">
                 <div class="card border border-primary-subtle shadow-sm rounded-4 h-100">
                     <div class="card-body">
-                        <small class="text-muted fw-semibold">Direct Business</small>
-                        <h4 class="fw-bold text-primary mb-0">
-                            ₹{{ number_format($summary['total_direct_business'], 2) }}
-                        </h4>
+                        <small class="text-muted fw-semibold">Left Team Count</small>
+                        <h4 class="fw-bold text-primary mb-0">{{ $summary['left_team_count'] }}</h4>
                     </div>
                 </div>
             </div>
 
             <div class="col-xl-3 col-md-6">
-                <div class="card border border-success-subtle shadow-sm rounded-4 h-100">
+                <div class="card border border-warning-subtle shadow-sm rounded-4 h-100">
                     <div class="card-body">
-                        <small class="text-muted fw-semibold">Team Business</small>
-                        <h4 class="fw-bold text-success mb-0">
-                            ₹{{ number_format($summary['total_team_business'], 2) }}
-                        </h4>
+                        <small class="text-muted fw-semibold">Right Team Count</small>
+                        <h4 class="fw-bold text-warning mb-0">{{ $summary['right_team_count'] }}</h4>
                     </div>
                 </div>
             </div>
@@ -77,6 +73,30 @@
                         <small class="text-muted fw-semibold">Total Business</small>
                         <h4 class="fw-bold text-danger mb-0">
                             ₹{{ number_format($summary['grand_total'], 2) }}
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-xl-6 col-md-6">
+                <div class="card border border-primary-subtle shadow-sm rounded-4 h-100">
+                    <div class="card-body">
+                        <small class="text-muted fw-semibold">Direct Business</small>
+                        <h4 class="fw-bold text-primary mb-0">
+                            ₹{{ number_format($summary['total_direct_business'], 2) }}
+                        </h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6 col-md-6">
+                <div class="card border border-success-subtle shadow-sm rounded-4 h-100">
+                    <div class="card-body">
+                        <small class="text-muted fw-semibold">Team Business</small>
+                        <h4 class="fw-bold text-success mb-0">
+                            ₹{{ number_format($summary['total_team_business'], 2) }}
                         </h4>
                     </div>
                 </div>
@@ -94,44 +114,39 @@
                     <div>
                         <h5 class="fw-bold mb-1">Filter Report</h5>
                         <small class="text-muted">
-                            Filter agent summary by level and booking date range.
+                            Filter associate summary by direction and booking date range.
                         </small>
                     </div>
                 </div>
 
-                <form method="GET">
+                <form method="GET" id="summaryFilterForm">
                     <div class="row g-3 align-items-end">
                         <div class="col-xl-3 col-md-6">
-                            <label class="form-label fw-semibold">Level</label>
-                            <select name="level" class="form-select">
-                                <option value="">All Levels</option>
-                                @foreach ($levels as $level)
-                                    <option value="{{ $level->id }}"
-                                        {{ request('level') == $level->id ? 'selected' : '' }}>
-                                        {{ $level->designation }} ({{ $level->commission }}%)
-                                    </option>
-                                @endforeach
+                            <label class="form-label fw-semibold">Direction</label>
+                            <select name="direction" class="form-select auto-filter">
+                                <option value="">All Team</option>
+                                <option value="left" {{ request('direction') == 'left' ? 'selected' : '' }}>
+                                    Left Team
+                                </option>
+                                <option value="right" {{ request('direction') == 'right' ? 'selected' : '' }}>
+                                    Right Team
+                                </option>
                             </select>
                         </div>
 
                         <div class="col-xl-3 col-md-6">
                             <label class="form-label fw-semibold">From Date</label>
-                            <input type="date" name="from_date" class="form-control"
+                            <input type="date" name="from_date" class="form-control auto-filter"
                                 value="{{ request('from_date') }}">
                         </div>
 
                         <div class="col-xl-3 col-md-6">
                             <label class="form-label fw-semibold">To Date</label>
-                            <input type="date" name="to_date" class="form-control"
+                            <input type="date" name="to_date" class="form-control auto-filter"
                                 value="{{ request('to_date') }}">
                         </div>
 
                         <div class="col-xl-3 col-md-6 d-flex gap-2">
-                            <button type="submit" class="btn btn-success flex-fill">
-                                <i class="bi bi-search me-1"></i>
-                                Search
-                            </button>
-
                             <a href="{{ route('agent-summary-details-report.index') }}"
                                 class="btn btn-outline-secondary px-4">
                                 <i class="bi bi-arrow-clockwise me-1"></i>
@@ -149,7 +164,7 @@
                     <div>
                         <h5 class="fw-bold mb-1">
                             <i class="bi bi-table text-success me-2"></i>
-                            Agent Business Summary
+                            Associate Business Summary
                         </h5>
                         <small class="text-muted">
                             Direct and team business calculated by associate hierarchy.
@@ -167,8 +182,7 @@
                             <tr>
                                 <th>Sr.No</th>
                                 <th>Associate</th>
-                                <th>Position</th>
-                                <th>Commission</th>
+                                <th>Direction</th>
                                 <th>Direct Team</th>
                                 <th>Team Count</th>
                                 <th class="text-end">Direct Business</th>
@@ -188,15 +202,19 @@
                                     </td>
 
                                     <td>
-                                        <span class="badge bg-primary-subtle text-primary border rounded-pill px-3 py-2">
-                                            {{ $report['position'] }}
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
-                                            {{ $report['commission'] }}%
-                                        </span>
+                                        @if ($report['direction'] == 'left')
+                                            <span class="badge bg-primary-subtle text-primary border rounded-pill px-3 py-2">
+                                                Left Team
+                                            </span>
+                                        @elseif ($report['direction'] == 'right')
+                                            <span class="badge bg-warning-subtle text-warning border rounded-pill px-3 py-2">
+                                                Right Team
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-3 py-2">
+                                                N/A
+                                            </span>
+                                        @endif
                                     </td>
 
                                     <td>{{ $report['direct_team_count'] }}</td>
@@ -217,9 +235,9 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-5">
+                                    <td colspan="8" class="text-center py-5">
                                         <i class="bi bi-inbox fs-2 text-muted d-block mb-2"></i>
-                                        <span class="text-muted">No agent summary records found.</span>
+                                        <span class="text-muted">No associate summary records found.</span>
                                     </td>
                                 </tr>
                             @endforelse
@@ -227,7 +245,7 @@
 
                         <tfoot>
                             <tr class="table-light fw-bold">
-                                <td colspan="6" class="text-end">Grand Total</td>
+                                <td colspan="5" class="text-end">Grand Total</td>
                                 <td class="text-end text-primary">
                                     ₹{{ number_format($summary['total_direct_business'], 2) }}
                                 </td>
@@ -250,13 +268,17 @@
 @push('scripts')
     <script>
         $(function() {
+            $('.auto-filter').on('change', function() {
+                $('#summaryFilterForm').submit();
+            });
+
             $('#agentSummaryTable').DataTable({
                 pageLength: 10,
                 ordering: true,
                 responsive: false,
                 scrollX: true,
                 language: {
-                    emptyTable: 'No agent summary records found.'
+                    emptyTable: 'No associate summary records found.'
                 }
             });
         });

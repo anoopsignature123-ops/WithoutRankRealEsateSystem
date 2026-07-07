@@ -57,10 +57,10 @@
                 <span>Under Place ID</span>
                 <strong>{{ $associate->under_place_id ?? '-' }}</strong>
             </div>
-            <div>
+            {{-- <div>
                 <span>Commission</span>
                 <strong>{{ number_format($associate->rank?->commission ?? 0, 2) }}%</strong>
-            </div>
+            </div> --}}
             <div>
                 <span>Login Password</span>
                 <strong>{{ $associate->plain_password ?? '-' }}</strong>

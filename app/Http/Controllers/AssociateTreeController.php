@@ -12,48 +12,91 @@ class AssociateTreeController extends Controller
     public function index(Request $request)
     {
         $associateId = trim($request->associate_id ?? '');
+        $direction = $this->normalizeDirection($request->direction ?? null);
 
-        if ($associateId) {
-            $rootAssociate = Associate::with([
-                'rank',
-                'children.rank',
-                'children.children.rank',
-            ])
-                ->where('associate_id', $associateId)
-                ->first();
-        } else {
-            $rootAssociate = Associate::with([
-                'rank',
-                'children.rank',
-                'children.children.rank',
-            ])
-                ->whereNull('under_place_id')
-                ->first();
-        }
+        $rootAssociate = Associate::with([
+            'children.children.children.children.children',
+        ])
+            ->when($associateId, function ($query) use ($associateId) {
+                $query->where('associate_id', $associateId);
+            }, function ($query) {
+                $query->whereNull('under_place_id');
+            })
+            ->first();
 
         if ($rootAssociate) {
-            $this->attachTreeStats($rootAssociate);
+            $this->attachTreeStats($rootAssociate, $direction);
         }
 
-        return view(
-            'associate-tree.index',
-            compact('rootAssociate')
-        );
+        return view('associate-tree.index', compact('rootAssociate', 'direction'));
     }
 
-    private function attachTreeStats(Associate $associate): void
+    private function attachTreeStats(Associate $associate, ?string $direction = null): void
     {
         $associate->setAttribute('tree_stats', $this->buildStatsFor($associate));
 
-        $associate->children->each(function (Associate $child) {
-            $this->attachTreeStats($child);
-        });
+        $children = $associate->children ?? collect();
+
+        $associate->setAttribute(
+            'tree_children',
+            $this->groupChildrenByDirection($children, $direction)
+        );
+
+        foreach ($associate->tree_children as $groupedChildren) {
+            foreach ($groupedChildren as $child) {
+                $this->attachTreeStats($child, $direction);
+            }
+        }
+    }
+
+    private function groupChildrenByDirection($children, ?string $direction = null): array
+    {
+        $children = collect($children);
+
+        $leftChildren = $children->filter(function ($child) {
+            return strtolower((string) ($child->direction ?? '')) === 'left';
+        })->values();
+
+        $rightChildren = $children->filter(function ($child) {
+            return strtolower((string) ($child->direction ?? '')) === 'right';
+        })->values();
+
+        if ($direction === 'left') {
+            return [
+                'left' => $leftChildren,
+                'right' => collect(),
+            ];
+        }
+
+        if ($direction === 'right') {
+            return [
+                'left' => collect(),
+                'right' => $rightChildren,
+            ];
+        }
+
+        return [
+            'left' => $leftChildren,
+            'right' => $rightChildren,
+        ];
+    }
+
+    private function normalizeDirection(?string $direction): ?string
+    {
+        $direction = strtolower(trim((string) $direction));
+
+        return in_array($direction, ['left', 'right'], true) ? $direction : null;
     }
 
     private function buildStatsFor(Associate $associate): array
     {
         $selfStats = $this->businessStatsForAssociateIds(collect([$associate->id]));
-        $downlineIds = collect($associate->getDownlineIds())->filter()->values();
+
+        $downlineIds = collect($associate->getDownlineIds())
+            ->filter()
+            ->unique()
+            ->values();
+
         $teamStats = $this->businessStatsForAssociateIds($downlineIds);
 
         return [
@@ -63,8 +106,8 @@ class AssociateTreeController extends Controller
             'plot_area' => $selfStats['area'],
             'team_area' => $teamStats['area'],
             'total_area' => $selfStats['area'] + $teamStats['area'],
-            'direct_count' => (int) ($associate->direct_count ?? 0),
-            'downline_count' => (int) ($associate->downline_count ?? 0),
+            'direct_count' => (int) ($associate->direct_count ?? $associate->children?->count() ?? 0),
+            'downline_count' => (int) ($associate->downline_count ?? $downlineIds->count()),
         ];
     }
 
@@ -73,19 +116,13 @@ class AssociateTreeController extends Controller
         $associateIds = collect($associateIds)->filter()->unique()->values();
 
         if ($associateIds->isEmpty()) {
-            return [
-                'business' => 0,
-                'area' => 0,
-            ];
+            return ['business' => 0, 'area' => 0];
         }
 
         $bookingIds = CustomerBooking::whereIn('associate_id', $associateIds)->pluck('id');
 
         if ($bookingIds->isEmpty()) {
-            return [
-                'business' => 0,
-                'area' => 0,
-            ];
+            return ['business' => 0, 'area' => 0];
         }
 
         $payments = CustomerPayment::with('plotSaleDetail.plotDetail')
@@ -101,7 +138,9 @@ class AssociateTreeController extends Controller
 
         return [
             'business' => (float) $payments->sum('paid_amount'),
-            'area' => (float) $plotSales->sum(fn ($plotSale) => $plotSale->plot_area ?? $plotSale->plotDetail?->plot_area ?? 0),
+            'area' => (float) $plotSales->sum(function ($plotSale) {
+                return $plotSale->plot_area ?? $plotSale->plotDetail?->plot_area ?? 0;
+            }),
         ];
     }
 }

@@ -23,8 +23,8 @@ class AgentDetailReportController extends Controller
 
         $summary = [
             'total_records' => $agents->count(),
-            'with_sponsor' => $agents->whereNotNull('sponsor_id')->count(),
-            'self_agents' => $agents->whereNull('sponsor_id')->count(),
+            'left_associates' => $agents->where('direction', 'left')->count(),
+            'right_associates' => $agents->where('direction', 'right')->count(),
             'active_agents' => $agents->where('status', 'active')->count(),
         ];
 
@@ -43,10 +43,10 @@ class AgentDetailReportController extends Controller
             'associate-report',
             [
                 'Sponsor ID',
-                'Agent ID',
+                'Associate ID',
                 'Name',
                 'Mobile',
-                'Rank',
+                'Direction',
                 'Status',
                 'Joining Date',
             ],
@@ -56,7 +56,7 @@ class AgentDetailReportController extends Controller
                     $agent->associate_id ?? 'N/A',
                     $agent->associate_name ?? 'N/A',
                     $agent->mobile_number ?? 'N/A',
-                    $agent->rank?->designation ?? 'N/A',
+                    ucfirst($agent->direction ?? 'N/A'),
                     ucfirst($agent->status ?? 'N/A'),
                     $agent->created_at ? $agent->created_at->format('d-m-Y') : 'N/A',
                 ];
@@ -66,10 +66,14 @@ class AgentDetailReportController extends Controller
 
     private function buildQuery(Request $request)
     {
-        $query = Associate::with('rank');
+        $query = Associate::query();
 
         if ($request->filled('associate_id')) {
             $query->where('id', $request->associate_id);
+        }
+
+        if ($request->filled('direction')) {
+            $query->where('direction', $request->direction);
         }
 
         if ($request->filled('name')) {

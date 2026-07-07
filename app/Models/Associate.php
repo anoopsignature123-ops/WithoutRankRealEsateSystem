@@ -32,6 +32,7 @@ class Associate extends Authenticatable
         'photo',
         'id_proof_photo',
         'pancard_photo',
+        'direction',
     ];
 
     protected $hidden = [
