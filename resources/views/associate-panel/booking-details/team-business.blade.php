@@ -1,13 +1,12 @@
 @extends('layouts.app')
 
 @push('title')
-    Associate Panel |  Team Business Report
+    Associate Panel | Team Business Report
 @endpush
 @section('content')
     @php
         $totalBookings = $reports->count();
-        $totalBusiness = (float) $reports->sum('amount');
-        $multiPlotBookings = $reports->filter(fn ($report) => str_contains((string) $report->plot_no, ','))->count();
+        $totalBusiness = (float) $reports->sum(fn($report) => $report->amount ?? 0);
     @endphp
 
     <div class="container-fluid mt-4 transaction-page">
@@ -20,7 +19,8 @@
                     <div>
                         <span class="text-success fw-bold text-uppercase small">Business Details</span>
                         <h3 class="fw-bold mb-1 text-dark">Team Business Report</h3>
-                        <p class="text-muted mb-0 small">Review team bookings, grouped plots and business value in one clean report.</p>
+                        <p class="text-muted mb-0 small">Review team bookings, grouped plots and business value in one clean
+                            report.</p>
                     </div>
                 </div>
                 <a href="{{ route('associate-panel.booking-detail') }}" class="btn btn-outline-success">
@@ -49,8 +49,8 @@
             <div class="col-lg-4 col-md-6">
                 <div class="transaction-card h-100 border-start border-4 border-info">
                     <div class="transaction-card-body py-3">
-                        <small class="text-muted fw-semibold">Plot Bookings</small>
-                        <h4 class="fw-bold text-info mb-0">{{ $multiPlotBookings }}</h4>
+                        <small class="text-muted fw-semibold">Plot Records</small>
+                        <h4 class="fw-bold text-info mb-0">{{ $totalBookings }}</h4>
                     </div>
                 </div>
             </div>
@@ -63,10 +63,12 @@
                         <span class="transaction-section-title-icon"><i class="bi bi-list-check"></i></span>
                         <div>
                             <h5 class="fw-bold mb-1">Business Records</h5>
-                            <small class="text-muted">Each row represents one booking. Plots stay grouped in the same booking.</small>
+                            <small class="text-muted">Each row represents one booking. Plots stay grouped in the same
+                                booking.</small>
                         </div>
                     </div>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle">{{ $totalBookings }} Records</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">{{ $totalBookings }}
+                        Records</span>
                 </div>
 
                 <div class="transaction-table-wrap">
@@ -83,37 +85,31 @@
                                 <th>Date</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @forelse($reports as $key => $report)
-                                @php
-                                    $plotCount = collect(explode(',', (string) $report->plot_no))->map(fn ($plot) => trim($plot))->filter()->count();
-                                @endphp
-                                <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                    <td class="fw-bold text-success">{{ $report->booking_code }}</td>
-                                    <td>{{ $report->customer_name }}</td>
-                                    <td>{{ $report->agent_name }}</td>
-                                    <td>{{ $report->project_name }}</td>
-                                    <td>
-                                        <strong>{{ $report->plot_no }}</strong>
-                                        @if ($plotCount > 1)
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle ms-1">
-                                                {{ $plotCount }} Plots
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="fw-bold text-success">&#8377;{{ number_format($report->amount, 2) }}</td>
-                                    <td>{{ $report->date }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted py-5">
-                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                                        No team business records found.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
+                       <tbody>
+    @forelse($reports as $key => $report)
+        <tr>
+            <td>{{ $key + 1 }}</td>
+            <td class="fw-bold text-success">{{ $report->booking_code ?? '-' }}</td>
+            <td>{{ $report->customer_name ?? '-' }}</td>
+            <td>{{ $report->agent_name ?? '-' }}</td>
+            <td>{{ $report->project_name ?? '-' }}</td>
+            <td>
+                <strong>{{ $report->plot_no ?? '-' }}</strong>
+            </td>
+            <td class="fw-bold text-success">
+                &#8377;{{ number_format((float) ($report->amount ?? 0), 2) }}
+            </td>
+            <td>{{ $report->date ?? '-' }}</td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="8" class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                No team business records found.
+            </td>
+        </tr>
+    @endforelse
+</tbody>
                     </table>
                 </div>
             </div>

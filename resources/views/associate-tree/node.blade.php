@@ -27,11 +27,6 @@
                 <div class="associate-direction-badge {{ $isRoot ? 'root' : $directionClass }}">
                     {{ $directionText }}
                 </div>
-
-                <div class="associate-mini-stats">
-                    <span>{{ $treeStats['direct_count'] ?? 0 }} Direct</span>
-                    <span>{{ $treeStats['downline_count'] ?? 0 }} Team</span>
-                </div>
             </div>
         </div>
 

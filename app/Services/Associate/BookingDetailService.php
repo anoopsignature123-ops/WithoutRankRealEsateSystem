@@ -142,36 +142,39 @@ class BookingDetailService
                         $p->where('booking_status', 'booked')
                             ->whereIn('payment_status', ['paid', 'cleared']);
                     });
-            })->latest()->get()
-            ->map(function ($booking) {
-                $plotSales = $booking->plotSaleDetails
+            })
+            ->latest()
+            ->get()
+            ->flatMap(function ($booking) {
+                return $booking->plotSaleDetails
                     ->filter(function ($plotSale) {
                         return $plotSale->status === 'active'
                             && $plotSale->payments->contains(function ($payment) {
                                 return $payment->booking_status === 'booked'
                                     && in_array($payment->payment_status, ['paid', 'cleared']);
                             });
-                    })->values();
-                if ($plotSales->isEmpty()) {
-                    return null;
-                }
-
-                return (object) [
-                    'booking_code' => $plotSales->pluck('booking_code')->filter()->unique()->implode(', ') ?: $booking->booking_code,
-                    'customer_name' => $booking->primaryDetail?->name ?? '-',
-                    'agent_name' => $booking->associate?->associate_name ?? '-',
-                    'project_name' => $plotSales->pluck('project.name')->filter()->unique()->implode(', ') ?: '-',
-                    'plot_
-                    no' => $plotSales->pluck('plotDetail.plot_number')->filter()->implode(', ') ?: '-',
-                    'amount' => (float) $plotSales->sum(
-                        fn($plotSale) => $plotSale->total_plot_cost
-                        ?? $plotSale->final_payable
-                        ?? $plotSale->plot_cost
-                        ?? 0
-                    ),
-                    'date' => $booking->created_at?->format('d-m-Y'),
-                ];
-            })->filter()->values();
+                    })
+                    ->map(function ($plotSale) use ($booking) {
+                        return (object) [
+                            'booking_code' => $plotSale->booking_code ?? $booking->booking_code ?? '-',
+                            'customer_name' => $booking->primaryDetail?->name ?? '-',
+                            'agent_name' => $booking->associate?->associate_name ?? '-',
+                            'project_name' => $plotSale->project?->name ?? '-',
+                            'plot_no' => $plotSale->plotDetail?->plot_number ?? '-',
+                            'amount' => (float) (
+                                $plotSale->total_plot_cost
+                                ?? $plotSale->final_payable
+                                ?? $plotSale->plot_cost
+                                ?? 0
+                            ),
+                            'date' => $plotSale->booking_date
+                                ? \Carbon\Carbon::parse($plotSale->booking_date)->format('d-m-Y')
+                                : $booking->created_at?->format('d-m-Y'),
+                        ];
+                    });
+            })
+            ->filter()
+            ->values();
     }
 
     public function getDueEmiAmountData()
@@ -196,9 +199,10 @@ class BookingDetailService
                             ->where('plan_type', 'emi_plan');
                     });
             })
-            ->latest()->get()
-            ->map(function ($booking) {
-                $plotSales = $booking->plotSaleDetails
+            ->latest()
+            ->get()
+            ->flatMap(function ($booking) {
+                return $booking->plotSaleDetails
                     ->filter(function ($plotSale) {
                         return $plotSale->status === 'active'
                             && $plotSale->payments->contains(function ($payment) {
@@ -207,86 +211,86 @@ class BookingDetailService
                                     && in_array($payment->payment_status, ['paid', 'cleared']);
                             });
                     })
-                    ->values();
+                    ->map(function ($plotSale) use ($booking) {
+                        $allPayments = $booking->payments
+                            ->where('plot_sale_detail_id', $plotSale->id)
+                            ->where('plan_type', 'emi_plan')
+                            ->sortBy('id')
+                            ->values();
 
-                if ($plotSales->isEmpty()) {
-                    return null;
-                }
+                        $bookingPayment = $allPayments
+                            ->where('transaction_category', 'booking_fee')
+                            ->where('booking_status', 'booked')
+                            ->whereIn('payment_status', ['paid', 'cleared'])
+                            ->sortBy('id')
+                            ->first();
 
-                $plotSaleIds = $plotSales->pluck('id')->values();
+                        if (!$bookingPayment) {
+                            return null;
+                        }
 
-                $allPayments = $booking->payments
-                    ->whereIn('plot_sale_detail_id', $plotSaleIds)->where('plan_type', 'emi_plan')
-                    ->sortBy('id')->values();
+                        $emiPayments = $allPayments
+                            ->where('transaction_category', 'emi_payment')
+                            ->where('booking_status', 'booked')
+                            ->whereIn('payment_status', ['paid', 'cleared']);
 
-                $bookingPayment = $allPayments
-                    ->where('transaction_category', 'booking_fee')
-                    ->where('booking_status', 'booked')->whereIn('payment_status', ['paid', 'cleared'])
-                    ->sortBy('id')->first();
+                        $emiInstallments = $emiPayments
+                            ->groupBy(fn($payment) => $payment->receipt_number ?: 'payment-' . $payment->id)
+                            ->map(fn($group) => $group->sortBy('id')->first())
+                            ->values();
 
-                if (!$bookingPayment) {
-                    return null;
-                }
+                        $latestPayment = $allPayments
+                            ->where('booking_status', 'booked')
+                            ->whereIn('payment_status', ['paid', 'cleared'])
+                            ->last();
 
-                $emiPayments = $allPayments
-                    ->where('transaction_category', 'emi_payment')
-                    ->where('booking_status', 'booked')
-                    ->whereIn('payment_status', ['paid', 'cleared']);
+                        $totalInstallments = (int) ($bookingPayment?->emi_months ?? 0);
+                        $currentDueAmount = (float) ($latestPayment?->due_amount ?? 0);
+                        $monthlyEmi = (float) ($bookingPayment?->after_booking_payable_amount ?? 0);
+                        $paidInstallments = $emiInstallments->count();
+                        $remainingInstallments = max(0, $totalInstallments - $paidInstallments);
+                        $emiHistory = [];
 
-                $emiInstallments = $emiPayments
-                    ->groupBy(fn($payment) => $payment->receipt_number ?: 'payment-' . $payment->id)
-                    ->map(fn($group) => $group->sortBy('id')->first())->values();
+                        for ($i = 1; $i <= $totalInstallments; $i++) {
+                            $paidEmi = $emiInstallments->get($i - 1);
 
-                $latestPayment = $allPayments
-                    ->where('booking_status', 'booked')
-                    ->whereIn('payment_status', ['paid', 'cleared'])->last();
+                            $emiHistory[] = [
+                                'month' => $i,
+                                'emi_amount' => $monthlyEmi,
+                                'status' => $paidEmi ? 'Paid' : 'Pending',
+                                'paid_date' => $paidEmi ? $paidEmi->created_at->format('d-m-Y') : '-',
+                                'receipt_number' => $paidEmi?->receipt_number ?? '-',
+                                'payment_mode' => $paidEmi?->payment_mode ?? '-',
+                            ];
+                        }
 
-                $totalInstallments = (int) ($bookingPayment?->emi_months ?? 0);
-                $currentDueAmount = (float) ($latestPayment?->due_amount ?? 0);
-                $monthlyEmi = (float) ($bookingPayment?->after_booking_payable_amount ?? 0);
-                $paidInstallments = $emiInstallments->count();
-                $remainingInstallments = max(0, $totalInstallments - $paidInstallments);
-                $emiHistory = [];
-
-                for ($i = 1; $i <= $totalInstallments; $i++) {
-                    $paidEmi = $emiInstallments->get($i - 1);
-
-                    $emiHistory[] = [
-                        'month' => $i,
-                        'emi_amount' => $monthlyEmi,
-                        'status' => $paidEmi ? 'Paid' : 'Pending',
-                        'paid_date' => $paidEmi ? $paidEmi->created_at->format('d-m-Y') : '-',
-                        'receipt_number' => $paidEmi?->receipt_number ?? '-',
-                        'payment_mode' => $paidEmi?->payment_mode ?? '-',
-                    ];
-                }
-
-                return (object) [
-                    'booking_code' => $plotSales->pluck('booking_code')->filter()->unique()->implode(', ') ?: $booking->booking_code,
-                    'customer_name' => $booking->primaryDetail?->name ?? '-',
-                    'associate_name' => $booking->associate?->associate_name ?? '-',
-                    'project_name' => $plotSales->pluck('project.name')->filter()->unique()->implode(', ') ?: '-',
-                    'block_name' => $plotSales->pluck('block.block')->filter()->unique()->implode(', ') ?: '-',
-                    'plot_no' => $plotSales->pluck('plotDetail.plot_number')->filter()->implode(', ') ?: '-',
-                    'plot_amount' => round((float) $plotSales->sum(
-                        fn($plotSale) => $plotSale->total_plot_cost
-                        ?? $plotSale->final_payable
-                        ?? $plotSale->plot_cost
-                        ?? 0
-                    ), 2),
-                    'booking_amount' => round((float) ($bookingPayment?->booking_amount ?? 0), 2),
-                    'due_amount' => round($currentDueAmount, 2),
-                    'emi_amount' => round($monthlyEmi, 2),
-                    'total_installments' => $totalInstallments,
-                    'paid_installments' => $paidInstallments,
-                    'remaining_installments' => $remainingInstallments,
-                    'emi_progress' => "{$paidInstallments}/{$totalInstallments}",
-                    'progress_percent' => $totalInstallments > 0
-                        ? round(($paidInstallments / $totalInstallments) * 100, 2)
-                        : 0,
-                    'status' => $remainingInstallments > 0 ? 'Pending' : 'Completed',
-                    'emi_history' => $emiHistory,
-                ];
+                        return (object) [
+                            'booking_code' => $plotSale->booking_code ?? $booking->booking_code ?? '-',
+                            'customer_name' => $booking->primaryDetail?->name ?? '-',
+                            'associate_name' => $booking->associate?->associate_name ?? '-',
+                            'project_name' => $plotSale->project?->name ?? '-',
+                            'block_name' => $plotSale->block?->block ?? '-',
+                            'plot_no' => $plotSale->plotDetail?->plot_number ?? '-',
+                            'plot_amount' => round((float) (
+                                $plotSale->total_plot_cost
+                                ?? $plotSale->final_payable
+                                ?? $plotSale->plot_cost
+                                ?? 0
+                            ), 2),
+                            'booking_amount' => round((float) ($bookingPayment?->booking_amount ?? 0), 2),
+                            'due_amount' => round($currentDueAmount, 2),
+                            'emi_amount' => round($monthlyEmi, 2),
+                            'total_installments' => $totalInstallments,
+                            'paid_installments' => $paidInstallments,
+                            'remaining_installments' => $remainingInstallments,
+                            'emi_progress' => "{$paidInstallments}/{$totalInstallments}",
+                            'progress_percent' => $totalInstallments > 0
+                                ? round(($paidInstallments / $totalInstallments) * 100, 2)
+                                : 0,
+                            'status' => $remainingInstallments > 0 ? 'Pending' : 'Completed',
+                            'emi_history' => $emiHistory,
+                        ];
+                    });
             })
             ->filter()
             ->values();

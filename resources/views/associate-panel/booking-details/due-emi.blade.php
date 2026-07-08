@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @push('title')
-    Associate Panel |  Due EMI Details
+    Associate Panel | Due EMI Details
 @endpush
 @section('content')
     @php
@@ -21,7 +21,9 @@
                     <div>
                         <span class="text-success fw-bold text-uppercase small">Business Details</span>
                         <h3 class="fw-bold mb-1 text-dark">Due EMI Amount</h3>
-                        <p class="text-muted mb-0 small">Track pending EMI dues, grouped plot bookings and installment progress.</p>
+                        <p class="text-muted mb-0 small">
+                            Track pending EMI dues, plot-wise bookings and installment progress.
+                        </p>
                     </div>
                 </div>
                 <a href="{{ route('associate-panel.booking-detail') }}" class="btn btn-outline-success">
@@ -64,7 +66,6 @@
                 </div>
             </div>
         </div>
-
         <div class="transaction-card">
             <div class="transaction-card-body">
                 <div class="transaction-section-title">
@@ -72,10 +73,13 @@
                         <span class="transaction-section-title-icon"><i class="bi bi-receipt-cutoff"></i></span>
                         <div>
                             <h5 class="fw-bold mb-1">EMI Due Records</h5>
-                            <small class="text-muted">Plots remain grouped under the same booking.</small>
+                            <small class="text-muted">
+                                Each row represents one EMI plot booking.
+                            </small>
                         </div>
                     </div>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle">{{ $totalRecords }} Records</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">{{ $totalRecords }}
+                        Records</span>
                 </div>
 
                 <div class="transaction-table-wrap">
@@ -100,9 +104,10 @@
                             @forelse($dueEmi as $key => $emi)
                                 @php
                                     $modalId = 'emiHistoryModal' . $key;
-                                    $statusClass = $emi->status === 'Pending'
-                                        ? 'bg-danger-subtle text-danger border border-danger-subtle'
-                                        : 'bg-success-subtle text-success border border-success-subtle';
+                                    $statusClass =
+                                        $emi->status === 'Pending'
+                                            ? 'bg-danger-subtle text-danger border border-danger-subtle'
+                                            : 'bg-success-subtle text-success border border-success-subtle';
                                 @endphp
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
@@ -113,20 +118,26 @@
                                     <td>{{ $emi->associate_name }}</td>
                                     <td>
                                         <strong>{{ $emi->project_name }}</strong>
-                                        <small class="text-muted d-block">Block {{ $emi->block_name }} / Plot {{ $emi->plot_no }}</small>
+                                        <small class="text-muted d-block">Block {{ $emi->block_name }} / Plot
+                                            {{ $emi->plot_no }}</small>
                                     </td>
                                     <td class="fw-bold">&#8377;{{ number_format($emi->plot_amount, 2) }}</td>
-                                    <td class="fw-bold text-success">&#8377;{{ number_format($emi->booking_amount, 2) }}</td>
+                                    <td class="fw-bold text-success">&#8377;{{ number_format($emi->booking_amount, 2) }}
+                                    </td>
                                     <td class="fw-bold text-danger">&#8377;{{ number_format($emi->due_amount, 2) }}</td>
                                     <td class="fw-bold">&#8377;{{ number_format($emi->emi_amount, 2) }}</td>
                                     <td>
-                                        <span class="badge bg-light text-dark border">{{ $emi->paid_installments }} Paid</span>
-                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">{{ $emi->remaining_installments }} Due</span>
+                                        <span class="badge bg-light text-dark border">{{ $emi->paid_installments }}
+                                            Paid</span>
+                                        <span
+                                            class="badge bg-warning-subtle text-warning border border-warning-subtle">{{ $emi->remaining_installments }}
+                                            Due</span>
                                     </td>
                                     <td style="min-width: 170px;">
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="progress flex-grow-1" style="height: 8px;">
-                                                <div class="progress-bar bg-success" style="width: {{ $emi->progress_percent }}%"></div>
+                                                <div class="progress-bar bg-success"
+                                                    style="width: {{ $emi->progress_percent }}%"></div>
                                             </div>
                                             <small class="fw-bold">{{ $emi->emi_progress }}</small>
                                         </div>
@@ -169,7 +180,8 @@
                                     <small>{{ $emi->customer_name }} | Plot {{ $emi->plot_no }}</small>
                                 </div>
                             </div>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
 
                         <div class="modal-body p-0">
@@ -217,9 +229,11 @@
                                                         <td>&#8377;{{ number_format($history['emi_amount'], 2) }}</td>
                                                         <td>
                                                             @if ($history['status'] === 'Paid')
-                                                                <span class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                <span
+                                                                    class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
                                                             @else
-                                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Pending</span>
+                                                                <span
+                                                                    class="badge bg-danger-subtle text-danger border border-danger-subtle">Pending</span>
                                                             @endif
                                                         </td>
                                                         <td>{{ $history['paid_date'] }}</td>
@@ -235,7 +249,8 @@
                         </div>
 
                         <div class="modal-footer bg-light border-0">
-                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4"
+                                data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>

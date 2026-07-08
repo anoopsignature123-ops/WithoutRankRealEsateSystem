@@ -20,10 +20,7 @@
             </div>
 
             <form method="GET" action="{{ route('associate-tree') }}" class="tree-search-form">
-                <input type="text"
-                    name="associate_id"
-                    value="{{ request('associate_id') }}"
-                    class="form-control"
+                <input type="text" name="associate_id" value="{{ request('associate_id') }}" class="form-control"
                     placeholder="Search associate ID">
 
                 <select name="direction" class="form-select">
