@@ -138,7 +138,7 @@
                                             </span>
                                         @else
                                             <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-2">
-                                                -
+                                                Root
                                             </span>
                                         @endif
                                     </td>

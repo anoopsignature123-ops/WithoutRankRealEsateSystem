@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
 @push('title')
-    Associate Panel |  My Profile
+    Associate Panel | My Profile
 @endpush
 @section('content')
     @php
         $bank = $associate->bankDetail;
         $initials = collect(explode(' ', trim($associate->associate_name ?? 'Associate')))
             ->filter()
-            ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+            ->map(fn($part) => strtoupper(substr($part, 0, 1)))
             ->take(2)
             ->implode('');
         $documents = [
@@ -91,10 +91,36 @@
                 <div class="transaction-card h-100">
                     <div class="transaction-card-body py-3">
                         <div class="d-flex align-items-center gap-3">
-                            <span class="transaction-section-title-icon"><i class="bi bi-award"></i></span>
+                            <span class="transaction-section-title-icon">
+                                <i class="bi bi-signpost-split"></i>
+                            </span>
+
                             <div>
-                                <small class="text-muted fw-semibold">Rank</small>
-                                <h5 class="fw-bold mb-0">{{ $associate->rank?->designation ?? 'Associate' }}</h5>
+                                <small class="text-muted fw-semibold">
+                                    Direction
+                                </small>
+
+                                <h5 class="fw-bold mb-0">
+                                    @if ($associate->direction == 'left')
+                                        <span
+                                            class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+                                            <i class="bi bi-arrow-left-circle me-1"></i>
+                                            Left
+                                        </span>
+                                    @elseif($associate->direction == 'right')
+                                        <span
+                                            class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">
+                                            <i class="bi bi-arrow-right-circle me-1"></i>
+                                            Right
+                                        </span>
+                                    @else
+                                        <span
+                                            class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                            <i class="bi bi-diagram-3 me-1"></i>
+                                            Root
+                                        </span>
+                                    @endif
+                                </h5>
                             </div>
                         </div>
                     </div>
@@ -128,12 +154,19 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="customer-receipt-line"><span>Associate Name</span><strong>{{ $associate->associate_name ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>Gender</span><strong>{{ ucfirst($associate->gender ?? '-') }}</strong></div>
-                        <div class="customer-receipt-line"><span>Father / Husband Name</span><strong>{{ $associate->father_name ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>Date Of Birth</span><strong>{{ $associate->dob ? \Carbon\Carbon::parse($associate->dob)->format('d M Y') : '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>Mobile</span><strong>{{ $associate->mobile_number ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>Email</span><strong>{{ $associate->email ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>Associate
+                                Name</span><strong>{{ $associate->associate_name ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line">
+                            <span>Gender</span><strong>{{ ucfirst($associate->gender ?? '-') }}</strong></div>
+                        <div class="customer-receipt-line"><span>Father / Husband
+                                Name</span><strong>{{ $associate->father_name ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>Date Of
+                                Birth</span><strong>{{ $associate->dob ? \Carbon\Carbon::parse($associate->dob)->format('d M Y') : '-' }}</strong>
+                        </div>
+                        <div class="customer-receipt-line">
+                            <span>Mobile</span><strong>{{ $associate->mobile_number ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line">
+                            <span>Email</span><strong>{{ $associate->email ?? '-' }}</strong></div>
                     </div>
                 </div>
             </div>
@@ -150,11 +183,16 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="customer-receipt-line"><span>Address</span><strong>{{ $associate->address ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>City</span><strong>{{ $associate->city ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>State</span><strong>{{ $associate->state ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>PAN Card No</span><strong>{{ $associate->pancard_number ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>Aadhaar No</span><strong>{{ $associate->aadhar_number ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line">
+                            <span>Address</span><strong>{{ $associate->address ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>City</span><strong>{{ $associate->city ?? '-' }}</strong>
+                        </div>
+                        <div class="customer-receipt-line">
+                            <span>State</span><strong>{{ $associate->state ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>PAN Card
+                                No</span><strong>{{ $associate->pancard_number ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>Aadhaar
+                                No</span><strong>{{ $associate->aadhar_number ?? '-' }}</strong></div>
                     </div>
                 </div>
             </div>
@@ -171,10 +209,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="customer-receipt-line"><span>Bank Name</span><strong>{{ $bank?->bank_name ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>Account No</span><strong>{{ $bank?->account_number ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>IFSC Code</span><strong>{{ $bank?->ifsc_code ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>Account Holder Name</span><strong>{{ $bank?->account_holder_name ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>Bank
+                                Name</span><strong>{{ $bank?->bank_name ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>Account
+                                No</span><strong>{{ $bank?->account_number ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>IFSC
+                                Code</span><strong>{{ $bank?->ifsc_code ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>Account Holder
+                                Name</span><strong>{{ $bank?->account_holder_name ?? '-' }}</strong></div>
                     </div>
                 </div>
             </div>
@@ -191,10 +233,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="customer-receipt-line"><span>Nominee Name</span><strong>{{ $bank?->nominee_name ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>Nominee Relation</span><strong>{{ $bank?->nominee_relation ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>Nominee Age</span><strong>{{ $bank?->nominee_age ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>Joining Date</span><strong>{{ $associate->created_at?->format('d M Y') ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>Nominee
+                                Name</span><strong>{{ $bank?->nominee_name ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>Nominee
+                                Relation</span><strong>{{ $bank?->nominee_relation ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>Nominee
+                                Age</span><strong>{{ $bank?->nominee_age ?? '-' }}</strong></div>
+                        <div class="customer-receipt-line"><span>Joining
+                                Date</span><strong>{{ $associate->created_at?->format('d M Y') ?? '-' }}</strong></div>
                     </div>
                 </div>
             </div>
@@ -226,7 +272,8 @@
                                             <div class="flex-grow-1">
                                                 <h6 class="fw-bold mb-1">{{ $document['label'] }}</h6>
                                                 @if ($document['file'])
-                                                    <a href="{{ getFileUrl($document['file']) }}" target="_blank" class="btn btn-outline-success btn-sm mt-2">
+                                                    <a href="{{ getFileUrl($document['file']) }}" target="_blank"
+                                                        class="btn btn-outline-success btn-sm mt-2">
                                                         <i class="bi bi-eye me-1"></i> View File
                                                     </a>
                                                 @else

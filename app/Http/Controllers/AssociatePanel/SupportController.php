@@ -11,10 +11,7 @@ class SupportController extends Controller
 {
     public function index()
     {
-        $enquiries = Support::where('associate_id', Auth::guard('associate')->id())
-            ->latest()
-            ->get();
-
+        $enquiries = Support::where('associate_id', Auth::guard('associate')->id())->latest()->get();
         return view('associate-panel.support.index', compact('enquiries'));
     }
 
@@ -38,10 +35,7 @@ class SupportController extends Controller
 
     public function supportList()
     {
-        $supports = Support::with(['associate', 'customerBooking.primaryDetail'])
-            ->latest()
-            ->get();
-
+        $supports = Support::with(['associate', 'customerBooking.primaryDetail'])->latest()->get();
         return view('support.index', compact('supports'));
     }
 
@@ -56,13 +50,7 @@ class SupportController extends Controller
             'reply' => 'required|string',
             'status' => 'required|in:Pending,In-Progress,Resolved',
         ]);
-
-        $support->update([
-            'reply' => $request->reply,
-            'status' => $request->status,
-        ]);
-
-        return redirect()->route('support.detail', $support->id)
-            ->with('success', 'Reply submitted successfully.');
+        $support->update(['reply' => $request->reply, 'status' => $request->status,]);
+        return redirect()->route('support.detail', $support->id)->with('success', 'Reply submitted successfully.');
     }
 }

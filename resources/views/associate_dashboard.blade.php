@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @push('title')
-     Associate | Dashboard
+    Associate | Dashboard
 @endpush
 @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
@@ -9,13 +9,15 @@
 @section('content')
     @php
         $associateName = $associate->associate_name ?? 'Associate';
-        $initials = collect(explode(' ', trim($associateName)))
-            ->filter()
-            ->take(2)
-            ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
-            ->implode('') ?: 'A';
+        $initials =
+            collect(explode(' ', trim($associateName)))
+                ->filter()
+                ->take(2)
+                ->map(fn($part) => strtoupper(substr($part, 0, 1)))
+                ->implode('') ?:
+            'A';
         $totalBusiness = ($data['confirmed_sales'] ?? 0) + ($data['pending_sales'] ?? 0);
-        $formatAmount = fn ($amount) => '&#8377;' . number_format((float) $amount, 2);
+        $formatAmount = fn($amount) => '&#8377;' . number_format((float) $amount, 2);
         $summaryCards = [
             [
                 'label' => 'My Direct',
@@ -25,11 +27,39 @@
                 'route' => route('associate-panel.my-direct'),
             ],
             [
+                'label' => 'Left Direct',
+                'value' => number_format($data['left_direct_count'] ?? 0),
+                'icon' => 'bi-arrow-left-circle-fill',
+                'class' => 'primary',
+                'route' => route('associate-panel.my-direct', ['direction' => 'left']),
+            ],
+            [
+                'label' => 'Right Direct',
+                'value' => number_format($data['right_direct_count'] ?? 0),
+                'icon' => 'bi-arrow-right-circle-fill',
+                'class' => 'warning',
+                'route' => route('associate-panel.my-direct', ['direction' => 'right']),
+            ],
+            [
                 'label' => 'My Team',
                 'value' => number_format($data['team_count'] ?? 0),
                 'icon' => 'bi-people-fill',
-                'class' => 'primary',
+                'class' => 'info',
                 'route' => route('associate-panel.my-tree'),
+            ],
+            [
+                'label' => 'Left Team',
+                'value' => number_format($data['left_team_count'] ?? 0),
+                'icon' => 'bi-diagram-2-fill',
+                'class' => 'primary',
+                'route' => route('associate-panel.my-tree', ['direction' => 'left']),
+            ],
+            [
+                'label' => 'Right Team',
+                'value' => number_format($data['right_team_count'] ?? 0),
+                'icon' => 'bi-diagram-2-fill',
+                'class' => 'warning',
+                'route' => route('associate-panel.my-tree', ['direction' => 'right']),
             ],
             [
                 'label' => 'Self Business',
@@ -39,78 +69,141 @@
                 'route' => null,
             ],
             [
-                'label' => 'Self Commission',
-                'value' => $formatAmount($payoutStats['self_commission'] ?? 0),
-                'icon' => 'bi-person-check-fill',
-                'class' => 'success',
-                'route' => route('associate-panel.payout-details', ['commission_type' => 'self']),
-            ],
-            [
-                'label' => 'Team Commission',
-                'value' => $formatAmount($payoutStats['team_commission'] ?? 0),
-                'icon' => 'bi-diagram-3-fill',
-                'class' => 'primary',
-                'route' => route('associate-panel.payout-details', ['commission_type' => 'team']),
-            ],
-            [
-                'label' => 'Total Commission',
-                'value' => $formatAmount($payoutStats['total_payout'] ?? 0),
-                'icon' => 'bi-wallet2',
-                'class' => 'warning',
-                'route' => route('associate-panel.payout-details'),
+                'label' => 'Team Business',
+                'value' => $formatAmount($stats['team']['confirmed'] ?? 0),
+                'icon' => 'bi-bar-chart-fill',
+                'class' => 'danger',
+                'route' => null,
             ],
         ];
     @endphp
 
     <div class="container-fluid transaction-page">
         <div class="transaction-hero mb-4">
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="transaction-icon overflow-hidden">
-                        @if ($associate->photo)
-                            <img src="{{ getFileUrl($associate->photo) }}" alt="{{ $associateName }}"
-                                class="w-100 h-100 object-fit-cover">
-                        @else
-                            {{ $initials }}
-                        @endif
-                    </span>
-                    <div>
-                        <span class="text-success fw-bold text-uppercase small">Associate Panel</span>
-                        <h3 class="fw-bold mb-1 text-dark">{{ $associateName }}</h3>
-                        <p class="text-muted mb-0 small">
-                            Associate ID: <strong>{{ $associate->associate_id ?? 'N/A' }}</strong>
-                            <span class="mx-2">|</span>
-                            Rank: <strong>{{ $associate->rank->designation ?? 'N/A' }}</strong>
-                        </p>
+            <div class="row align-items-center">
+
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center">
+
+                        <div class="me-4">
+                            @if ($associate->photo)
+                                <img src="{{ getFileUrl($associate->photo) }}"
+                                    style="width:85px;height:85px;border-radius:50%;object-fit:cover;border:4px solid #fff;box-shadow:0 8px 24px rgba(0,0,0,.15);">
+                            @else
+                                <div class="transaction-icon" style="width:85px;height:85px;font-size:28px;">
+                                    {{ $initials }}
+                                </div>
+                            @endif
+                        </div>
+
+                        <div>
+
+                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
+                                Associate Panel
+                            </span>
+
+                            <h2 class="fw-bold mt-2 mb-1">
+                                {{ $associateName }}
+                            </h2>
+
+                            <div class="d-flex flex-wrap gap-3 mt-3">
+
+                                <span class="badge bg-light text-dark border px-3 py-2">
+                                    <i class="bi bi-person-vcard me-1"></i>
+
+                                    {{ $associate->associate_id }}
+                                </span>
+
+                                <span class="badge bg-primary-subtle text-primary px-3 py-2">
+
+                                    <i class="bi bi-signpost-split me-1"></i>
+
+                                    {{ ucfirst($associate->direction ?? 'Root') }}
+
+                                </span>
+
+                                <span class="badge bg-warning-subtle text-warning px-3 py-2">
+
+                                    <i class="bi bi-diagram-2 me-1"></i>
+
+                                    {{ $associate->sponsor->associate_name ?? 'Direct Associate' }}
+
+                                </span>
+
+                                <span class="badge bg-info-subtle text-info px-3 py-2">
+
+                                    <i class="bi bi-phone me-1"></i>
+
+                                    {{ $associate->mobile_number }}
+
+                                </span>
+
+                                <span class="badge bg-secondary-subtle text-secondary px-3 py-2">
+
+                                    <i class="bi bi-calendar3 me-1"></i>
+
+                                    {{ $associate->created_at?->format('d M Y') }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
                     </div>
                 </div>
 
-                <div class="d-flex flex-wrap gap-2">
-                    <span class="transaction-count">
-                        Sponsor: {{ $associate->sponsor->associate_name ?? 'Direct' }}
-                    </span>
-                    <span class="transaction-count">
-                        Joined {{ $associate->created_at?->format('d M Y') ?? 'N/A' }}
-                    </span>
+                <div class="col-lg-4">
+
+                    <div class="card border-0 shadow-sm rounded-4">
+
+                        <div class="card-body text-center">
+
+                            <small class="text-muted">
+                                Welcome Back
+                            </small>
+
+                            <h3 class="fw-bold text-success mb-2">
+
+                                {{ $associateName }}
+
+                            </h3>
+
+                            <p class="mb-0 text-muted">
+
+                                Manage your team, business and commissions from one dashboard.
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
                 </div>
+
             </div>
         </div>
 
         <div class="row g-3 mb-4">
             @foreach ($summaryCards as $card)
-                <div class="col-xl-4 col-md-6">
+                <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-6 col-sm-6 col-md-6">
                     @if ($card['route'])
-                        <a href="{{ $card['route'] }}" class="text-decoration-none">
+                        <a href="{{ $card['route'] }}" class="text-decoration-none d-block h-100">
                     @endif
-                    <div class="customer-stat-card {{ $card['class'] }} h-100">
-                        <div class="customer-stat-icon">
-                            <i class="bi {{ $card['icon'] }}"></i>
-                        </div>
-                        <div>
-                            <small>{{ $card['label'] }}</small>
-                            <h4>{!! $card['value'] !!}</h4>
+
+                    <div class="associate-dashboard-card {{ $card['class'] }} h-100">
+                        <div class="associate-card-content">
+                            <div>
+                                <small>{{ $card['label'] }}</small>
+                                <h4>{!! $card['value'] !!}</h4>
+                            </div>
+
+                            <div class="associate-card-icon">
+                                <i class="bi {{ $card['icon'] }}"></i>
+                            </div>
                         </div>
                     </div>
+
                     @if ($card['route'])
                         </a>
                     @endif
@@ -326,14 +419,18 @@
                         labels: ['Self Business', 'Team Business'],
                         datasets: [{
                                 label: 'Pending',
-                                data: [{{ $stats['self']['pending'] ?? 0 }}, {{ $stats['team']['pending'] ?? 0 }}],
+                                data: [{{ $stats['self']['pending'] ?? 0 }},
+                                    {{ $stats['team']['pending'] ?? 0 }}
+                                ],
                                 backgroundColor: '#dc3545',
                                 borderRadius: 8,
                                 barThickness: 38
                             },
                             {
                                 label: 'Confirmed',
-                                data: [{{ $stats['self']['confirmed'] ?? 0 }}, {{ $stats['team']['confirmed'] ?? 0 }}],
+                                data: [{{ $stats['self']['confirmed'] ?? 0 }},
+                                    {{ $stats['team']['confirmed'] ?? 0 }}
+                                ],
                                 backgroundColor: '#198754',
                                 borderRadius: 8,
                                 barThickness: 38
@@ -344,7 +441,9 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: { position: 'top' },
+                            legend: {
+                                position: 'top'
+                            },
                             tooltip: {
                                 callbacks: {
                                     label: context => `${context.dataset.label}: ${currency(context.raw)}`
@@ -352,10 +451,16 @@
                             }
                         },
                         scales: {
-                            x: { grid: { display: false } },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            },
                             y: {
                                 beginAtZero: true,
-                                ticks: { callback: value => currency(value) }
+                                ticks: {
+                                    callback: value => currency(value)
+                                }
                             }
                         }
                     }
@@ -368,7 +473,9 @@
                     data: {
                         labels: ['Confirmed', 'Pending'],
                         datasets: [{
-                            data: [{{ $data['confirmed_sales'] ?? 0 }}, {{ $data['pending_sales'] ?? 0 }}],
+                            data: [{{ $data['confirmed_sales'] ?? 0 }},
+                                {{ $data['pending_sales'] ?? 0 }}
+                            ],
                             backgroundColor: ['#198754', '#dc3545'],
                             hoverOffset: 8,
                             borderWidth: 0
@@ -381,7 +488,10 @@
                         plugins: {
                             legend: {
                                 position: 'bottom',
-                                labels: { usePointStyle: true, pointStyle: 'circle' }
+                                labels: {
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
+                                }
                             },
                             tooltip: {
                                 callbacks: {

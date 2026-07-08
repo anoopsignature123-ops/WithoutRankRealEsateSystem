@@ -1,32 +1,263 @@
-  .text-theme-green {
-      color: #0f8a53 !important;
-  }
+.text-theme-green {
+    color: #0f8a53 !important;
+}
 
-  .bg-theme-green {
-      background-color: #0f8a53 !important;
-  }
+.bg-theme-green {
+    background-color: #0f8a53 !important;
+}
 
-  .btn-theme-outline {
-      border-color: #0f8a53 !important;
-      color: #0f8a53 !important;
-      transition: all 0.2s ease-in-out;
-  }
+.btn-theme-outline {
+    border-color: #0f8a53 !important;
+    color: #0f8a53 !important;
+    transition: all 0.2s ease-in-out;
+}
 
-  .btn-theme-outline:hover {
-      background-color: #0f8a53 !important;
-      color: #ffffff !important;
-  }
+.btn-theme-outline:hover {
+    background-color: #0f8a53 !important;
+    color: #ffffff !important;
+}
 
-  .badge-theme-subtle {
+.badge-theme-subtle {
     background-color: rgba(15, 138, 83, 0.1) !important;
-      color: #0f8a53 !important;
-  }
+    color: #0f8a53 !important;
+    }
 
-  .badge-plot {
-      background-color: rgba(15, 138, 83, 0.05) !important;
-      color: #0f8a53 !important;
-      border: 1px solid rgba(15, 138, 83, 0.2) !important;
-  }
+.badge-plot {
+    background-color: rgba(15, 138, 83, 0.05) !important;
+    color: #0f8a53 !important;
+    border: 1px solid rgba(15, 138, 83, 0.2) !important;
+}
 
+/* Associate Dashboard Header */
+.associate-dashboard-hero {
+    background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.25), transparent 35%),
+        linear-gradient(135deg, #0f8a53 0%, #16a064 100%);
+    border-radius: 22px;
+    box-shadow: 0 18px 40px rgba(15, 138, 83, 0.22);
+    color: #ffffff;
+    overflow: hidden;
+    padding: 26px;
+    position: relative;
+}
 
+.associate-dashboard-hero::after {
+    content: "";
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    height: 180px;
+    position: absolute;
+    right: -60px;
+    top: -60px;
+    width: 180px;
+}
 
+.associate-dashboard-profile {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.18);
+    border: 4px solid rgba(255, 255, 255, 0.35);
+    border-radius: 50%;
+    display: flex;
+    flex: 0 0 82px;
+    font-size: 28px;
+    font-weight: 900;
+    height: 82px;
+    justify-content: center;
+    overflow: hidden;
+    width: 82px;
+}
+
+.associate-dashboard-profile img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.associate-hero-kicker {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    color: #ffffff;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    padding: 6px 13px;
+    text-transform: uppercase;
+}
+
+.associate-hero-title {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.associate-hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.associate-hero-badge {
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 7px 12px;
+}
+
+.associate-hero-side-card {
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 18px;
+    padding: 18px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Associate Dashboard Cards */
+.associate-dashboard-card {
+    background: #ffffff;
+    border: 1px solid #edf2f7;
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+    min-height: 125px;
+    overflow: hidden;
+    padding: 20px;
+    position: relative;
+    transition: all 0.25s ease;
+}
+
+.associate-dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.12);
+}
+
+.associate-dashboard-card::before {
+    content: "";
+    height: 100%;
+    left: 0;
+    opacity: 0.18;
+    position: absolute;
+    top: 0;
+    width: 6px;
+}
+
+.associate-dashboard-card.success::before {
+    background: #198754;
+}
+
+.associate-dashboard-card.primary::before {
+    background: #0d6efd;
+}
+
+.associate-dashboard-card.warning::before {
+    background: #ffc107;
+}
+
+.associate-dashboard-card.info::before {
+    background: #0dcaf0;
+}
+
+.associate-dashboard-card.danger::before {
+    background: #dc3545;
+}
+
+.associate-card-content {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.associate-card-content small {
+    color: #64748b;
+    display: block;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.associate-card-content h4 {
+    color: #0f172a;
+    font-size: 26px;
+    font-weight: 900;
+    margin: 0;
+}
+
+.associate-card-icon {
+    align-items: center;
+    border-radius: 18px;
+    display: flex;
+    flex: 0 0 60px;
+    font-size: 28px;
+    height: 60px;
+    justify-content: center;
+    width: 60px;
+}
+
+.associate-dashboard-card.success .associate-card-icon {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+
+.associate-dashboard-card.primary .associate-card-icon {
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+.associate-dashboard-card.warning .associate-card-icon {
+    background: rgba(255, 193, 7, 0.16);
+    color: #b58100;
+}
+
+.associate-dashboard-card.info .associate-card-icon {
+    background: rgba(13, 202, 240, 0.12);
+    color: #088da8;
+}
+
+.associate-dashboard-card.danger .associate-card-icon {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+@media (max-width: 768px) {
+    .associate-dashboard-hero {
+        padding: 20px;
+    }
+
+    .associate-hero-title {
+        font-size: 22px;
+    }
+
+    .associate-dashboard-profile {
+        height: 68px;
+        width: 68px;
+        flex-basis: 68px;
+        font-size: 24px;
+    }
+
+    .associate-dashboard-card {
+        min-height: 110px;
+        padding: 16px;
+    }
+
+    .associate-card-icon {
+        flex-basis: 50px;
+        height: 50px;
+        width: 50px;
+        font-size: 24px;
+    }
+
+    .associate-card-content h4 {
+        font-size: 22px;
+    }
+}

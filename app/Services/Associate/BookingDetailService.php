@@ -13,7 +13,6 @@ class BookingDetailService
     public function getFilteredBookings($request)
     {
         $associateIds = $this->teamAssociateIds();
-
         $payments = CustomerPayment::with([
             'booking.primaryDetail',
             'booking.associate',
@@ -26,14 +25,14 @@ class BookingDetailService
             ->whereHas('plotSaleDetail', function ($q) {
                 $q->where('status', 'active');
             })
-            ->whereHas('booking', fn ($q) => $q->whereIn('associate_id', $associateIds))
+            ->whereHas('booking', fn($q) => $q->whereIn('associate_id', $associateIds))
             ->when($request->project_id, fn($q) => $q->whereHas('plotSaleDetail', fn($sub) => $sub->where('project_id', $request->project_id)))
             ->when($request->block_id, fn($q) => $q->whereHas('plotSaleDetail', fn($sub) => $sub->where('block_id', $request->block_id)))
-            ->when($request->plot_id, fn ($q) => $q->where('plot_sale_detail_id', $request->plot_id))
-            ->when($request->customer_id, fn ($q) => $q->whereHas('booking', fn ($sub) => $sub->where('customer_code', $request->customer_id)))
-            ->when($request->booking_id, fn ($q) => $q->whereHas('booking', fn ($sub) => $sub->where('booking_code', $request->booking_id)))
-            ->when($request->from_date, fn ($q) => $q->whereDate('created_at', '>=', $request->from_date))
-            ->when($request->to_date, fn ($q) => $q->whereDate('created_at', '<=', $request->to_date))
+            ->when($request->plot_id, fn($q) => $q->where('plot_sale_detail_id', $request->plot_id))
+            ->when($request->customer_id, fn($q) => $q->whereHas('booking', fn($sub) => $sub->where('customer_code', $request->customer_id)))
+            ->when($request->booking_id, fn($q) => $q->whereHas('booking', fn($sub) => $sub->where('booking_code', $request->booking_id)))
+            ->when($request->from_date, fn($q) => $q->whereDate('created_at', '>=', $request->from_date))
+            ->when($request->to_date, fn($q) => $q->whereDate('created_at', '<=', $request->to_date))
             ->latest()
             ->get();
 
@@ -57,17 +56,8 @@ class BookingDetailService
             ->whereHas('plotSaleDetail', function ($q) use ($blockId) {
                 $q->where('block_id', $blockId)
                     ->where('status', 'active');
-            })
-            ->with('plotSaleDetail')
-            ->get()
-            ->pluck('plotSaleDetail.plot_detail_id')
-            ->filter()
-            ->unique()
-            ->values();
-
-        return PlotDetail::whereIn('id', $plotIds)
-            ->where('block_id', $blockId)
-            ->get();
+            })->with('plotSaleDetail')->get()->pluck('plotSaleDetail.plot_detail_id')->filter()->unique()->values();
+        return PlotDetail::whereIn('id', $plotIds)->where('block_id', $blockId)->get();
     }
 
     public function getBookingDataByPlot($plotId)
@@ -83,16 +73,10 @@ class BookingDetailService
             ->whereHas('plotSaleDetail', function ($q) use ($plotId) {
                 $q->where('plot_detail_id', $plotId)
                     ->where('status', 'active');
-            })
-            ->latest()
-            ->first();
+            })->latest()->first();
 
         $booking = $payment?->booking;
-
-        return $booking ? [
-            'customer_id' => $booking->customer_code,
-            'booking_id' => $booking->booking_code,
-        ] : [];
+        return $booking ? ['customer_id' => $booking->customer_code, 'booking_id' => $booking->booking_code] : [];
     }
 
     private function groupPaymentRecords(Collection $payments): Collection
@@ -103,21 +87,12 @@ class BookingDetailService
                 $first = $group->sortByDesc('id')->first();
                 $booking = $first->booking;
 
-                $plots = $group
-                    ->pluck('plotSaleDetail')
-                    ->filter(fn($plotSale) => $plotSale && $plotSale->status === 'active')
-                    ->unique('id')
-                    ->values();
-
-                $amount = (float) $group->sum(fn ($payment) => $payment->paid_amount ?? $payment->booking_amount ?? 0);
-
+                $plots = $group->pluck('plotSaleDetail')
+                    ->filter(fn($plotSale) => $plotSale && $plotSale->status === 'active')->unique('id')->values();
+                $amount = (float) $group->sum(fn($payment) => $payment->paid_amount ?? $payment->booking_amount ?? 0);
                 $payable = (float) $plots->sum(
-                    fn($plotSale) => $plotSale->total_plot_cost
-                    ?? $plotSale->final_payable
-                    ?? $plotSale->plot_cost
-                    ?? 0
+                    fn($plotSale) => $plotSale->total_plot_cost ?? $plotSale->final_payable ?? $plotSale->plot_cost ?? 0
                 );
-
                 $planTypes = $group->pluck('plan_type')->filter()->unique()->values();
                 $paymentTypes = $group->pluck('transaction_category')->filter()->unique()->values();
                 $statuses = $group->pluck('payment_status')->filter()->unique()->values();
@@ -145,9 +120,7 @@ class BookingDetailService
                     'created_at' => $first->created_at,
                 ];
             })
-            ->filter(fn($item) => $item->plot_count > 0)
-            ->sortByDesc('created_at')
-            ->values();
+            ->filter(fn($item) => $item->plot_count > 0)->sortByDesc('created_at')->values();
     }
 
     public function getTeamBusinessData()
@@ -169,9 +142,7 @@ class BookingDetailService
                         $p->where('booking_status', 'booked')
                             ->whereIn('payment_status', ['paid', 'cleared']);
                     });
-            })
-            ->latest()
-            ->get()
+            })->latest()->get()
             ->map(function ($booking) {
                 $plotSales = $booking->plotSaleDetails
                     ->filter(function ($plotSale) {
@@ -180,9 +151,7 @@ class BookingDetailService
                                 return $payment->booking_status === 'booked'
                                     && in_array($payment->payment_status, ['paid', 'cleared']);
                             });
-                    })
-                    ->values();
-
+                    })->values();
                 if ($plotSales->isEmpty()) {
                     return null;
                 }
@@ -192,7 +161,8 @@ class BookingDetailService
                     'customer_name' => $booking->primaryDetail?->name ?? '-',
                     'agent_name' => $booking->associate?->associate_name ?? '-',
                     'project_name' => $plotSales->pluck('project.name')->filter()->unique()->implode(', ') ?: '-',
-                    'plot_no' => $plotSales->pluck('plotDetail.plot_number')->filter()->implode(', ') ?: '-',
+                    'plot_
+                    no' => $plotSales->pluck('plotDetail.plot_number')->filter()->implode(', ') ?: '-',
                     'amount' => (float) $plotSales->sum(
                         fn($plotSale) => $plotSale->total_plot_cost
                         ?? $plotSale->final_payable
@@ -201,9 +171,7 @@ class BookingDetailService
                     ),
                     'date' => $booking->created_at?->format('d-m-Y'),
                 ];
-            })
-            ->filter()
-            ->values();
+            })->filter()->values();
     }
 
     public function getDueEmiAmountData()
@@ -228,8 +196,7 @@ class BookingDetailService
                             ->where('plan_type', 'emi_plan');
                     });
             })
-            ->latest()
-            ->get()
+            ->latest()->get()
             ->map(function ($booking) {
                 $plotSales = $booking->plotSaleDetails
                     ->filter(function ($plotSale) {
@@ -249,19 +216,15 @@ class BookingDetailService
                 $plotSaleIds = $plotSales->pluck('id')->values();
 
                 $allPayments = $booking->payments
-                    ->whereIn('plot_sale_detail_id', $plotSaleIds)
-                    ->where('plan_type', 'emi_plan')
-                    ->sortBy('id')
-                    ->values();
+                    ->whereIn('plot_sale_detail_id', $plotSaleIds)->where('plan_type', 'emi_plan')
+                    ->sortBy('id')->values();
 
                 $bookingPayment = $allPayments
                     ->where('transaction_category', 'booking_fee')
-                    ->where('booking_status', 'booked')
-                    ->whereIn('payment_status', ['paid', 'cleared'])
-                    ->sortBy('id')
-                    ->first();
+                    ->where('booking_status', 'booked')->whereIn('payment_status', ['paid', 'cleared'])
+                    ->sortBy('id')->first();
 
-                if (! $bookingPayment) {
+                if (!$bookingPayment) {
                     return null;
                 }
 
@@ -272,20 +235,17 @@ class BookingDetailService
 
                 $emiInstallments = $emiPayments
                     ->groupBy(fn($payment) => $payment->receipt_number ?: 'payment-' . $payment->id)
-                    ->map(fn ($group) => $group->sortBy('id')->first())
-                    ->values();
+                    ->map(fn($group) => $group->sortBy('id')->first())->values();
 
                 $latestPayment = $allPayments
                     ->where('booking_status', 'booked')
-                    ->whereIn('payment_status', ['paid', 'cleared'])
-                    ->last();
+                    ->whereIn('payment_status', ['paid', 'cleared'])->last();
 
                 $totalInstallments = (int) ($bookingPayment?->emi_months ?? 0);
                 $currentDueAmount = (float) ($latestPayment?->due_amount ?? 0);
                 $monthlyEmi = (float) ($bookingPayment?->after_booking_payable_amount ?? 0);
                 $paidInstallments = $emiInstallments->count();
                 $remainingInstallments = max(0, $totalInstallments - $paidInstallments);
-
                 $emiHistory = [];
 
                 for ($i = 1; $i <= $totalInstallments; $i++) {
@@ -336,7 +296,7 @@ class BookingDetailService
     {
         $associate = auth()->guard('associate')->user() ?: auth()->user();
 
-        if (! $associate) {
+        if (!$associate) {
             return [];
         }
 

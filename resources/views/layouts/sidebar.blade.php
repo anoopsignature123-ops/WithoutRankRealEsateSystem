@@ -205,33 +205,38 @@
                                     : '' }}">
 
                             <i class="nav-icon bi bi-people"></i>
-                            <p>Team<i class="nav-arrow bi bi-chevron-right"></i></p>
+                            <p>
+                                Team Management
+                                <i class="right bi bi-chevron-right nav-arrow"></i>
+                            </p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <a href="{{ route('associate-panel.my-tree') }}"
                                     class="nav-link {{ request()->routeIs('associate-panel.my-tree') ? 'active' : '' }}">
-                                    <i class="nav-icon bi bi-record-fill"></i>
-                                    <p>My Tree View</p>
+                                    <i class="nav-icon bi bi-diagram-3-fill"></i>
+                                    <p>Team Tree</p>
                                 </a>
                             </li>
+
                             <li class="nav-item">
                                 <a href="{{ route('associate-panel.my-direct') }}"
                                     class="nav-link {{ request()->routeIs('associate-panel.my-direct') ? 'active' : '' }}">
-                                    <i class="nav-icon bi bi-record-fill"></i>
-                                    <p>My Direct</p>
+                                    <i class="nav-icon bi bi-person-plus-fill"></i>
+                                    <p>Direct Team</p>
                                 </a>
                             </li>
+
                             <li class="nav-item">
                                 <a href="{{ route('associate-panel.my-downline') }}"
                                     class="nav-link {{ request()->routeIs('associate-panel.my-downline') ? 'active' : '' }}">
-                                    <i class="nav-icon bi bi-record-fill"></i>
-                                    <p>My Downline</p>
+                                    <i class="nav-icon bi bi-people-fill"></i>
+                                    <p>Network Team</p>
                                 </a>
                             </li>
                         </ul>
                     </li>
-                    <li
+                    {{-- <li
                         class="nav-item
                             {{ request()->routeIs('associate-panel.payout-details') ? 'menu-open' : '' }}">
 
@@ -252,8 +257,8 @@
                                 </a>
                             </li>
                         </ul>
-                    </li>
-                    <li class="nav-item">
+                    </li> --}}
+                    {{-- <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon bi bi-laptop"></i>
                             <p>Pin Management<i class="nav-arrow bi bi-chevron-right"></i></p>
@@ -266,7 +271,7 @@
                                 </a>
                             </li>
                         </ul>
-                    </li>
+                    </li> --}}
                     <li class="nav-item">
                         <a href="{{ route('associate-panel.plot-avilable') }}"
                             class="nav-link {{ request()->routeIs('associate-panel.plot-avilable') ? 'active' : '' }}">
@@ -310,7 +315,8 @@
                                                     <p>
                                                         <span>{{ $child->name }}</span>
                                                         @if ($child->slug === 'multiple-cheque-clearance' && ($chequeClearanceCount ?? 0) > 0)
-                                                            <span class="sidebar-count-badge">{{ $chequeClearanceCount }}</span>
+                                                            <span
+                                                                class="sidebar-count-badge">{{ $chequeClearanceCount }}</span>
                                                         @endif
                                                     </p>
                                                 </a>

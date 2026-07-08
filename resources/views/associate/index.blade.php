@@ -170,7 +170,7 @@
                                     </td> --}}
                                      <td>
                                         <div class="fw-semibold text-dark">
-                                            {{ ucfirst($associate->direction ?? '-') }}
+                                            {{ ucfirst($associate->direction ?? 'Root') }}
                                         </div>
                                     </td>
 

@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\AssociatePanel;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AssociateRequest; // Wahi validation request jo pehle thi
+use App\Http\Requests\AssociateRequest;
 use App\Models\Associate;
-use App\Models\DesignationRank;
 use App\Services\Associate\AssociateRegistrationService;
 use App\Services\ExcelExportService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -26,7 +25,6 @@ class AssociateRegistrationController extends Controller
 
         return view('associate-panel.registration.associate_detail', [
             'associates' => $data['associates'],
-            'ranks' => $data['ranks'],
         ]);
     }
 
@@ -38,19 +36,13 @@ class AssociateRegistrationController extends Controller
         return view('associate-panel.registration.create', $data);
     }
 
-    public function getSponsorRanks($associateId)
-    {
-        $associate = Associate::where('associate_id', $associateId)->with('rank')->firstOrFail();
-        $ranks = DesignationRank::where('rank_number', '<=', $associate->rank->rank_number)->orderByDesc('rank_number')->get();
-
-        return response()->json($ranks);
-    }
-
     public function store(AssociateRequest $request)
     {
         $this->associateService->store($request->validated());
 
-        return redirect()->route('associate-panel.register-create')->with('success', 'Associate registered successfully.');
+        return redirect()
+            ->route('associate-panel.register-create')
+            ->with('success', 'Associate registered successfully.');
     }
 
     public function edit($id)
@@ -78,13 +70,14 @@ class AssociateRegistrationController extends Controller
     public function associateExport(Request $request, ExcelExportService $excelExportService)
     {
         $associates = $this->associateService->getExportData($request);
+
         $headers = [
             'SNo.',
             'Sponsor Id',
             'Associate Id',
             'Under Place Id',
+            'Direction',
             'Associate Name',
-            'Percentage',
             'D.O.B',
             'Address',
             'Mobile',
@@ -105,8 +98,8 @@ class AssociateRegistrationController extends Controller
                 $associate->sponsor_id,
                 $associate->associate_id,
                 $associate->under_place_id,
+                ucfirst($associate->direction ?? 'N/A'),
                 $associate->associate_name,
-                number_format($associate->rank?->commission, 2).' ('.$associate->rank?->designation.')',
                 $associate->dob,
                 $associate->address,
                 $associate->mobile_number,
@@ -114,24 +107,21 @@ class AssociateRegistrationController extends Controller
                 $associate->bankDetail?->bank_name,
                 $associate->bankDetail?->account_number,
                 $associate->bankDetail?->ifsc_code,
-                $associate->password ?? '',
+                $associate->plain_password ?? '',
                 $associate->created_at?->format('d-M-y'),
                 $associate->bankDetail?->bank_passbook ? 'Yes' : 'No',
                 $associate->id_proof_photo ? 'Yes' : 'No',
                 $associate->photo ? 'Yes' : 'No',
             ];
-        }
-        );
+        });
     }
 
     public function downloadPdf($id)
     {
         $associate = Associate::with('bankDetail')->findOrFail($id);
 
-        // PDF render karna
         $pdf = Pdf::loadView('associate-panel.registration.pdf-view', compact('associate'));
 
-        // File download karwana
-        return $pdf->download('Prospect_'.$associate->associate_id.'.pdf');
+        return $pdf->download('Prospect_' . $associate->associate_id . '.pdf');
     }
 }

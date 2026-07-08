@@ -36,21 +36,14 @@ class CustomerLedgerController extends Controller
                     $q->where('block_id', $request->block_id)
                         ->where('status', 'active');
                 })
-                ->with('plotSaleDetail')
-                ->get()
-                ->pluck('plotSaleDetail.plot_detail_id')
-                ->filter()
-                ->unique()
-                ->values();
-
+                ->with('plotSaleDetail')->get()
+                ->pluck('plotSaleDetail.plot_detail_id')->filter()->unique()->values();
             $plots = PlotDetail::whereIn('id', $plotIds)
-                ->where('block_id', $request->block_id)
-                ->get();
+                ->where('block_id', $request->block_id)->get();
         }
 
         if ($request->filled('booking_id')) {
             $associateIds = $this->teamAssociateIds();
-
             $booking = CustomerBooking::with([
                 'primaryDetail',
                 'associate',
@@ -68,8 +61,7 @@ class CustomerLedgerController extends Controller
                             $p->where('booking_status', 'booked')
                                 ->whereIn('payment_status', ['paid', 'cleared']);
                         });
-                })
-                ->first();
+                })->first();
 
             if ($booking) {
                 $plotSales = $booking->plotSaleDetails
@@ -79,8 +71,7 @@ class CustomerLedgerController extends Controller
                                 return $payment->booking_status === 'booked'
                                     && in_array($payment->payment_status, ['paid', 'cleared']);
                             });
-                    })
-                    ->values();
+                    })->values();
 
                 $plotSaleIds = $plotSales->pluck('id')->values();
 
@@ -88,39 +79,27 @@ class CustomerLedgerController extends Controller
                     ->whereIn('plot_sale_detail_id', $plotSaleIds)
                     ->where('booking_status', 'booked')
                     ->whereIn('payment_status', ['paid', 'cleared'])
-                    ->sortByDesc('id')
-                    ->values();
+                    ->sortByDesc('id')->values();
 
                 if ($plotSales->isEmpty() || $payments->isEmpty()) {
                     $ledgerData = null;
                 } else {
                     $receiptGroups = $this->groupPaymentsByReceipt($payments);
-
                     $totalPlotCost = (float) $plotSales->sum(
                         fn($plotSale) => $plotSale->total_plot_cost
-                        ?? $plotSale->final_payable
-                        ?? $plotSale->plot_cost
-                        ?? 0
+                        ?? $plotSale->final_payable ?? $plotSale->plot_cost ?? 0
                     );
-
                     $paidAmount = (float) $payments->sum(
                         fn($payment) => $payment->paid_amount ?? $payment->booking_amount ?? 0
                     );
-
                     $holdAmount = 0;
-
                     $firstPayment = $payments->sortBy('id')->first();
-
                     $bookingPayment = $payments
-                        ->where('transaction_category', 'booking_fee')
-                        ->sortBy('id')
-                        ->first();
-
+                        ->where('transaction_category', 'booking_fee')->sortBy('id')->first();
                     $emiInstallments = $payments
                         ->where('transaction_category', 'emi_payment')
                         ->groupBy(fn($payment) => $payment->receipt_number ?: 'payment-' . $payment->id)
-                        ->map(fn($group) => $group->sortBy('id')->first())
-                        ->values();
+                        ->map(fn($group) => $group->sortBy('id')->first())->values();
 
                     $ledgerData = (object) [
                         'booking' => $booking,
@@ -154,13 +133,7 @@ class CustomerLedgerController extends Controller
             ->groupBy(fn($payment) => $payment->receipt_number ?: 'payment-' . $payment->id)
             ->map(function (Collection $group) {
                 $first = $group->sortByDesc('id')->first();
-
-                $plots = $group
-                    ->pluck('plotSaleDetail.plotDetail.plot_number')
-                    ->filter()
-                    ->unique()
-                    ->implode(', ');
-
+                $plots = $group->pluck('plotSaleDetail.plotDetail.plot_number')->filter()->unique()->implode(', ');
                 $statuses = $group->pluck('payment_status')->filter()->unique()->values();
                 $categories = $group->pluck('transaction_category')->filter()->unique()->values();
 
@@ -185,15 +158,11 @@ class CustomerLedgerController extends Controller
     private function teamAssociateIds(): array
     {
         $associate = auth()->guard('associate')->user() ?: auth()->user();
-
         if (!$associate) {
             return [];
         }
 
         return collect(method_exists($associate, 'getDownlineIds') ? $associate->getDownlineIds() : [])
-            ->push($associate->id)
-            ->unique()
-            ->values()
-            ->all();
+            ->push($associate->id)->unique()->values()->all();
     }
 }
