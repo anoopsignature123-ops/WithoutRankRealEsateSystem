@@ -16,11 +16,11 @@ class TeamController extends Controller
         $user = Auth::guard('associate')->user();
         $associateId = trim($request->associate_id ?? $user->associate_id);
         $direction = $this->normalizeDirection($request->direction ?? null);
-        $allowedIds = collect($user->getDownlineIds())->push($user->id)->unique()->values()->all();
-        $rootAssociate = Associate::with(['children.children.children.children'])
-            ->whereIn('id', $allowedIds)->where('associate_id', $associateId)->first();
+        $allowedIds = collect($this->getPlacementDownlineIds($user))->push($user->id)->unique()->values()->all();
+        $rootAssociate = Associate::whereIn('id', $allowedIds)->where('associate_id', $associateId)->first();
         if ($rootAssociate) {
-            $this->attachTreeStats($rootAssociate, $direction);
+            $rootAssociate = $this->buildPlacementTree($rootAssociate, $direction);
+            $this->attachTreeStats($rootAssociate);
         }
         return view('associate-panel.team.my_tree', compact('rootAssociate', 'direction'));
     }
@@ -28,13 +28,137 @@ class TeamController extends Controller
     private function attachTreeStats(Associate $associate, ?string $direction = null): void
     {
         $associate->setAttribute('tree_stats', $this->buildTreeStatsFor($associate));
-        $children = $associate->children ?? collect();
-        $associate->setAttribute('tree_children', $this->groupChildrenByDirection($children, $direction));
         foreach ($associate->tree_children as $groupedChildren) {
             foreach ($groupedChildren as $child) {
                 $this->attachTreeStats($child, $direction);
             }
         }
+    }
+
+    private function buildPlacementTree(Associate $rootAssociate, ?string $selectedDirection = null): Associate
+    {
+        $allAssociates = Associate::orderBy('id')->get();
+        $treeAssociates = $this->getReachableAssociates($rootAssociate, $allAssociates);
+
+        $this->initializeTreeNode($rootAssociate);
+        foreach ($treeAssociates as $associate) {
+            $this->initializeTreeNode($associate);
+        }
+
+        $lookup = collect([$rootAssociate])->merge($treeAssociates)->keyBy(fn($associate) => trim((string) $associate->associate_id));
+
+        foreach ($treeAssociates->reject(fn($associate) => (int) $associate->id === (int) $rootAssociate->id)->sortBy('id') as $associate) {
+            $parentCode = trim((string) ($associate->under_place_id ?? ''));
+            $parent = $lookup->get($parentCode);
+            $direction = $this->normalizeDirection($associate->direction ?? null);
+
+            if ($parent && $direction) {
+                $this->placeAssociateInDirection($parent, $associate, $direction);
+            }
+        }
+
+        if ($selectedDirection === 'left') {
+            $rootAssociate->setAttribute('tree_children', [
+                'left' => $this->getTreeChildren($rootAssociate, 'left'),
+                'right' => collect(),
+            ]);
+        }
+
+        if ($selectedDirection === 'right') {
+            $rootAssociate->setAttribute('tree_children', [
+                'left' => collect(),
+                'right' => $this->getTreeChildren($rootAssociate, 'right'),
+            ]);
+        }
+
+        return $rootAssociate;
+    }
+
+    private function getReachableAssociates(Associate $rootAssociate, $allAssociates)
+    {
+        $childrenByParent = $allAssociates
+            ->filter(fn($associate) => trim((string) ($associate->under_place_id ?? '')) !== '')
+            ->groupBy(fn($associate) => trim((string) $associate->under_place_id));
+
+        $result = collect();
+        $queue = collect([trim((string) $rootAssociate->associate_id)]);
+        $processed = [];
+
+        while ($queue->isNotEmpty()) {
+            $parentCode = $queue->shift();
+            if ($parentCode === '' || in_array($parentCode, $processed, true)) {
+                continue;
+            }
+
+            $processed[] = $parentCode;
+            foreach (collect($childrenByParent->get($parentCode, collect()))->sortBy('id') as $child) {
+                if (!$result->contains('id', $child->id)) {
+                    $result->push($child);
+                }
+
+                $queue->push(trim((string) $child->associate_id));
+            }
+        }
+
+        return $result->values();
+    }
+
+    private function initializeTreeNode(Associate $associate): void
+    {
+        $associate->setAttribute('tree_children', [
+            'left' => collect(),
+            'right' => collect(),
+        ]);
+    }
+
+    private function placeAssociateInDirection(Associate $parent, Associate $associate, string $direction): void
+    {
+        $current = $parent;
+        $visited = [];
+
+        while (true) {
+            if (in_array((int) $current->id, $visited, true)) {
+                return;
+            }
+
+            $visited[] = (int) $current->id;
+            $existing = $this->getTreeChildren($current, $direction)->first();
+
+            if (!$existing instanceof Associate) {
+                $children = $current->tree_children ?? ['left' => collect(), 'right' => collect()];
+                $children[$direction] = collect([$associate]);
+                $current->setAttribute('tree_children', $children);
+                return;
+            }
+
+            if ((int) $existing->id === (int) $associate->id) {
+                return;
+            }
+
+            $current = $existing;
+        }
+    }
+
+    private function getTreeChildren(Associate $associate, string $direction)
+    {
+        $treeChildren = $associate->tree_children ?? ['left' => collect(), 'right' => collect()];
+        return collect($treeChildren[$direction] ?? []);
+    }
+
+    private function getPlacementDownlineIds(Associate $associate): array
+    {
+        $ids = [];
+        $children = Associate::where('under_place_id', $associate->associate_id)->pluck('id')->toArray();
+
+        foreach ($children as $childId) {
+            $ids[] = $childId;
+            $child = Associate::find($childId);
+            if ($child) {
+                $ids = array_merge($ids, $this->getPlacementDownlineIds($child));
+            }
+        }
+
+        return array_unique($ids);
     }
 
     private function groupChildrenByDirection($children, ?string $direction = null): array
@@ -66,8 +190,16 @@ class TeamController extends Controller
     private function buildTreeStatsFor(Associate $associate): array
     {
         $selfStats = $this->businessStatsForAssociateIds(collect([$associate->id]));
-        $downlineIds = collect($associate->getDownlineIds())->filter()->unique()->values();
+        $downlineIds = collect($this->getPlacementDownlineIds($associate))->filter()->unique()->values();
         $teamStats = $this->businessStatsForAssociateIds($downlineIds);
+
+        $leftStats = $this->calculateBranchBusiness(
+            $this->getTreeChildren($associate, 'left')->first()
+        );
+
+        $rightStats = $this->calculateBranchBusiness(
+            $this->getTreeChildren($associate, 'right')->first()
+        );
         return [
             'self_business' => $selfStats['business'],
             'team_business' => $teamStats['business'],
@@ -75,8 +207,14 @@ class TeamController extends Controller
             'plot_area' => $selfStats['area'],
             'team_area' => $teamStats['area'],
             'total_area' => $selfStats['area'] + $teamStats['area'],
-            'direct_count' => (int) ($associate->direct_count ?? $associate->children?->count() ?? 0),
+            'direct_count' => (int) Associate::where('under_place_id', $associate->associate_id)->count(),
             'downline_count' => (int) ($associate->downline_count ?? $downlineIds->count()),
+
+            'left_team_business' => $leftStats['business'],
+            'right_team_business' => $rightStats['business'],
+
+            'left_team_area' => $leftStats['area'],
+            'right_team_area' => $rightStats['area'],
         ];
     }
 
@@ -166,5 +304,24 @@ class TeamController extends Controller
         $query = $this->applyFilters($query, $request);
         $associates = $query->latest()->get();
         return view('associate-panel.team.my_downline', compact('associates', 'pageTitle', 'direction'));
+    }
+
+    private function calculateBranchBusiness(?Associate $associate): array
+    {
+        if (!$associate) {
+            return [
+                'business' => 0,
+                'area' => 0,
+            ];
+        }
+
+        $associateIds = collect([$associate->id])
+            ->merge($associate->getDownlineIds())
+            ->filter()
+            ->map(fn($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        return $this->businessStatsForAssociateIds($associateIds);
     }
 }

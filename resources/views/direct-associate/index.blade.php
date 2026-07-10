@@ -28,7 +28,7 @@
                     </div>
 
                     <div class="badge bg-light text-dark border rounded-pill px-3 py-2">
-                        Total Records: {{ $directAssociates->count() }}
+                        Total Records: <span id="directRecordCount">{{ $directAssociates->count() }}</span>
                     </div>
                 </div>
             </div>
@@ -43,14 +43,16 @@
                             <label class="form-label fw-semibold">Sponsor / Associate ID</label>
                             <input type="text"
                                 name="associate_id"
+                                id="directAssociateSearch"
                                 value="{{ request('associate_id') }}"
                                 class="form-control auto-filter-input"
+                                autocomplete="off"
                                 placeholder="Enter sponsor associate id">
                         </div>
 
                         <div class="col-lg-2 col-md-6">
                             <label class="form-label fw-semibold">Direction</label>
-                            <select name="direction" class="form-control auto-filter">
+                            <select name="direction" id="directAssociateDirection" class="form-control auto-filter">
                                 <option value="">All</option>
                                 <option value="left" {{ request('direction') == 'left' ? 'selected' : '' }}>Left</option>
                                 <option value="right" {{ request('direction') == 'right' ? 'selected' : '' }}>Right</option>
@@ -61,6 +63,7 @@
                             <label class="form-label fw-semibold">From Date</label>
                             <input type="date"
                                 name="from_date"
+                                id="directAssociateFromDate"
                                 value="{{ request('from_date') }}"
                                 class="form-control auto-filter">
                         </div>
@@ -69,18 +72,20 @@
                             <label class="form-label fw-semibold">To Date</label>
                             <input type="date"
                                 name="to_date"
+                                id="directAssociateToDate"
                                 value="{{ request('to_date') }}"
                                 class="form-control auto-filter">
                         </div>
 
                         <div class="col-lg-3 col-md-12">
                             <div class="d-flex gap-2 flex-wrap">
-                                <a href="{{ route('direct-associate') }}" class="btn btn-light border px-4">
+                                <button type="button" id="resetDirectFilter" class="btn btn-light border px-4">
                                     <i class="fa-solid fa-arrow-rotate-left"></i>
                                     Reset
-                                </a>
+                                </button>
 
                                 <a href="{{ route('direct-associate.export', request()->query()) }}"
+                                    id="directExportLink"
                                     class="btn btn-outline-success px-4">
                                     <i class="bi bi-download me-1"></i>
                                     Export
@@ -93,7 +98,14 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative">
+            <div class="direct-filter-loader d-none" id="directFilterLoader">
+                <div class="direct-filter-loader-box">
+                    <span class="spinner-border spinner-border-sm text-success" role="status" aria-hidden="true"></span>
+                    <span>Filtering records...</span>
+                </div>
+            </div>
+
             <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0" id="directAssociateTable">
@@ -112,7 +124,14 @@
 
                         <tbody>
                             @forelse($directAssociates as $key => $item)
-                                <tr>
+                                <tr
+                                    data-associate-id="{{ strtolower($item->associate_id ?? '') }}"
+                                    data-associate-name="{{ strtolower($item->associate_name ?? '') }}"
+                                    data-direction="{{ strtolower($item->direction ?? '') }}"
+                                    data-sponsor-id="{{ strtolower($item->sponsor_id ?? '') }}"
+                                    data-sponsor-name="{{ strtolower($item->sponsor?->associate_name ?? '') }}"
+                                    data-mobile="{{ strtolower($item->mobile_number ?? '') }}"
+                                    data-created-date="{{ $item->created_at?->format('Y-m-d') ?? '' }}">
                                     <td>#{{ $key + 1 }}</td>
 
                                     <td>
@@ -171,25 +190,121 @@
     </div>
 @endsection
 
+@push('styles')
+    <style>
+        .direct-filter-loader {
+            align-items: center;
+            background: rgba(255, 255, 255, 0.74);
+            backdrop-filter: blur(2px);
+            display: flex;
+            inset: 0;
+            justify-content: center;
+            position: absolute;
+            z-index: 20;
+        }
+
+        .direct-filter-loader-box {
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid rgba(25, 135, 84, 0.18);
+            border-radius: 999px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+            color: #198754;
+            display: inline-flex;
+            font-size: 13px;
+            font-weight: 800;
+            gap: 10px;
+            padding: 10px 16px;
+        }
+    </style>
+@endpush
+
 @push('scripts')
     <script>
         $(document).ready(function() {
+            const tableElement = $('#directAssociateTable');
+            const loader = $('#directFilterLoader');
+            const countLabel = $('#directRecordCount');
+            const exportLink = $('#directExportLink');
+            const exportBaseUrl = "{{ route('direct-associate.export') }}";
             let typingTimer;
+            let table = null;
 
-            $('.auto-filter').on('change', function() {
-                $('#filterForm').submit();
-            });
+            function filters() {
+                return {
+                    query: String($('#directAssociateSearch').val() || '').trim().toLowerCase(),
+                    direction: String($('#directAssociateDirection').val() || '').trim().toLowerCase(),
+                    fromDate: String($('#directAssociateFromDate').val() || '').trim(),
+                    toDate: String($('#directAssociateToDate').val() || '').trim(),
+                };
+            }
 
-            $('.auto-filter-input').on('keyup', function() {
-                clearTimeout(typingTimer);
+            function updateExportLink(currentFilters) {
+                const params = new URLSearchParams();
 
-                typingTimer = setTimeout(function() {
-                    $('#filterForm').submit();
-                }, 500);
-            });
+                if (currentFilters.query) {
+                    params.set('associate_id', currentFilters.query);
+                }
 
-            if ($('#directAssociateTable tbody tr td').attr('colspan') == undefined) {
-                $('#directAssociateTable').DataTable({
+                if (currentFilters.direction) {
+                    params.set('direction', currentFilters.direction);
+                }
+
+                if (currentFilters.fromDate) {
+                    params.set('from_date', currentFilters.fromDate);
+                }
+
+                if (currentFilters.toDate) {
+                    params.set('to_date', currentFilters.toDate);
+                }
+
+                exportLink.attr('href', exportBaseUrl + (params.toString() ? '?' + params.toString() : ''));
+            }
+
+            function rowMatches(row, currentFilters) {
+                const rowText = [
+                    row.dataset.associateId,
+                    row.dataset.associateName,
+                    row.dataset.sponsorId,
+                    row.dataset.sponsorName,
+                    row.dataset.mobile,
+                ].join(' ');
+
+                if (currentFilters.query && !rowText.includes(currentFilters.query)) {
+                    return false;
+                }
+
+                if (currentFilters.direction && row.dataset.direction !== currentFilters.direction) {
+                    return false;
+                }
+
+                if (currentFilters.fromDate && row.dataset.createdDate < currentFilters.fromDate) {
+                    return false;
+                }
+
+                if (currentFilters.toDate && row.dataset.createdDate > currentFilters.toDate) {
+                    return false;
+                }
+
+                return true;
+            }
+
+            if (tableElement.find('tbody tr td[colspan]').length === 0) {
+                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                    if (settings.nTable !== tableElement.get(0)) {
+                        return true;
+                    }
+
+                    const row = settings.aoData[dataIndex]?.nTr;
+
+                    if (!row) {
+                        return true;
+                    }
+
+                    return rowMatches(row, filters());
+                });
+
+                table = tableElement.DataTable({
                     pageLength: 10,
                     ordering: true,
                     searching: false,
@@ -197,6 +312,53 @@
                     lengthMenu: [5, 10, 25, 50]
                 });
             }
+
+            function applyDirectFilter(showLoader = true) {
+                const currentFilters = filters();
+                updateExportLink(currentFilters);
+
+                if (showLoader) {
+                    loader.removeClass('d-none');
+                }
+
+                window.setTimeout(function() {
+                    if (table) {
+                        table.draw();
+                        countLabel.text(table.rows({ filter: 'applied' }).count());
+                    } else {
+                        countLabel.text(0);
+                    }
+
+                    loader.addClass('d-none');
+                }, showLoader ? 180 : 0);
+            }
+
+            $('#filterForm').on('submit', function(event) {
+                event.preventDefault();
+                applyDirectFilter();
+            });
+
+            $('.auto-filter').on('change', function() {
+                applyDirectFilter();
+            });
+
+            $('.auto-filter-input').on('input', function() {
+                clearTimeout(typingTimer);
+
+                typingTimer = setTimeout(function() {
+                    applyDirectFilter();
+                }, 250);
+            });
+
+            $('#resetDirectFilter').on('click', function() {
+                $('#directAssociateSearch').val('');
+                $('#directAssociateDirection').val('');
+                $('#directAssociateFromDate').val('');
+                $('#directAssociateToDate').val('');
+                applyDirectFilter();
+            });
+
+            applyDirectFilter(false);
         });
     </script>
 @endpush

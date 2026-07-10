@@ -4,7 +4,7 @@
             <h4 class="fw-bold mb-4">Basic Information</h4>
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label class="mb-2">Sponsor Id</label>
+                    <label class="mb-2">Sponsor Id <span class="text-danger">*</span></label>
                     <select name="sponsor_id" id="sponsor_id" class="form-control">
                         <option value="">Select Sponsor</option>
                         @foreach ($associates as $item)
@@ -21,7 +21,7 @@
                 </div>
 
                 <div class="col-md-4 mb-3">
-                    <label class="mb-2">Direction</label>
+                    <label class="mb-2">Direction <span class="text-danger">*</span></label>
                     <select name="direction" id="direction" class="form-control">
                         <option value="">Select Direction</option>
 
@@ -52,7 +52,7 @@
                 </div>
                 {{-- Associate Name --}}
                 <div class="col-md-6 mb-3">
-                    <label class="mb-2">Associate Name</label>
+                    <label class="mb-2">Associate Name <span class="text-danger">*</span></label>
                     <input type="text" name="associate_name"
                         value="{{ old('associate_name', $associate->associate_name ?? '') }}"
                         placeholder="Enter associate name" class="form-control">
@@ -62,7 +62,7 @@
                 </div>
                 {{-- Gender --}}
                 <div class="col-md-3 mb-3">
-                    <label class="mb-2">Gender</label>
+                    <label class="mb-2">Gender <span class="text-danger">*</span></label>
                     <select name="gender" class="form-control">
                         <option value="">Select Gender</option>
                         <option value="male"
@@ -81,7 +81,7 @@
                 {{-- Title --}}
                 <div class="col-md-3
                             mb-3">
-                    <label class="mb-2">Title</label>
+                    <label class="mb-2">Title <span class="text-danger">*</span></label>
                     <select name="title" class="form-control">
                         <option value="">Select Title</option>
                         <option value="s/o" {{ old('title', $associate->title ?? '') == 's/o' ? 'selected' : '' }}>
@@ -108,7 +108,7 @@
                 </div>
                 {{-- Father Name --}}
                 <div class="col-md-6 mb-3">
-                    <label class="mb-2">Father / Husband Name</label>
+                    <label class="mb-2">Father / Husband Name <span class="text-danger">*</span></label>
                     <input type="text" name="father_name"
                         value="{{ old('father_name', $associate->father_name ?? '') }}" placeholder="Enter name"
                         class="form-control">
@@ -118,57 +118,25 @@
                 </div>
                 {{-- DOB --}}
                 <div class="col-md-6 mb-3">
-                    <label class="mb-2">Date Of Birth</label>
+                    <label class="mb-2">Date Of Birth <span class="text-danger">*</span></label>
                     <input type="date" name="dob" value="{{ old('dob', $associate->dob ?? '') }}"
                         class="form-control">
                     @error('dob')
                         <small class="text-danger d-block">{{ $message }}</small>
                     @enderror
                 </div>
-                {{-- Address --}}
-                <div class="col-md-12 mb-3">
-                    <label class="mb-2">Address</label>
-                    <textarea name="address" rows="2" class="form-control" placeholder="Enter full address">{{ old('address', $associate->address ?? '') }}</textarea>
-                    @error('address')
-                        <small class="text-danger d-block">{{ $message }}</small>
-                    @enderror
-                </div>
-                {{-- City --}}
-                {{-- <div class="col-md-3 mb-3">
-                    <label class="mb-2">City</label>
-                    <input type="text" name="city" value="{{ old('city', $associate->city ?? '') }}"
-                        class="form-control" placeholder="Enter City">
-                    @error('city')
-                        <small class="text-danger d-block ">{{ $message }}</small>
-                    @enderror
-                </div> --}}
-                {{-- State --}}
-                {{-- <div class="col-md-3 mb-3">
-                    <label class="mb-2">State</label>
-                    <input type="text" name="state" value="{{ old('state', $associate->state ?? '') }}"
-                        class="form-control" placeholder="Enter State">
-                    @error('state')
-                        <small class="text-danger d-block">{{ $message }}</small>
-                    @enderror
-                </div> --}}
-
-                @include('state-city', [
-                    'states' => $states,
-                    'selectedState' => old('state', $associate->state ?? ''),
-                    'selectedCity' => old('city', $associate->city ?? ''),
-                ])
-                {{-- Mobile --}}
-                <div class="col-md-3 mb-3 mt-3">
-                    <label class="mb-2">Mobile Number</label>
+                  {{-- Mobile --}}
+                <div class="col-md-6 mb-3 mt-3">
+                    <label class="mb-2">Mobile Number <span class="text-danger">*</span></label>
                     <input type="text" name="mobile_number"
                         value="{{ old('mobile_number', $associate->mobile_number ?? '') }}" class="form-control"
-                        placeholder="Enter Mobile Number">
+                        placeholder="Enter Mobile Number" maxlength="10">
                     @error('mobile_number')
                         <small class="text-danger d-block">{{ $message }}</small>
                     @enderror
                 </div>
                 {{-- Email --}}
-                <div class="col-md-3 mb-3 mt-3">
+                <div class="col-md-6 mb-3 mt-3">
                     <label class="mb-2">Email</label>
                     <input type="email" name="email" value="{{ old('email', $associate->email ?? '') }}"
                         class="form-control" placeholder="Enter Email">
@@ -176,6 +144,15 @@
                         <small class="text-danger d-block ">{{ $message }}</small>
                     @enderror
                 </div>
+               
+                
+
+                @include('state-city', [
+                    'states' => $states,
+                    'selectedState' => old('state', $associate->state ?? ''),
+                    'selectedCity' => old('city', $associate->city ?? ''),
+                ])
+              
                 <div class="col-md-6 mb-3 mt-3">
                     <label class="mb-2">PAN Card Number</label>
                     <input type="text" name="pancard_number"
@@ -187,12 +164,21 @@
 
                 </div>
                 {{-- Aadhaar --}}
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3 mt-3">
                     <label class="mb-2">Aadhaar Number</label>
                     <input type="text" name="aadhar_number"
                         value="{{ old('aadhar_number', $associate->aadhar_number ?? '') }}" class="form-control"
                         placeholder="Enter Aadhaar Number">
                     @error('aadhar_number')
+                        <small class="text-danger d-block">{{ $message }}</small>
+                    @enderror
+                </div>
+
+                 {{-- Address --}}
+                <div class="col-md-12 mb-3">
+                    <label class="mb-2">Address <span class="text-danger">*</span></label>
+                    <textarea name="address" rows="2" class="form-control" placeholder="Enter full address">{{ old('address', $associate->address ?? '') }}</textarea>
+                    @error('address')
                         <small class="text-danger d-block">{{ $message }}</small>
                     @enderror
                 </div>
