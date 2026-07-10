@@ -663,12 +663,14 @@
             | Reset
             |--------------------------------------------------------------------------
             */
-
-
             resetFilterButton?.addEventListener('click', function(event) {
                 event.preventDefault();
 
                 window.clearTimeout(searchTimer);
+                window.clearTimeout(filterTimer);
+
+                searchTimer = null;
+                filterTimer = null;
 
                 if (searchInput) {
                     searchInput.value = '';
@@ -676,6 +678,16 @@
 
                 if (directionSelect) {
                     directionSelect.value = '';
+                    directionSelect.selectedIndex = 0;
+
+                    if (
+                        window.jQuery &&
+                        jQuery(directionSelect).hasClass('select2-hidden-accessible')
+                    ) {
+                        jQuery(directionSelect)
+                            .val('')
+                            .trigger('change.select2');
+                    }
                 }
 
                 filterLoader?.classList.add('d-none');
@@ -684,7 +696,7 @@
 
                 renderAssociateTree(currentTreeData);
             });
-            
+
             /*
             |--------------------------------------------------------------------------
             | Drag scrolling
