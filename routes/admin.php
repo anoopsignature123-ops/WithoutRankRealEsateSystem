@@ -426,7 +426,7 @@ Route::middleware(['auth', 'module.permission'])->group(function () {
         Route::get('plot-change/booking/{plot}', 'getBookingData')->name('plot-change.booking');
         Route::get('plot-change/new-plot/{plot}', 'getNewPlotData')->name('plot-change.new-plot');
     });
-    
+
     Route::controller(CommissionPayoutController::class)->group(function () {
         Route::get('/generate-commission', 'index')->name('generate-commission.index');
         Route::post('/generate-commission', 'store')->name('generate-commission.store');

@@ -21,12 +21,9 @@ class DuesInstallmentReportController extends Controller
     public function index(Request $request)
     {
         $customerIds = CustomerBooking::with('primaryDetail')
-            ->select('id', 'customer_code')
-            ->get();
-
+            ->select('id', 'customer_code')->get();
         $payments = $this->buildQuery($request)->latest()->get();
         $reports = $this->buildReports($payments);
-
         $summary = [
             'total_records' => $reports->count(),
             'total_due_installments' => $reports->sum('due_installment'),
@@ -34,21 +31,14 @@ class DuesInstallmentReportController extends Controller
             'paid_amount' => $reports->sum('paid_amount'),
             'balance_amount' => $reports->sum('balance_amount'),
         ];
-
-        return view(
-            'reports.dues-installment-report.index',
-            compact('customerIds', 'reports', 'summary')
-        );
+        return view('reports.dues-installment-report.index',compact('customerIds', 'reports', 'summary'));
     }
 
     public function export(Request $request)
     {
         $payments = $this->buildQuery($request)->latest()->get();
         $reports = $this->buildReports($payments);
-
-        return $this->excelExportService->export(
-            $reports,
-            'dues-installment-report',
+        return $this->excelExportService->export($reports,'dues-installment-report',
             [
                 'Agent ID',
                 'Customer ID',
@@ -94,17 +84,14 @@ class DuesInstallmentReportController extends Controller
             ->where('booking_status', 'booked')
             ->where('transaction_category', 'booking_fee')
             ->whereNotNull('plot_sale_detail_id');
-
         if ($request->filled('date')) {
             $query->whereDate('created_at', Carbon::parse($request->date));
         }
-
         if ($request->filled('customer_id')) {
             $query->whereHas('customerBooking', function ($q) use ($request) {
                 $q->where('id', $request->customer_id);
             });
         }
-
         return $query;
     }
 
@@ -115,25 +102,19 @@ class DuesInstallmentReportController extends Controller
                 $bookingCode = $payment->plotSaleDetail?->booking_code
                     ?: $payment->customerBooking?->booking_code
                     ?: 'booking-' . $payment->customer_booking_id;
-
                 return $payment->customer_booking_id . '|' . $bookingCode;
             })
             ->map(function ($group) {
                 $first = $group->first();
                 $booking = $first->customerBooking;
-
                 $plotSaleIds = $group->pluck('plot_sale_detail_id')->filter()->unique()->values();
-
                 $bookingPayments = $booking?->payments
                         ?->whereIn('plot_sale_detail_id', $plotSaleIds)
                     ->where('booking_status', 'booked') ?? collect();
-
                 if ($bookingPayments->isEmpty()) {
                     $bookingPayments = $booking?->payments ?? collect();
                 }
-
                 $totalAmount = $group->sum(fn($payment) => (float) ($payment->net_payable_amount ?? 0));
-
                 if ($totalAmount <= 0) {
                     $totalAmount = $group->sum(fn($payment) => (float) ($payment->plotSaleDetail?->total_plot_cost ?? 0));
                 }

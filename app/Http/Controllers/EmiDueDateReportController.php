@@ -46,7 +46,6 @@ class EmiDueDateReportController extends Controller
                 ->where('transaction_category', 'emi_payment')
                 ->whereIn('payment_status', ['paid', 'cleared'])->count();
         }
-
         return view('reports.emi_due_date_report.index', compact('emis'));
     }
 
@@ -57,7 +56,6 @@ class EmiDueDateReportController extends Controller
             'plotSaleDetail.project',
             'plotSaleDetail.plotDetail',
         ])->where('plan_type', 'emi_plan');
-        // Filters
         if ($request->customer_name) {
             $query->whereHas('customerBooking.primaryDetail',
                 function ($q) use ($request) {
@@ -83,7 +81,6 @@ class EmiDueDateReportController extends Controller
                 ->where('transaction_category', 'emi_payment')
                 ->whereIn('payment_status', ['paid', 'cleared'])->count();
         }
-
         return $this->excelExportService->export($emis, 'emi-due-report',
             [
                 'Booking ID',
@@ -98,7 +95,6 @@ class EmiDueDateReportController extends Controller
             function ($emi) {
                 $customer = $emi->customerBooking;
                 $primary = $customer?->primaryDetail;
-
                 return [
                     $customer?->booking_code ?? 'N/A',
                     $primary?->name ?? 'N/A',
@@ -107,7 +103,7 @@ class EmiDueDateReportController extends Controller
                     $emi->booking_amount ?? 0,
                     $emi->net_payable_amount ?? 0,
                     $emi->due_amount ?? 0,
-                    $emi->paid_installment.'/'.$emi->emi_months,
+                    $emi->paid_installment . '/' . $emi->emi_months,
                 ];
             }
         );

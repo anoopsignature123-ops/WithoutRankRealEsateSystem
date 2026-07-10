@@ -9,15 +9,18 @@ use App\Http\Requests\CustomerBookingStepThreeRequest;
 use App\Http\Requests\CustomerBookingStepTwoRequest;
 use App\Models\CustomerBooking;
 use App\Services\CustomerBookingService;
+use App\Services\LocationService;
 use Illuminate\Http\Request;
 
 class CustomerBookingController extends Controller
 {
     protected $customerBookingService;
+    protected $locationService;
 
-    public function __construct(CustomerBookingService $customerBookingService)
+    public function __construct(CustomerBookingService $customerBookingService, LocationService $locationService)
     {
         $this->customerBookingService = $customerBookingService;
+        $this->locationService = $locationService;
     }
 
     public function index()
@@ -32,8 +35,8 @@ class CustomerBookingController extends Controller
         $step = 1;
         $associates = $this->customerBookingService->getAssociates();
         $customers = $this->customerBookingService->getCustomers();
-
-        return view('customer-booking.create', compact('step', 'associates', 'customers'));
+        $states = $this->locationService->getStates();
+        return view('customer-booking.create', compact('step', 'associates', 'customers', 'states'));
     }
 
     public function store(CustomerBookingRequest $request)
@@ -56,6 +59,7 @@ class CustomerBookingController extends Controller
         $customers = $this->customerBookingService->getCustomers();
         $projects = $this->customerBookingService->getProjects();
         $plotSales = $customer->plotSaleDetails;
+        $states = $this->locationService->getStates();
         $bookingGroups = $plotSales
             ->whereNotNull('booking_code')
             ->groupBy(fn ($sale) => $sale->booking_code ?: 'plot-'.$sale->id)
@@ -113,6 +117,7 @@ class CustomerBookingController extends Controller
 
         return view('customer-booking.create',
             compact(
+                'states',
                 'customer',
                 'step',
                 'associates',

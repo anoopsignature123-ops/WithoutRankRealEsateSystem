@@ -26,8 +26,6 @@
 
             </div>
 
-
-
             {{-- Title --}}
             <div class="col-md-6 mb-3">
 
@@ -153,62 +151,25 @@
                 <input type="text" id="primaryPin" name="pin_code"
                     class="form-control @error('pin_code') is-invalid @enderror" placeholder="Enter pin code"
                     value="{{ old('pin_code', $primary?->pin_code) }}">
-
                 @error('pin_code')
                     <div class="invalid-feedback">
                         {{ $message }}
                     </div>
                 @enderror
-
             </div>
 
-
-
-            {{-- City --}}
-            <div class="col-md-6 mb-3">
-
-                <label class="form-label">
-                    City
-                </label>
-
-                <input type="text" id="primaryCity" name="city"
-                    class="form-control @error('city') is-invalid @enderror" placeholder="Enter city"
-                    value="{{ old('city', $primary?->city) }}">
-
-                @error('city')
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
-                @enderror
-
-            </div>
-
-
-
-            {{-- State --}}
-            <div class="col-md-6 mb-3">
-
-                <label class="form-label">
-                    State
-                </label>
-
-                <input type="text" id="primaryState" name="state"
-                    class="form-control @error('state') is-invalid @enderror" placeholder="Enter state"
-                    value="{{ old('state', $primary?->state) }}">
-
-                @error('state')
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
-                @enderror
-
-            </div>
-
-
+            @include('state-city', [
+                'states' => $states,
+                'stateId' => 'primaryState',
+                'cityId' => 'primaryCity',
+                'stateName' => 'state',
+                'cityName' => 'city',
+                'selectedState' => old('state', $primary->state ?? ''),
+                'selectedCity' => old('city', $primary->city ?? ''),
+            ])
 
             {{-- Address --}}
-            <div class="col-md-12 mb-3">
-
+            <div class="col-md-12 mb-3 mt-3">
                 <label class="form-label">
                     Permanent Address
                 </label>
@@ -221,11 +182,7 @@
                         {{ $message }}
                     </div>
                 @enderror
-
             </div>
-
         </div>
-
     </div>
-
 </div>

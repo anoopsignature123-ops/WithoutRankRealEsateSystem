@@ -73,8 +73,7 @@
             <div class="col-md-6">
                 <label class="form-label fw-semibold">Pin Code</label>
                 <input type="text" id="{{ $pinId }}" name="{{ $prefix }}pin_code"
-                    class="form-control @error($prefix . 'pin_code') is-invalid @enderror"
-                    placeholder="Enter pin code"
+                    class="form-control @error($prefix . 'pin_code') is-invalid @enderror" placeholder="Enter pin code"
                     value="{{ old($prefix . 'pin_code', $detail?->pin_code) }}">
 
                 @error($prefix . 'pin_code')
@@ -82,29 +81,18 @@
                 @enderror
             </div>
 
-            <div class="col-md-6">
-                <label class="form-label fw-semibold">City</label>
-                <input type="text" id="{{ $cityId }}" name="{{ $prefix }}city"
-                    class="form-control @error($prefix . 'city') is-invalid @enderror"
-                    placeholder="Enter city"
-                    value="{{ old($prefix . 'city', $detail?->city) }}">
+           
 
-                @error($prefix . 'city')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
 
-            <div class="col-md-6">
-                <label class="form-label fw-semibold">State</label>
-                <input type="text" id="{{ $stateId }}" name="{{ $prefix }}state"
-                    class="form-control @error($prefix . 'state') is-invalid @enderror"
-                    placeholder="Enter state"
-                    value="{{ old($prefix . 'state', $detail?->state) }}">
-
-                @error($prefix . 'state')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
+            @include('state-city', [
+                'states' => $states,
+                'stateName' => $prefix . 'state',
+                'cityName' => $prefix . 'city',
+                'stateId' => $stateId,
+                'cityId' => $cityId,
+                'selectedState' => old($prefix . 'state', $detail?->state ?? ''),
+                'selectedCity' => old($prefix . 'city', $detail?->city ?? ''),
+            ])
 
             <div class="col-md-6">
                 <label class="form-label fw-semibold">Mobile Number</label>
@@ -122,8 +110,7 @@
                 <label class="form-label fw-semibold">Email Address</label>
                 <input type="email" name="{{ $prefix }}email"
                     class="form-control @error($prefix . 'email') is-invalid @enderror"
-                    placeholder="Enter email address"
-                    value="{{ old($prefix . 'email', $detail?->email) }}">
+                    placeholder="Enter email address" value="{{ old($prefix . 'email', $detail?->email) }}">
 
                 @error($prefix . 'email')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -166,8 +153,7 @@
                 <label class="form-label fw-semibold">Occupation</label>
                 <input type="text" name="{{ $prefix }}occupation"
                     class="form-control @error($prefix . 'occupation') is-invalid @enderror"
-                    placeholder="Enter occupation"
-                    value="{{ old($prefix . 'occupation', $detail?->occupation) }}">
+                    placeholder="Enter occupation" value="{{ old($prefix . 'occupation', $detail?->occupation) }}">
 
                 @error($prefix . 'occupation')
                     <div class="invalid-feedback">{{ $message }}</div>

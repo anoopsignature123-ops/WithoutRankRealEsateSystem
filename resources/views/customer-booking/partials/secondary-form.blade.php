@@ -28,8 +28,7 @@
                 <label class="form-label fw-semibold">Full Name</label>
                 <input type="text" name="secondary_name"
                     class="form-control @error('secondary_name') is-invalid @enderror"
-                    placeholder="Enter secondary applicant name"
-                    value="{{ old('secondary_name', $secondary?->name) }}">
+                    placeholder="Enter secondary applicant name" value="{{ old('secondary_name', $secondary?->name) }}">
 
                 @error('secondary_name')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -40,10 +39,14 @@
                 <label class="form-label fw-semibold">Relation Type</label>
                 <select name="secondary_title" class="form-select @error('secondary_title') is-invalid @enderror">
                     <option value="">Select relation</option>
-                    <option value="s/o" {{ old('secondary_title', $secondary?->title) == 's/o' ? 'selected' : '' }}>S/O</option>
-                    <option value="w/o" {{ old('secondary_title', $secondary?->title) == 'w/o' ? 'selected' : '' }}>W/O</option>
-                    <option value="d/o" {{ old('secondary_title', $secondary?->title) == 'd/o' ? 'selected' : '' }}>D/O</option>
-                    <option value="c/o" {{ old('secondary_title', $secondary?->title) == 'c/o' ? 'selected' : '' }}>C/O</option>
+                    <option value="s/o" {{ old('secondary_title', $secondary?->title) == 's/o' ? 'selected' : '' }}>
+                        S/O</option>
+                    <option value="w/o" {{ old('secondary_title', $secondary?->title) == 'w/o' ? 'selected' : '' }}>
+                        W/O</option>
+                    <option value="d/o" {{ old('secondary_title', $secondary?->title) == 'd/o' ? 'selected' : '' }}>
+                        D/O</option>
+                    <option value="c/o" {{ old('secondary_title', $secondary?->title) == 'c/o' ? 'selected' : '' }}>
+                        C/O</option>
                 </select>
 
                 @error('secondary_title')
@@ -78,8 +81,11 @@
                 <label class="form-label fw-semibold">Gender</label>
                 <select name="secondary_gender" class="form-select @error('secondary_gender') is-invalid @enderror">
                     <option value="">Select gender</option>
-                    <option value="male" {{ old('secondary_gender', $secondary?->gender) == 'male' ? 'selected' : '' }}>Male</option>
-                    <option value="female" {{ old('secondary_gender', $secondary?->gender) == 'female' ? 'selected' : '' }}>Female</option>
+                    <option value="male"
+                        {{ old('secondary_gender', $secondary?->gender) == 'male' ? 'selected' : '' }}>Male</option>
+                    <option value="female"
+                        {{ old('secondary_gender', $secondary?->gender) == 'female' ? 'selected' : '' }}>Female
+                    </option>
                 </select>
 
                 @error('secondary_gender')
@@ -90,8 +96,7 @@
             <div class="col-md-6">
                 <label class="form-label fw-semibold">Pin Code</label>
                 <input type="text" id="secondaryPin" name="secondary_pin_code"
-                    class="form-control @error('secondary_pin_code') is-invalid @enderror"
-                    placeholder="Enter pin code"
+                    class="form-control @error('secondary_pin_code') is-invalid @enderror" placeholder="Enter pin code"
                     value="{{ old('secondary_pin_code', $secondary?->pin_code) }}">
 
                 @error('secondary_pin_code')
@@ -99,29 +104,16 @@
                 @enderror
             </div>
 
-            <div class="col-md-6">
-                <label class="form-label fw-semibold">City</label>
-                <input type="text" id="secondaryCity" name="secondary_city"
-                    class="form-control @error('secondary_city') is-invalid @enderror"
-                    placeholder="Enter city"
-                    value="{{ old('secondary_city', $secondary?->city) }}">
+            @include('state-city', [
+                'states' => $states,
+                'stateId' => 'secondaryState',
+                'cityId' => 'secondaryCity',
+                'stateName' => 'secondary_state',
+                'cityName' => 'secondary_city',
+                'selectedState' => old('secondary_state', $secondary->state ?? ''),
+                'selectedCity' => old('secondary_city', $secondary->city ?? ''),
+            ])
 
-                @error('secondary_city')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label fw-semibold">State</label>
-                <input type="text" id="secondaryState" name="secondary_state"
-                    class="form-control @error('secondary_state') is-invalid @enderror"
-                    placeholder="Enter state"
-                    value="{{ old('secondary_state', $secondary?->state) }}">
-
-                @error('secondary_state')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
             <div class="col-md-12">
                 <label class="form-label fw-semibold">Permanent Address</label>
                 <textarea name="secondary_permanent_address" id="secondaryAddress" rows="3"

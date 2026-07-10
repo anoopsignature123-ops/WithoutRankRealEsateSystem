@@ -19,6 +19,10 @@ class DatabaseSeeder extends Seeder
             StateSeeder::class,
             CitySeeder::class,
         ]);
+        $this->call([
+            ProjectSeeder::class,
+            PlotMasterSeeder::class,
+        ]);
         Role::firstOrCreate(['name' => 'super-admin']);
         $user = User::firstOrCreate(
             ['email' => 'admin@gmail.com'],
