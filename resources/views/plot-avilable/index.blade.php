@@ -18,7 +18,7 @@
     <div class="container-fluid mt-4 transaction-page plot-availability-page">
         <div class="transaction-hero mb-4">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3">                                                                   
                     <span class="transaction-icon">
                         <i class="bi bi-grid-3x3-gap"></i>
                     </span>
@@ -66,8 +66,8 @@
                             <select name="project_id" class="form-select">
                                 <option value="">All Projects</option>
                                 @foreach ($projects as $p)
-                                    <option value="{{ $p->id }}" {{ request('project_id') == $p->id ? 'selected' : '' }}>
-                                        {{ $p->name }}
+                                    <option value="{{ $p->id }}"
+                                        {{ request('project_id') == $p->id ? 'selected' : '' }}> {{ $p->name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -78,8 +78,8 @@
                             <select name="block_id" class="form-select">
                                 <option value="">All Blocks</option>
                                 @foreach ($blocks as $b)
-                                    <option value="{{ $b->id }}" {{ request('block_id') == $b->id ? 'selected' : '' }}>
-                                        {{ $b->block }}
+                                    <option value="{{ $b->id }}"
+                                        {{ request('block_id') == $b->id ? 'selected' : '' }}> {{ $b->block }}
                                     </option>
                                 @endforeach
                             </select>
@@ -90,11 +90,9 @@
                             <input type="text" name="plot_number" value="{{ request('plot_number') }}"
                                 placeholder="Example: B-12" class="form-control">
                         </div>
-
                         <div class="col-lg-3 col-md-6">
                             <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-success flex-fill">
-                                    <i class="bi bi-search me-1"></i>
+                                <button type="submit" class="btn btn-success flex-fill"><i class="bi bi-search me-1"></i>
                                     Search
                                 </button>
                                 <a href="{{ route('plot-availability.index') }}" class="btn btn-outline-secondary flex-fill">
@@ -110,15 +108,12 @@
         <div class="transaction-card mb-4">
             <div class="transaction-history-head">
                 <div class="d-flex align-items-center gap-3">
-                    <span class="transaction-section-title-icon">
-                        <i class="bi bi-map"></i>
-                    </span>
+                    <span class="transaction-section-title-icon"><i class="bi bi-map"></i></span>
                     <div>
                         <h5 class="fw-bold mb-1">Plot Inventory</h5>
                         <small class="text-muted">Hover any plot to view quick details.</small>
                     </div>
                 </div>
-
                 <div class="plot-legend">
                     @foreach ($legendItems as $item)
                         <span><i class="plot-status-dot plot-status-{{ $item['class'] }}"></i>{{ $item['label'] }}</span>
@@ -138,22 +133,28 @@
                                 'Registry Plot' => 'registry',
                             ];
                             $style = $map[$plot->current_status] ?? 'unknown';
-                            $popContent = 'Project: '.($plot->project?->name ?? '-')
-                                .'<br>Block: '.($plot->block?->block ?? '-')
-                                .'<br>Area: '.($plot->plot_area ?? 0).' Sqft'
-                                .'<br>Rate: Rs. '.number_format((float) ($plot->plot_rate ?? 0), 2);
+                            $popContent =
+                                'Project: ' .
+                                ($plot->project?->name ?? '-') .
+                                '<br>Block: ' .
+                                ($plot->block?->block ?? '-') .
+                                '<br>Area: ' .
+                                ($plot->plot_area ?? 0) .
+                                ' Sqft' .
+                                '<br>Rate: Rs. ' .
+                                number_format((float) ($plot->plot_rate ?? 0), 2);
                         @endphp
 
-                        <button type="button" class="plot-box plot-box-{{ $style }}"
-                            data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-html="true"
-                            title="Plot #{{ $plot->plot_number }}" data-bs-content="{{ $popContent }}">
+                        <button type="button" class="plot-box plot-box-{{ $style }}" data-bs-toggle="popover"
+                            data-bs-trigger="hover focus" data-bs-placement="top" data-bs-html="true"
+                            data-bs-custom-class="plot-popover" title="Plot #{{ $plot->plot_number }}"
+                            data-bs-content="{{ $popContent }}">
                             <span class="plot-number">#{{ $plot->plot_number }}</span>
-                            <span class="plot-area">{{ $plot->plot_area ?? 0 }} Sqft</span>
+                            <span class="plot-area"> {{ $plot->plot_area ?? 0 }} Sqft </span>
                             <span class="plot-status-label">{{ str_replace(' Plot', '', $plot->current_status) }}</span>
                         </button>
                     @empty
-                        <div class="plot-empty-state">
-                            <i class="bi bi-map fs-1 d-block mb-2 text-muted"></i>
+                        <div class="plot-empty-state"><i class="bi bi-map fs-1 d-block mb-2 text-muted"></i>
                             No plots found for selected filters.
                         </div>
                     @endforelse

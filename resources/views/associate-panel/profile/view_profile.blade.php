@@ -185,10 +185,10 @@
                         </div>
                         <div class="customer-receipt-line">
                             <span>Address</span><strong>{{ $associate->address ?? '-' }}</strong></div>
-                        <div class="customer-receipt-line"><span>City</span><strong>{{ $associate->city ?? '-' }}</strong>
+                        <div class="customer-receipt-line"><span>City</span><strong>{{ $associate->cityName?->city ?? $associate->city ?? '-' }}</strong>
                         </div>
                         <div class="customer-receipt-line">
-                            <span>State</span><strong>{{ $associate->state ?? '-' }}</strong></div>
+                            <span>State</span><strong>{{ $associate->stateName?->state ?? $associate->state ?? '-' }}</strong></div>
                         <div class="customer-receipt-line"><span>PAN Card
                                 No</span><strong>{{ $associate->pancard_number ?? '-' }}</strong></div>
                         <div class="customer-receipt-line"><span>Aadhaar

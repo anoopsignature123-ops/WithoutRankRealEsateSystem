@@ -95,7 +95,7 @@
         </tr>
         <tr>
             <td class="label">ADDRESS</td>
-            <td colspan="3">{{ $associate->address }}, {{ $associate->city }}, {{ $associate->state }}</td>
+            <td colspan="3">{{ $associate->address }}, {{ $associate->cityName?->city ?? $associate->city }}, {{ $associate->stateName?->state ?? $associate->state }}</td>
         </tr>
     </table>
 

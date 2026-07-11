@@ -4,10 +4,6 @@
     Associate Panel | My Tree
 @endpush
 
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('assets/css/associate-tree.css') }}">
-@endpush
-
 @php
     $buildTreeData = function ($associate, $isRoot = false) use (&$buildTreeData) {
         if (!$associate) {

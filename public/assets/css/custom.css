@@ -5534,6 +5534,80 @@
     text-align: center;
 }
 
+
+.plot-popover {
+    --bs-popover-max-width: 320px;
+
+    width: 260px;
+    max-width: 260px;
+    overflow: hidden;
+
+    background: #ffffff;
+    border: 1px solid #dbe5df;
+    border-radius: 14px;
+    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.18);
+}
+
+.plot-popover .popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-height: 44px;
+    margin: 0;
+    padding: 11px 15px;
+
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+
+    background: linear-gradient(
+        135deg,
+        #169447 0%,
+        #22c55e 100%
+    );
+
+    border: 0;
+}
+
+.plot-popover .popover-header::before {
+    content: "\F47F";
+    font-family: "bootstrap-icons";
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.plot-popover .popover-body {
+    padding: 13px 16px;
+
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 2;
+
+    background: #ffffff;
+}
+
+.plot-popover.bs-popover-top .popover-arrow::after {
+    border-top-color: #ffffff;
+}
+
+.plot-popover.bs-popover-bottom .popover-arrow::after {
+    border-bottom-color: #169447;
+}
+
+.plot-popover.bs-popover-start .popover-arrow::after {
+    border-left-color: #ffffff;
+}
+
+.plot-popover.bs-popover-end .popover-arrow::after {
+    border-right-color: #ffffff;
+}
+
 .generate-emi-page .transaction-table {
     min-width: 1180px;
 }

@@ -26,6 +26,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/associate-tree.css') }}">
     @stack('styles')
 </head>
 
@@ -39,12 +40,18 @@
 
         </main>
         <footer class="app-footer">
-            <div class="float-end d-none d-sm-inline">Anything you want</div>
-            <strong>
+            <div class="float-end d-none d-sm-inline">
+                <strong class=" text-success">
+                    Copyright &copy; 2026&nbsp;
+                    <a href="https://adminlte.io" class="text-decoration-none">Signature</a>.
+                </strong>
+                <span class=" text-success">All rights reserved.</span>
+            </div>
+            {{-- <strong>
                 Copyright &copy; 2026&nbsp;
                 <a href="https://adminlte.io" class="text-decoration-none">Signature</a>.
             </strong>
-            All rights reserved.
+            All rights reserved. --}}
         </footer>
     </div>
 </body>

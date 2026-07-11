@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 
 class Associate extends Authenticatable
@@ -62,6 +63,16 @@ class Associate extends Authenticatable
     public function bankDetail()
     {
         return $this->hasOne(BankDetail::class, 'associate_id', 'id');
+    }
+
+    public function stateName(): BelongsTo
+    {
+        return $this->belongsTo(State::class, 'state', 'id_state');
+    }
+
+    public function cityName(): BelongsTo
+    {
+        return $this->belongsTo(City::class, 'city', 'city');
     }
 
     public function children()

@@ -4,10 +4,6 @@
     Associate Tree
 @endpush
 
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('assets/css/associate-tree.css') }}">
-@endpush
-
 @php
     /*
     |--------------------------------------------------------------------------
@@ -163,7 +159,7 @@
             <div class="tree-card-head">
                 <div>
                     <h5 class="fw-bold mb-1" id="treeChartTitle">Network Chart</h5>
-                    <small class="text-muted" id="treeFilterStatus">
+                    <small class="text-muted fs-7" id="treeFilterStatus">
                         Drag to move the chart and hover over a node for details.
                     </small>
                 </div>

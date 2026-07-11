@@ -298,7 +298,7 @@
 
                                     <div class="customer-receipt-line">
                                         <span>City / State</span>
-                                        <strong>{{ trim(($item->city ?? '-') . ' / ' . ($item->state ?? '-')) }}</strong>
+                                        <strong>{{ trim(($item->cityName?->city ?? $item->city ?? '-') . ' / ' . ($item->stateName?->state ?? $item->state ?? '-')) }}</strong>
                                     </div>
                                 </div>
                             </div>

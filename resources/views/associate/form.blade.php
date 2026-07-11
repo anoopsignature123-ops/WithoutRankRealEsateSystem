@@ -126,7 +126,7 @@
                     @enderror
                 </div>
                   {{-- Mobile --}}
-                <div class="col-md-6 mb-3 mt-3">
+                <div class="col-md-6 mb-3 mt-2">
                     <label class="mb-2">Mobile Number <span class="text-danger">*</span></label>
                     <input type="text" name="mobile_number"
                         value="{{ old('mobile_number', $associate->mobile_number ?? '') }}" class="form-control"
@@ -136,7 +136,7 @@
                     @enderror
                 </div>
                 {{-- Email --}}
-                <div class="col-md-6 mb-3 mt-3">
+                <div class="col-md-6 mb-3 mt-2">
                     <label class="mb-2">Email</label>
                     <input type="email" name="email" value="{{ old('email', $associate->email ?? '') }}"
                         class="form-control" placeholder="Enter Email">

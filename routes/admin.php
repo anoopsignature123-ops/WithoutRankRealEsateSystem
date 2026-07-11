@@ -395,8 +395,6 @@ Route::middleware(['auth', 'module.permission'])->group(function () {
     Route::resource('brokers', BrokerController::class);
     Route::resource('farmers', FarmerController::class);
 
-    Route::get('/get-cities/{stateId}', [FarmerController::class, 'getCities'])->name('get.cities');
-
     Route::controller(PlotTransferController::class)->group(function () {
         Route::get('plot-transfer', 'index')->name('plot-transfer.index');
         Route::post('plot-transfer', 'store')->name('plot-transfer.store');

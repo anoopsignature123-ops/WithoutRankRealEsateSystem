@@ -24,7 +24,7 @@ class AssociateProfileSevice
             'aadhar_number' => $data['aadhar_number'],
             'address' => $data['address'],
             'city' => $data['city'],
-            'state' => ucfirst($data['state']),
+            'state' => $data['state'],
             'photo' => $photo,
             'id_proof_photo' => $idProof,
             'pancard_photo' => $panCardPhoto,

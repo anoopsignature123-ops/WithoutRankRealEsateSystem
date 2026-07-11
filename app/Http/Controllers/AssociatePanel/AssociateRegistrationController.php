@@ -7,6 +7,7 @@ use App\Http\Requests\AssociateRequest;
 use App\Models\Associate;
 use App\Services\Associate\AssociateRegistrationService;
 use App\Services\ExcelExportService;
+use App\Services\LocationService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,10 @@ class AssociateRegistrationController extends Controller
 {
     protected $associateService;
 
-    public function __construct(AssociateRegistrationService $associateService)
+    public function __construct(
+        AssociateRegistrationService $associateService,
+        protected LocationService $locationService
+    )
     {
         $this->associateService = $associateService;
     }
@@ -32,6 +36,7 @@ class AssociateRegistrationController extends Controller
     {
         $data = $this->associateService->createData();
         $data['loggedInAssociate'] = auth()->user();
+        $data['states'] = $this->locationService->getStates();
 
         return view('associate-panel.registration.create', $data);
     }
@@ -49,6 +54,7 @@ class AssociateRegistrationController extends Controller
     {
         $data = $this->associateService->editData($id);
         $data['loggedInAssociate'] = auth()->user();
+        $data['states'] = $this->locationService->getStates();
 
         return view('associate-panel.registration.edit', $data);
     }

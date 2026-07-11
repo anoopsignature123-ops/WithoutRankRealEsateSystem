@@ -7,6 +7,7 @@ use App\Http\Requests\Associate\AssociateProfileRequest;
 use App\Http\Requests\Associate\ChangePasswordRequest;
 use App\Models\Company;
 use App\Services\Associate\AssociateProfileSevice;
+use App\Services\LocationService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,10 @@ class AssociateProfileController extends Controller
 {
     protected $profileService;
 
-    public function __construct(AssociateProfileSevice $profileService)
+    public function __construct(
+        AssociateProfileSevice $profileService,
+        protected LocationService $locationService
+    )
     {
         $this->profileService = $profileService;
     }
@@ -30,8 +34,9 @@ class AssociateProfileController extends Controller
     public function editProfile(Request $request)
     {
         $associate = auth()->guard('associate')->user()->load(['sponsor', 'rank', 'bankDetail']);
+        $states = $this->locationService->getStates();
 
-        return view('associate-panel.profile.edit_profile', compact('associate'));
+        return view('associate-panel.profile.edit_profile', compact('associate', 'states'));
     }
 
     public function updateProfile(AssociateProfileRequest $request)

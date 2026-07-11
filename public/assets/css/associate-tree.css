@@ -195,18 +195,7 @@
     overflow: auto;
     padding: 22px;
     cursor: grab;
-    background:
-        linear-gradient(
-            rgba(148, 163, 184, 0.12) 1px,
-            transparent 1px
-        ),
-        linear-gradient(
-            90deg,
-            rgba(148, 163, 184, 0.12) 1px,
-            transparent 1px
-        ),
-        #f8fafc;
-    background-size: 22px 22px;
+    background: #f8fafc;
 }
 
 .compact-tree-scroll.is-dragging {

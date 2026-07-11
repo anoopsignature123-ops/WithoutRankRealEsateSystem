@@ -281,7 +281,7 @@ class TeamController extends Controller
             default => 'My All Direct Associates',
         };
 
-        $query = Associate::with(['sponsor'])
+        $query = Associate::with(['sponsor', 'stateName', 'cityName'])
             ->where('sponsor_id', $user->associate_id);
 
         $query = $this->applyFilters($query, $request);
@@ -299,7 +299,7 @@ class TeamController extends Controller
             'right' => 'My Right Team',
             default => 'My All Team',
         };
-        $query = Associate::with(['sponsor'])
+        $query = Associate::with(['sponsor', 'stateName', 'cityName'])
             ->where('under_place_id', $user->associate_id);
         $query = $this->applyFilters($query, $request);
         $associates = $query->latest()->get();

@@ -51,6 +51,7 @@
         $(function() {
             const $stateSelect = $('#{{ $stateId }}');
             const $citySelect = $('#{{ $cityId }}');
+            const cityEndpointBase = "{{ url('/get-cities') }}";
 
             const selectedState = "{{ $selectedState ?? '' }}";
             const selectedCity = "{{ $selectedCity ?? '' }}";
@@ -61,7 +62,7 @@
                     return;
                 }
 
-                $.get(`/get-cities/${stateId}`, function(response) {
+                $.get(`${cityEndpointBase}/${stateId}`, function(response) {
                     let options = '<option value="">Select City</option>';
 
                     response.forEach(city => {

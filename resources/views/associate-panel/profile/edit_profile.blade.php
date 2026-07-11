@@ -194,24 +194,15 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">City <span class="text-danger">*</span></label>
-                                    <input type="text" name="city" class="form-control @error('city') is-invalid @enderror"
-                                        placeholder="Enter city"
-                                        value="{{ old('city', $associate->city) }}">
-                                    @error('city')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">State <span class="text-danger">*</span></label>
-                                    <input type="text" name="state" class="form-control @error('state') is-invalid @enderror"
-                                        placeholder="Enter state"
-                                        value="{{ old('state', $associate->state) }}">
-                                    @error('state')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                @include('state-city', [
+                                    'states' => $states,
+                                    'stateId' => 'associateProfileState',
+                                    'cityId' => 'associateProfileCity',
+                                    'stateName' => 'state',
+                                    'cityName' => 'city',
+                                    'selectedState' => old('state', $associate->state),
+                                    'selectedCity' => old('city', $associate->city),
+                                ])
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Mobile <span class="text-danger">*</span></label>
                                     <input type="text" name="mobile_number" class="form-control @error('mobile_number') is-invalid @enderror"

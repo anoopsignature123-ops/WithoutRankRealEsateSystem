@@ -11,7 +11,7 @@
     <meta charset="UTF-8">
     <title>{{ $errorCode }} | Real Estate CRM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/admin.png') }}">
     <style>
         :root {
             --primary: #16a34a;
