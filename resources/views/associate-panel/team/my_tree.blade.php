@@ -197,4 +197,4 @@
     </div>
 @endsection
 
-@include('associate-tree.node')
+@include('treeScript')
